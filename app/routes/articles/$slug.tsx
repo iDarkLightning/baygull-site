@@ -32,9 +32,10 @@ function RouteComponent() {
         <p className="py-4 text-lg text-neutral-700">{article.description}</p>
         <div className="flex items-center gap-3">
           <div className="flex items-center group">
-            {article.users.map(({ user }: any) => (
+            {article.users.map(({ user }) => (
               <img
-                src={user.image}
+                key={user.id}
+                src={user.image || ""}
                 width="48"
                 height="48"
                 className="rounded-full"
