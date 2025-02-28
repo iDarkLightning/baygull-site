@@ -13,9 +13,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@libsql/client": "^0.14.0",
     "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-router": "^1.111.7",
     "@tanstack/react-start": "^1.111.10",
+    "better-auth": "^1.1.21",
+    "dotenv": "^16.4.7",
+    "drizzle-orm": "^0.40.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwindcss": "^4.0.9",
@@ -25,6 +29,7 @@
     "@types/react": "^19.0.10",
     "@types/react-dom": "^19.0.4",
     "@vitejs/plugin-react": "^4.3.4",
+    "drizzle-kit": "^0.30.5",
     "typescript": "^5.7.3",
     "vite-tsconfig-paths": "^5.1.4"
   }
