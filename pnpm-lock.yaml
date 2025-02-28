@@ -11,9 +11,15 @@ dependencies:
   '@tailwindcss/vite':
     specifier: ^4.0.9
     version: 4.0.9(vite@6.2.0)
+  '@tanstack/react-query':
+    specifier: ^5.66.11
+    version: 5.66.11(react@19.0.0)
   '@tanstack/react-router':
     specifier: ^1.111.7
     version: 1.111.7(react-dom@19.0.0)(react@19.0.0)
+  '@tanstack/react-router-with-query':
+    specifier: ^1.112.0
+    version: 1.112.0(@tanstack/react-query@5.66.11)(@tanstack/react-router@1.111.7)(react-dom@19.0.0)(react@19.0.0)
   '@tanstack/react-start':
     specifier: ^1.111.10
     version: 1.111.10(@libsql/client@0.14.0)(drizzle-orm@0.40.0)(react-dom@19.0.0)(react@19.0.0)(typescript@5.7.3)(vite@6.2.0)
@@ -26,12 +32,18 @@ dependencies:
   drizzle-orm:
     specifier: ^0.40.0
     version: 0.40.0(@libsql/client@0.14.0)
+  framer-motion:
+    specifier: ^12.4.7
+    version: 12.4.7(react-dom@19.0.0)(react@19.0.0)
   react:
     specifier: ^19.0.0
     version: 19.0.0
   react-dom:
     specifier: ^19.0.0
     version: 19.0.0(react@19.0.0)
+  react-intersection-observer:
+    specifier: ^9.15.1
+    version: 9.15.1(react-dom@19.0.0)(react@19.0.0)
   tailwindcss:
     specifier: ^4.0.9
     version: 4.0.9
@@ -2261,6 +2273,34 @@ packages:
     engines: {node: '>=12'}
     dev: false
 
+  /@tanstack/query-core@5.66.11:
+    resolution: {integrity: sha512-ZEYxgHUcohj3sHkbRaw0gYwFxjY5O6M3IXOYXEun7E1rqNhsP8fOtqjJTKPZpVHcdIdrmX4lzZctT4+pts0OgA==}
+    dev: false
+
+  /@tanstack/react-query@5.66.11(react@19.0.0):
+    resolution: {integrity: sha512-uPDiQbZScWkAeihmZ9gAm3wOBA1TmLB1KCB1fJ1hIiEKq3dTT+ja/aYM7wGUD+XiEsY4sDSE7p8VIz/21L2Dow==}
+    peerDependencies:
+      react: ^18 || ^19
+    dependencies:
+      '@tanstack/query-core': 5.66.11
+      react: 19.0.0
+    dev: false
+
+  /@tanstack/react-router-with-query@1.112.0(@tanstack/react-query@5.66.11)(@tanstack/react-router@1.111.7)(react-dom@19.0.0)(react@19.0.0):
+    resolution: {integrity: sha512-aSAZDuCXDk3y/YD/LCG7Saa8BGYYDdNX7lXzwQk7gQdcZuoGrqwZRzcIrXpif8xRcJyVqKkRu65JjECbdgrISg==}
+    engines: {node: '>=12'}
+    peerDependencies:
+      '@tanstack/react-query': '>=5.49.2'
+      '@tanstack/react-router': '>=1.43.2'
+      react: '>=18.0.0 || >=19.0.0'
+      react-dom: '>=18.0.0 || >=19.0.0'
+    dependencies:
+      '@tanstack/react-query': 5.66.11(react@19.0.0)
+      '@tanstack/react-router': 1.111.7(react-dom@19.0.0)(react@19.0.0)
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+    dev: false
+
   /@tanstack/react-router@1.111.7(react-dom@19.0.0)(react@19.0.0):
     resolution: {integrity: sha512-/hOWy7lPmVfRqbwIy2d9mvVLA6ZC4tbcgLDdMXCNRN93LMsGEHCTrgFADdSL2f/rvhPyHeYxsFazEo9+ktgUiw==}
     engines: {node: '>=12'}
@@ -4234,6 +4274,27 @@ packages:
       fetch-blob: 3.2.0
     dev: false
 
+  /framer-motion@12.4.7(react-dom@19.0.0)(react@19.0.0):
+    resolution: {integrity: sha512-VhrcbtcAMXfxlrjeHPpWVu2+mkcoR31e02aNSR7OUS/hZAciKa8q6o3YN2mA1h+jjscRsSyKvX6E1CiY/7OLMw==}
+    peerDependencies:
+      '@emotion/is-prop-valid': '*'
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@emotion/is-prop-valid':
+        optional: true
+      react:
+        optional: true
+      react-dom:
+        optional: true
+    dependencies:
+      motion-dom: 12.4.5
+      motion-utils: 12.0.0
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
+      tslib: 2.8.1
+    dev: false
+
   /fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
     engines: {node: '>= 0.6'}
@@ -5028,6 +5089,16 @@ packages:
       ufo: 1.5.4
     dev: false
 
+  /motion-dom@12.4.5:
+    resolution: {integrity: sha512-Q2xmhuyYug1CGTo0jdsL05EQ4RhIYXlggFS/yPhQQRNzbrhjKQ1tbjThx5Plv68aX31LsUQRq4uIkuDxdO5vRQ==}
+    dependencies:
+      motion-utils: 12.0.0
+    dev: false
+
+  /motion-utils@12.0.0:
+    resolution: {integrity: sha512-MNFiBKbbqnmvOjkPyOKgHUp3Q6oiokLkI1bEwm5QA28cxMZrv0CbbBGDNmhF6DIXsi1pCQBSs0dX8xjeER1tmA==}
+    dev: false
+
   /ms@2.0.0:
     resolution: {integrity: sha512-Tpp60P6IUJDTuOq/5Z8cdskzJujfwqfOTkrwIwj7IRISpnkJnT6SyJ4PCPnGMoFjC9ddhal5KVIYtAt97ix05A==}
     dev: false
@@ -5460,6 +5531,19 @@ packages:
     dependencies:
       react: 19.0.0
       scheduler: 0.25.0
+    dev: false
+
+  /react-intersection-observer@9.15.1(react-dom@19.0.0)(react@19.0.0):
+    resolution: {integrity: sha512-vGrqYEVWXfH+AGu241uzfUpNK4HAdhCkSAyFdkMb9VWWXs6mxzBLpWCxEy9YcnDNY2g9eO6z7qUtTBdA9hc8pA==}
+    peerDependencies:
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
+      react-dom: ^17.0.0 || ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      react-dom:
+        optional: true
+    dependencies:
+      react: 19.0.0
+      react-dom: 19.0.0(react@19.0.0)
     dev: false
 
   /react-refresh@0.14.2:

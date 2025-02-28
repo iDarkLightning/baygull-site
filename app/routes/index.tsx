@@ -1,28 +1,19 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { createServerFn } from "@tanstack/react-start";
-import { authClient } from "~/lib/auth-client";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { Header } from "~/components/nav";
+import { getUserQuery } from "~/lib/api/auth-api";
 
 export const Route = createFileRoute("/")({
   component: Home,
 });
 
 function Home() {
-  const router = useRouter();
-
-  const session = authClient.useSession();
+  const userQuery = useSuspenseQuery(getUserQuery());
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={async () => {
-          const data = await authClient.signIn.social({ provider: "google" });
-          console.log(data);
-        }}
-      >
-        Sign in
-      </button>
-      <p>{JSON.stringify(session)}</p>
+      <Header />
+      <p>{JSON.stringify(userQuery.data)}</p>
     </div>
   );
 }

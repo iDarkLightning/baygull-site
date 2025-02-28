@@ -5,33 +5,43 @@ import {
   createRootRoute,
   HeadContent,
   Scripts,
+  createRootRouteWithContext,
 } from "@tanstack/react-router";
 
 import globalCss from "../styles/global.css?url";
+import { QueryClient } from "@tanstack/react-query";
+import { getUserQuery } from "~/lib/api/auth-api";
 
-export const Route = createRootRoute({
-  head: () => ({
-    meta: [
-      {
-        charSet: "utf-8",
-      },
-      {
-        name: "viewport",
-        content: "width=device-width, initial-scale=1",
-      },
-      {
-        title: "TanStack Start Starter",
-      },
-    ],
-    links: [
-      {
-        rel: "stylesheet",
-        href: globalCss,
-      },
-    ],
-  }),
-  component: RootComponent,
-});
+export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
+  {
+    head: () => ({
+      meta: [
+        {
+          charSet: "utf-8",
+        },
+        {
+          name: "viewport",
+          content: "width=device-width, initial-scale=1",
+        },
+        {
+          title: "TanStack Start Starter",
+        },
+      ],
+      links: [
+        {
+          rel: "stylesheet",
+          href: globalCss,
+        },
+      ],
+    }),
+    beforeLoad: async ({ context }) => {
+      const user = await context.queryClient.ensureQueryData(getUserQuery());
+
+      return { user };
+    },
+    component: RootComponent,
+  }
+);
 
 function RootComponent() {
   return (
