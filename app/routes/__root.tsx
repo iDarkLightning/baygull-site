@@ -8,9 +8,9 @@ import {
   createRootRouteWithContext,
 } from "@tanstack/react-router";
 
-import globalCss from "../styles/global.css?url";
+import globalCss from "~/styles/global.css?url";
 import { QueryClient } from "@tanstack/react-query";
-import { getUserQuery } from "~/lib/api/auth-api";
+import { getUserQuery } from "~/lib/auth/auth-api";
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   {
@@ -31,6 +31,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         {
           rel: "stylesheet",
           href: globalCss,
+        },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..900&display=swap",
         },
       ],
     }),

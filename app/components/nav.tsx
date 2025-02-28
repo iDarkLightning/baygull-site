@@ -3,7 +3,7 @@ import { useInView } from "react-intersection-observer";
 import { AnimatePresence, motion } from "framer-motion";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { getUserQuery, useSignIn, useSignOut } from "~/lib/api/auth-api";
+import { getUserQuery, useSignIn, useSignOut } from "~/lib/auth/auth-api";
 
 const Account = () => {
   const userQuery = useSuspenseQuery(getUserQuery());

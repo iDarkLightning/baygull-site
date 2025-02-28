@@ -4,8 +4,8 @@ import {
   useQueryClient,
   type UseMutationOptions,
 } from "@tanstack/react-query";
-import { getUser } from "../server/auth-fns";
-import { authClient } from "../auth-client";
+import { getUser } from "./auth-fns";
+import { authClient } from "./auth-client";
 
 export const getUserQuery = () =>
   queryOptions({
