@@ -14,6 +14,7 @@
   "license": "ISC",
   "dependencies": {
     "@libsql/client": "^0.14.0",
+    "@paralleldrive/cuid2": "^2.2.2",
     "@tailwindcss/vite": "^4.0.9",
     "@tanstack/react-query": "^5.66.11",
     "@tanstack/react-router": "^1.111.7",
