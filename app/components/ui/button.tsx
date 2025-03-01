@@ -22,9 +22,9 @@ export const button = cva(
     variants: {
       variant: {
         primary:
-          "bg-primary border-primary-50 border-opacity-20 hover:bg-primary-400 disabled:hover:bg-primary",
-        secondary:
           "bg-neutral-800 hover:bg-neutral-800/85 text-white disabled:hover:bg-neutral-300",
+        secondary:
+          "bg-neutral-200 border-neutral-400/60 hover:bg-neutral-300/70",
         ghost:
           "border-transparent hover:bg-neutral-400 disabled:hover:bg-transparent",
         danger:
@@ -44,7 +44,7 @@ export const button = cva(
       },
     },
     defaultVariants: {
-      variant: "secondary",
+      variant: "primary",
       size: "base",
       fullWidth: false,
     },
