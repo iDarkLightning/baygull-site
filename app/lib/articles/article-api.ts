@@ -12,3 +12,39 @@ export const getAllArticlesQuery = () =>
     queryKey: ["article-get-all"],
     queryFn: getAllArticles,
   });
+
+export const getHomePageArticlesQuery = () =>
+  queryOptions({
+    queryKey: ["articles-get-homepage"],
+    queryFn: async () => {
+      const [article] = await getAllArticles();
+
+      const articles = [
+        article,
+        article,
+        article,
+        { ...article, isHighlighted: false },
+        article,
+        { ...article, isHighlighted: false },
+        article,
+        { ...article, isHighlighted: false },
+      ];
+
+      if (articles.length === 0) {
+        return {
+          latest: null,
+          highlights: [],
+          recent: [],
+        };
+      }
+
+      return {
+        latest: articles[0],
+        highlights: articles.slice(1).filter((a) => a.isHighlighted),
+        recent: articles
+          .slice(1)
+          .filter((a) => !a.isHighlighted)
+          .slice(0, Math.min(8, articles.length)),
+      };
+    },
+  });
