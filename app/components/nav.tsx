@@ -22,9 +22,9 @@ const NavLinks = () => {
     <nav>
       <ul className="flex gap-4">
         <li>
-          <a href="/articles" className="hover:text-sky-600">
+          <Link to="/articles" className="hover:text-sky-600">
             Articles
-          </a>
+          </Link>
         </li>
         {/* <li>
           <a href="/people" className="hover:text-sky-600">
