@@ -12,6 +12,7 @@ import { create } from "zustand";
 import { string, z } from "zod";
 import { useZodForm } from "~/lib/hooks/use-zod-form";
 import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
+import { UploadButton } from "~/lib/uploadthing/client";
 
 type TArticleSubmissionFormStore = {
   // Step Controls
@@ -124,6 +125,8 @@ function InitialInfoForm() {
         >
           Next
         </Button>
+
+        <UploadButton endpoint="imageUploader" />
       </div>
     </form>
   );
