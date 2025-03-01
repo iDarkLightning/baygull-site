@@ -18,6 +18,7 @@ export const ArticleSpotlight: React.FC<ArticleSpotlightProps> = (props) => (
           alt={`${props.article.title}-Cover Image`}
           width="128"
           className="w-full aspect-[16/10] object-scale-down rounded-sm"
+          referrerPolicy="no-referrer"
         />
       </div>
     )}

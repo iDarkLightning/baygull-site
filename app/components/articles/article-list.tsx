@@ -34,6 +34,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
                 width="128"
                 height="128"
                 className="rounded-sm w-32 h-24 aspect-video float-right ml-3 object-scale-down"
+                referrerPolicy="no-referrer"
               />
             )}
             <p className="text-xl font-semibold group-hover:underline group-hover:text-sky-600 text-balance">

@@ -26,6 +26,7 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
                   width="512"
                   height=""
                   className="w-64 md:w-96 lg:w-full rounded-sm float-right lg:float-none ml-4 lg:ml-0 lg:mb-4"
+                  referrerPolicy="no-referrer"
                 />
               )}
               <p className="text-xl font-semibold group-hover:underline group-hover:text-sky-600">
