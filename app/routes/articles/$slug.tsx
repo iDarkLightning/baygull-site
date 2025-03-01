@@ -19,8 +19,6 @@ function RouteComponent() {
     getArticleBySlugQuery(params.slug)
   );
 
-  console.log(article);
-
   return (
     <>
       <CollapsedHeader />
@@ -58,6 +56,7 @@ function RouteComponent() {
             width="1600"
             height="768"
             className="my-4"
+            referrerPolicy="no-referrer"
           />
         )}
         <div className="flex items-center justify-between mt-4">
@@ -72,12 +71,12 @@ function RouteComponent() {
             ))}
           </div>
           <p className="text-neutral-600">
-            {/* {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(
-              article.publishedAt
-            )} */}
+            {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(
+              new Date(article.publishedAt)
+            )}
           </p>
         </div>
-        <hr className="my-4" />
+        <hr className="my-4 text-neutral-300" />
         <div
           className="flex flex-col gap-4 text-lg leading-relaxed text-[#363636] pb-8 break-words ![&>img]:w-full parent"
           dangerouslySetInnerHTML={{ __html: article.content }}

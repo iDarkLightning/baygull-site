@@ -43,6 +43,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
       return { user };
     },
+    errorComponent: () => <p>Oh noes! An error! Run!!</p>,
     component: RootComponent,
   }
 );
@@ -57,11 +58,11 @@ function RootComponent() {
 
 function RootDocument({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         {children}
         <Scripts />
       </body>
