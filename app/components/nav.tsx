@@ -69,7 +69,7 @@ export const CollapsedHeader = () => {
   return (
     <motion.header
       key="collapsed-header"
-      className="fixed top-0 w-full border-b border-neutral-200 bg-white shadow-md"
+      className="fixed top-0 w-full border-b border-neutral-700 bg-neutral-800 text-white shadow-md"
       initial={{ y: -20 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}

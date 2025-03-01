@@ -13,6 +13,7 @@
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
 import { Route as ArticlesIndexImport } from './routes/articles/index'
+import { Route as ArticlesSubmitImport } from './routes/articles/submit'
 import { Route as ArticlesSlugImport } from './routes/articles/$slug'
 
 // Create/Update Routes
@@ -26,6 +27,12 @@ const IndexRoute = IndexImport.update({
 const ArticlesIndexRoute = ArticlesIndexImport.update({
   id: '/articles/',
   path: '/articles/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ArticlesSubmitRoute = ArticlesSubmitImport.update({
+  id: '/articles/submit',
+  path: '/articles/submit',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -53,6 +60,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesSlugImport
       parentRoute: typeof rootRoute
     }
+    '/articles/submit': {
+      id: '/articles/submit'
+      path: '/articles/submit'
+      fullPath: '/articles/submit'
+      preLoaderRoute: typeof ArticlesSubmitImport
+      parentRoute: typeof rootRoute
+    }
     '/articles/': {
       id: '/articles/'
       path: '/articles'
@@ -68,12 +82,14 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
 }
 
@@ -81,27 +97,30 @@ export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/articles/$slug': typeof ArticlesSlugRoute
+  '/articles/submit': typeof ArticlesSubmitRoute
   '/articles/': typeof ArticlesIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/articles/$slug' | '/articles'
+  fullPaths: '/' | '/articles/$slug' | '/articles/submit' | '/articles'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles/$slug' | '/articles'
-  id: '__root__' | '/' | '/articles/$slug' | '/articles/'
+  to: '/' | '/articles/$slug' | '/articles/submit' | '/articles'
+  id: '__root__' | '/' | '/articles/$slug' | '/articles/submit' | '/articles/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
+  ArticlesSubmitRoute: typeof ArticlesSubmitRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
+  ArticlesSubmitRoute: ArticlesSubmitRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
 }
 
@@ -117,6 +136,7 @@ export const routeTree = rootRoute
       "children": [
         "/",
         "/articles/$slug",
+        "/articles/submit",
         "/articles/"
       ]
     },
@@ -125,6 +145,9 @@ export const routeTree = rootRoute
     },
     "/articles/$slug": {
       "filePath": "articles/$slug.tsx"
+    },
+    "/articles/submit": {
+      "filePath": "articles/submit.tsx"
     },
     "/articles/": {
       "filePath": "articles/index.tsx"
