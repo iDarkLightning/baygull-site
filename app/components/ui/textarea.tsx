@@ -10,7 +10,7 @@ import {
 const textArea = cva(
   [
     "rounded-sm bg-neutral-50 border-[0.0125rem] border-neutral-300/70 hover:bg-neutral-100/80 placeholder:text-neutral-50 placeholder:text-xs",
-    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800 focus-visible:ring-offset-0",
+    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-offset-0",
     "disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-neutral-100",
     "px-2 py-1 text-sm",
   ],
@@ -20,6 +20,10 @@ const textArea = cva(
         true: "w-full",
         false: "w-auto",
       },
+      invalid: {
+        true: "!border-red-700 focus-visible:ring-red-700",
+        false: "focus-visible:ring-sky-800",
+      },
     },
     defaultVariants: {
       fullWidth: false,
@@ -28,7 +32,9 @@ const textArea = cva(
 );
 
 type TextAreaProps = Omit<AriaTextAreaProps, "className"> &
-  VariantProps<typeof textArea> & { ref?: React.Ref<HTMLTextAreaElement> };
+  Omit<VariantProps<typeof textArea>, "invalid"> & {
+    ref?: React.Ref<HTMLTextAreaElement>;
+  };
 
 export const TextArea: React.FC<TextAreaProps> = ({
   fullWidth,
@@ -36,7 +42,11 @@ export const TextArea: React.FC<TextAreaProps> = ({
   ...props
 }) => {
   return (
-    <AriaTextArea {...props} ref={ref} className={textArea({ fullWidth })} />
+    <AriaTextArea
+      {...props}
+      ref={ref}
+      className={({ isInvalid }) => textArea({ invalid: isInvalid, fullWidth })}
+    />
   );
 };
 

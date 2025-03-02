@@ -11,7 +11,7 @@ const input = cva(
   [
     "h-8 px-2 py-2 text-sm",
     "rounded-sm bg-neutral-50 border-[0.0125rem] border-neutral-300/70 hover:bg-neutral-100/80 placeholder:text-neutral-50 placeholder:text-xs",
-    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800 focus-visible:ring-offset-0",
+    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-offset-0",
     "disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-neutral-100",
   ],
   {
@@ -26,7 +26,8 @@ const input = cva(
         "leading-trailing": "pl-8 pr-[var(--input-padding-right)]",
       },
       invalid: {
-        true: "!border-feedback-error-primary focus-visible:!ring-feedback-error-primary",
+        true: "!border-red-700 focus-visible:ring-red-700",
+        false: "focus-visible:ring-sky-800",
       },
     },
     defaultVariants: {

@@ -86,6 +86,9 @@ dependencies:
   uploadthing:
     specifier: ^7.5.2
     version: 7.5.2(tailwindcss@4.0.9)
+  use-debounce:
+    specifier: ^10.0.4
+    version: 10.0.4(react@19.0.0)
   vinxi:
     specifier: ^0.5.3
     version: 0.5.3(@libsql/client@0.14.0)(drizzle-orm@0.40.0)(typescript@5.7.3)(uploadthing@7.5.2)
@@ -8465,6 +8468,15 @@ packages:
 
   /urlpattern-polyfill@8.0.2:
     resolution: {integrity: sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==}
+    dev: false
+
+  /use-debounce@10.0.4(react@19.0.0):
+    resolution: {integrity: sha512-6Cf7Yr7Wk7Kdv77nnJMf6de4HuDE4dTxKij+RqE9rufDsI6zsbjyAxcH5y2ueJCQAnfgKbzXbZHYlkFwmBlWkw==}
+    engines: {node: '>= 16.0.0'}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 19.0.0
     dev: false
 
   /use-sync-external-store@1.4.0(react@19.0.0):

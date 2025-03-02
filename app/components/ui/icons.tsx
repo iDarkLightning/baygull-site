@@ -42,3 +42,40 @@ export const TrashIcon = () => (
     />
   </svg>
 );
+
+export const GoogleDocsIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    x="0px"
+    y="0px"
+    width="64"
+    height="64"
+    viewBox="0 0 48 48"
+  >
+    <path
+      fill="#2196f3"
+      d="M37,45H11c-1.657,0-3-1.343-3-3V6c0-1.657,1.343-3,3-3h19l10,10v29C40,43.657,38.657,45,37,45z"
+    ></path>
+    <path fill="#bbdefb" d="M40 13L30 13 30 3z"></path>
+    <path fill="#1565c0" d="M30 13L40 23 40 13z"></path>
+    <path
+      fill="#e3f2fd"
+      d="M15 23H33V25H15zM15 27H33V29H15zM15 31H33V33H15zM15 35H25V37H15z"
+    ></path>
+  </svg>
+);
+
+export const ErrorIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 20 20"
+    fill="currentColor"
+    className="size-5"
+  >
+    <path
+      fillRule="evenodd"
+      d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);

@@ -1,5 +1,9 @@
 import { queryOptions } from "@tanstack/react-query";
-import { getAllArticles, getArticleBySlug } from "./article-fns";
+import {
+  getAllArticles,
+  getArticleBySlug,
+  getGoogleDocFromUrl,
+} from "./article-fns";
 
 export const getArticleBySlugQuery = (slug: string) =>
   queryOptions({
@@ -47,4 +51,16 @@ export const getHomePageArticlesQuery = () =>
           .slice(0, Math.min(8, articles.length)),
       };
     },
+  });
+
+export const getGoogleDocFromUrlQuery = (url: string | undefined) =>
+  queryOptions({
+    queryKey: ["article-get-google-doc-from-url", url],
+    queryFn: () => {
+      console.log({ url });
+      if (!url) return null;
+
+      return getGoogleDocFromUrl({ data: { docUrl: url } });
+    },
+    retry: false,
   });
