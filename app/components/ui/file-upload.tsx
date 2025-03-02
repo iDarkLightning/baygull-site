@@ -17,7 +17,7 @@ export const FileUpload: React.FC<FileUploadProps> = (props) => {
     noClick: true,
     accept: {
       "image/png": [".png"],
-      "image/jpeg": [".jpg", "jpeg"],
+      "image/jpeg": [".jpg", ".jpeg"],
     },
   });
 

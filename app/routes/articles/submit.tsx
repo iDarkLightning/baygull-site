@@ -24,7 +24,7 @@ function RouteComponent() {
   return (
     <>
       <CollapsedHeader />
-      <main className="max-w-[80rem] min-h-[calc(100vh-10vh)] py-6 px-4 md:mx-auto md:w-[70%] lg:w-[40%] flex flex-col mt-16 justify-center font-serif gap-8">
+      <main className="max-w-[80rem] min-h-[calc(100vh-10vh)] py-6 px-4 md:mx-auto md:w-[70%] lg:w-[50%] xl:w-[40%] flex flex-col mt-16 justify-center font-serif gap-8">
         <ArticleSubmissionForm />
       </main>
     </>

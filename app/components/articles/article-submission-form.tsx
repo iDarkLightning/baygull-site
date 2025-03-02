@@ -31,6 +31,7 @@ import { TextField } from "react-aria-components";
 import { FieldError } from "../ui/field-error";
 import { getUserQuery } from "~/lib/auth/auth-api";
 import { getGreeting } from "~/lib/get-greeting";
+import { Controller } from "react-hook-form";
 
 type TArticleSubmissionFormStore = {
   // Step Controls
@@ -107,7 +108,8 @@ export const ArticleSubmissionForm = () => {
       {step === 0 && <SplashScreen />}
       {step === 1 && <InitialInfoForm />}
       {step === 2 && <CoverImageForm />}
-      {step === 3 && <PreviewForm />}
+      {step === 3 && <AdditionalInfoForm />}
+      {step === 4 && <PreviewForm />}
     </MultiStepForm>
   );
 };
@@ -239,38 +241,58 @@ function InitialInfoForm() {
         className="flex flex-col gap-4"
         onSubmit={form.handleSubmit((data) => {
           moveForward(() => {
-            if (docInfoQuery.data) {
-              submitInitialInfo({ ...data, docId: docInfoQuery.data.id });
-            }
+            submitInitialInfo({
+              ...data,
+              docId: docInfoQuery.data?.id as string,
+            });
             incrementStep();
           });
         })}
       >
-        <TextField isInvalid={!!form.formState.errors.name}>
-          <Label>Article Name</Label>
-          <Input fullWidth {...form.register("name")} />
-          {form.formState.errors.name && (
-            <FieldError message={form.formState.errors.name.message} />
+        <Controller
+          control={form.control}
+          name="name"
+          render={({ field, formState }) => (
+            <TextField isInvalid={!!formState.errors.name} {...field}>
+              <Label>Article Name</Label>
+              <Input fullWidth />
+              {formState.errors.name && (
+                <FieldError message={formState.errors.name.message} />
+              )}
+            </TextField>
           )}
-        </TextField>
-        <TextField isInvalid={!!form.formState.errors.name}>
-          <Label>Article Description</Label>
-          <TextArea {...form.register("description")} fullWidth />
-          {form.formState.errors.description && (
-            <FieldError message={form.formState.errors.description.message} />
+        />
+        <Controller
+          control={form.control}
+          name="description"
+          render={({ field, formState }) => (
+            <TextField isInvalid={!!formState.errors.name} {...field}>
+              <Label>Article Description</Label>
+              <TextArea fullWidth />
+              {formState.errors.description && (
+                <FieldError message={formState.errors.description.message} />
+              )}
+            </TextField>
           )}
-        </TextField>
-        <TextField isInvalid={!!form.formState.errors.docsUrl}>
-          <Label>Article Google Doc Link</Label>
-          <p className="text-sm text-neutral-600 mb-2">
-            Please ensure that link sharing is enabled for your article,
-            otherwise we cannot access it!
-          </p>
-          <Input fullWidth {...form.register("docsUrl")} />
-          {form.formState.errors.docsUrl && (
-            <FieldError message={form.formState.errors.docsUrl.message} />
+        />
+        <Controller
+          control={form.control}
+          name="docsUrl"
+          render={({ field, formState }) => (
+            <TextField isInvalid={!!formState.errors.docsUrl} {...field}>
+              <Label>Article Google Doc Link</Label>
+              <p className="text-sm text-neutral-600 mb-2">
+                Please ensure that link sharing is enabled for your article,
+                otherwise we cannot access it!
+              </p>
+              <Input fullWidth />
+              {formState.errors.docsUrl && (
+                <FieldError message={formState.errors.docsUrl.message} />
+              )}
+            </TextField>
           )}
-        </TextField>
+        />
+
         {docInfoQuery.status === "success" && !!docInfoQuery.data && (
           <div className="flex items-center justify-between gap-4 p-2 bg-neutral-50 border-neutral-300/70 border-[0.0125rem] rounded-sm my-4">
             <div className="flex items-center gap-4">
@@ -374,6 +396,98 @@ function CoverImageForm() {
   );
 }
 
+function AdditionalInfoForm() {
+  const {
+    incrementStep,
+    decrementStep,
+    submitAdditionalInfo,
+    keyIdeas,
+    message,
+  } = useArticleSubmissionFormStore();
+  const { moveBackward, moveForward } = useMultiStepForm();
+
+  const form = useZodForm({
+    schema: z.object({
+      keyIdeas: z.string().min(10, "Please provide at least 10 characters"),
+      message: z.string().min(30, "Please provide at least 30 characters"),
+    }),
+    defaultValues: {
+      keyIdeas,
+      message,
+    },
+  });
+
+  return (
+    <div>
+      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
+        <h1 className="text-4xl font-bold text-neutral-800">
+          One last step...
+        </h1>
+        <p className="text-neutral-700">
+          Please tell us a little bit about the message that you wanted to
+          portray with your article. These are the ideas that our editing team
+          will try to ensure your article conveys well so we'd appreciate it if
+          you took your time with this section!
+        </p>
+      </div>
+      <form
+        className="flex flex-col gap-4"
+        onSubmit={form.handleSubmit((data) => {
+          moveForward(() => {
+            submitAdditionalInfo(data);
+            incrementStep();
+          });
+        })}
+      >
+        <Controller
+          control={form.control}
+          name="keyIdeas"
+          render={({ field, formState }) => (
+            <TextField isInvalid={!!formState.errors.keyIdeas} {...field}>
+              <Label>
+                What ideas in your article are most important to preserved
+                during editing?
+              </Label>
+              <TextArea fullWidth />
+              {formState.errors.keyIdeas && (
+                <FieldError message={formState.errors.keyIdeas.message} />
+              )}
+            </TextField>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="message"
+          render={({ field, formState }) => (
+            <TextField isInvalid={!!formState.errors.message} {...field}>
+              <Label>What message is your article meant to convey?</Label>
+              <TextArea fullWidth />
+              {formState.errors.message && (
+                <FieldError message={formState.errors.message.message} />
+              )}
+            </TextField>
+          )}
+        />
+        <div className="flex items-center justify-between my-4">
+          <Button
+            type="button"
+            variant="secondary"
+            onPress={() => {
+              moveBackward(decrementStep);
+            }}
+            leadingVisual={<ChevronLeftIcon />}
+          >
+            Back
+          </Button>
+          <Button type="submit" trailingVisual={<ChevronRightIcon />}>
+            Next
+          </Button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
 function PreviewForm() {
   const data = useArticleSubmissionFormStore();
 
@@ -402,6 +516,16 @@ function PreviewForm() {
               Article Description
             </p>
             <p className="text-neutral-700">{data.description}</p>
+          </div>
+
+          <div>
+            <p className="text-neutral-800 font-semibold">Key Ideas</p>
+            <p className="text-neutral-700">{data.keyIdeas}</p>
+          </div>
+
+          <div>
+            <p className="text-neutral-800 font-semibold">Message</p>
+            <p className="text-neutral-700">{data.message}</p>
           </div>
         </div>
 

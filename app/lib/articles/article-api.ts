@@ -57,7 +57,6 @@ export const getGoogleDocFromUrlQuery = (url: string | undefined) =>
   queryOptions({
     queryKey: ["article-get-google-doc-from-url", url],
     queryFn: () => {
-      console.log({ url });
       if (!url) return null;
 
       return getGoogleDocFromUrl({ data: { docUrl: url } });
