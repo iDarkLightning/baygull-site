@@ -87,6 +87,33 @@ export const article = sqliteTable("article", {
     .default(sql`(current_timestamp)`),
 });
 
+export const articleDraft = sqliteTable("article_draft", {
+  id: text("id")
+    .primaryKey()
+    .unique()
+    .$defaultFn(() => createId()),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  coverImg: text("cover_img"),
+  originalUrl: text("original_url").notNull(),
+  editingUrl: text("editing_url").notNull(),
+  keyIdeas: text("key_ideas").notNull(),
+  message: text("message").notNull(),
+});
+
+export const usersToArticleDrafts = sqliteTable(
+  "users_to_article_drafts",
+  {
+    userId: text("userId")
+      .notNull()
+      .references(() => user.id),
+    draftId: text("draftId")
+      .notNull()
+      .references(() => articleDraft.id),
+  },
+  (table) => [primaryKey({ columns: [table.userId, table.draftId] })]
+);
+
 export const usersToArticles = sqliteTable(
   "users_to_articles",
   {

@@ -1,37 +1,34 @@
-import {
-  useAnimationControls,
-  motion,
-  animationControls,
-  AnimationControls,
-} from "framer-motion";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
-import { Label } from "../ui/label";
-import { TextArea } from "../ui/textarea";
+import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { TextField } from "react-aria-components";
+import { Controller } from "react-hook-form";
+import { useDebounce } from "use-debounce";
+import { z } from "zod";
 import { create } from "zustand";
-import { string, z } from "zod";
-import { useZodForm } from "~/lib/hooks/use-zod-form";
-import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
-import { UploadButton, UploadDropzone } from "~/lib/uploadthing/client";
-import { FileUpload } from "../ui/file-upload";
+import { getGoogleDocFromUrlQuery } from "~/lib/articles/article-api";
+import { createArticleDraft } from "~/lib/articles/article-fns";
+import { getUserQuery } from "~/lib/auth/auth-api";
 import { formatBytes } from "~/lib/format-bytes";
+import { getGreeting } from "~/lib/get-greeting";
+import { useZodForm } from "~/lib/hooks/use-zod-form";
+import { useUploadThing } from "~/lib/uploadthing/client";
+import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
+import { Button } from "../ui/button";
+import { FieldError } from "../ui/field-error";
+import { FileUpload } from "../ui/file-upload";
 import {
+  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  ErrorIcon,
   GoogleDocsIcon,
   TrashIcon,
 } from "../ui/icons";
-import { ResizablePanel } from "../ui/resizable-panel";
-import { useQueries, useQuery, useSuspenseQuery } from "@tanstack/react-query";
-import { getGoogleDocFromUrlQuery } from "~/lib/articles/article-api";
-import { useEffect, useState } from "react";
-import { useDebounce } from "use-debounce";
-import { TextField } from "react-aria-components";
-import { FieldError } from "../ui/field-error";
-import { getUserQuery } from "~/lib/auth/auth-api";
-import { getGreeting } from "~/lib/get-greeting";
-import { Controller } from "react-hook-form";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { TextArea } from "../ui/textarea";
+import Confetti from "react-confetti";
+import useWindowSize from "~/lib/hooks/use-window-size";
+import { Link } from "@tanstack/react-router";
 
 type TArticleSubmissionFormStore = {
   // Step Controls
@@ -110,6 +107,7 @@ export const ArticleSubmissionForm = () => {
       {step === 2 && <CoverImageForm />}
       {step === 3 && <AdditionalInfoForm />}
       {step === 4 && <PreviewForm />}
+      {step === 5 && <ConfirmationScreen />}
     </MultiStepForm>
   );
 };
@@ -490,8 +488,39 @@ function AdditionalInfoForm() {
 
 function PreviewForm() {
   const data = useArticleSubmissionFormStore();
-
   const { moveBackward, moveForward } = useMultiStepForm();
+
+  const { startUpload } = useUploadThing("imageUploader");
+
+  const submit = useMutation({
+    mutationKey: ["article-submit-draft"],
+    mutationFn: async () => {
+      let coverImgUrl: string | undefined = undefined;
+
+      if (data.coverImg) {
+        const uploadResult = await startUpload([data.coverImg]);
+
+        if (!uploadResult) throw new Error("Image Upload Failed!");
+
+        coverImgUrl = uploadResult[0].ufsUrl;
+      }
+
+      await createArticleDraft({
+        data: {
+          title: data.name,
+          description: data.description,
+          keyIdeas: data.keyIdeas,
+          message: data.message,
+          coverImg: coverImgUrl,
+          docId: data.docId,
+        },
+      });
+    },
+    onSuccess: () => moveForward(data.incrementStep),
+    onError: (err) => {
+      console.error(err);
+    },
+  });
 
   return (
     <div>
@@ -579,14 +608,53 @@ function PreviewForm() {
           </Button>
           <Button
             onPress={() => {
-              moveForward(data.incrementStep);
+              submit.mutate();
             }}
             trailingVisual={<ChevronRightIcon />}
+            isDisabled={submit.isPending}
           >
             Submit
           </Button>
         </div>
       </div>
     </div>
+  );
+}
+
+function ConfirmationScreen() {
+  const { windowSize } = useWindowSize();
+
+  return (
+    <>
+      <div className="flex flex-col gap-0.5 py-4">
+        <div className="flex justify-between items-center">
+          <div>
+            <div>
+              <div className="flex items-center gap-4">
+                <div className="text-emerald-600">
+                  <CheckCircleIcon />
+                </div>
+                <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
+                  Congratulations your article has been submitted!
+                </h2>
+              </div>
+              <div className="flex flex-col gap-2 my-2">
+                <p className="text-neutral-700">
+                  We look forward to reading your work. You can expect an email
+                  within a week with updates about the editing process and
+                  updates on being published!
+                  <span>
+                    <Link to="/" className="mx-1 text-sky-700 underline">
+                      Return Home
+                    </Link>
+                  </span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <Confetti width={windowSize.width} height={windowSize.height} />
+    </>
   );
 }

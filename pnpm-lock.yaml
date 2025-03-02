@@ -62,6 +62,9 @@ dependencies:
   react-aria-components:
     specifier: ^1.6.0
     version: 1.6.0(react-dom@19.0.0)(react@19.0.0)
+  react-confetti:
+    specifier: ^6.3.0
+    version: 6.3.0(react@19.0.0)
   react-dom:
     specifier: ^19.0.0
     version: 19.0.0(react@19.0.0)
@@ -7576,6 +7579,16 @@ packages:
       react-dom: 19.0.0(react@19.0.0)
     dev: false
 
+  /react-confetti@6.3.0(react@19.0.0):
+    resolution: {integrity: sha512-/Ah3MktjQsxfxtYc8VVIS0ktZiRX9Wx8DJBNGvOiaXIwqt4zhJ2JNjJJRtPgRgqjZaLYxXSBLnh/wLyWs/I15Q==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      react: ^16.3.0 || ^17.0.1 || ^18.0.0 || ^19.0.0
+    dependencies:
+      react: 19.0.0
+      tween-functions: 1.2.0
+    dev: false
+
   /react-dom@19.0.0(react@19.0.0):
     resolution: {integrity: sha512-4GV5sHFG0e/0AD4X+ySy6UJd3jVl1iNsNHdpad0qhABJ11twS3TTBnseqsKurKcsNqCEFeGL3uLpVChpIO3QfQ==}
     peerDependencies:
@@ -8208,6 +8221,10 @@ packages:
       get-tsconfig: 4.10.0
     optionalDependencies:
       fsevents: 2.3.3
+    dev: false
+
+  /tween-functions@1.2.0:
+    resolution: {integrity: sha512-PZBtLYcCLtEcjL14Fzb1gSxPBeL7nWvGhO5ZFPGqziCcr8uvHp0NDmdjBchp6KHL+tExcg0m3NISmKxhU394dA==}
     dev: false
 
   /type-fest@2.19.0:

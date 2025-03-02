@@ -3,7 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { db } from "../db";
-import { article } from "../db/schema";
+import { article, articleDraft } from "../db/schema";
 import { createDriveClient } from "../google-drive";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
@@ -69,10 +69,11 @@ export const createArticleEditingCopy = createServerFn({
       },
     });
 
-    return response.status;
-  });
+    if (response.status !== 200)
+      throw new Error("Error occured during creating copy!");
 
-// https://docs.google.com/document/d/1CRF-t2Bck4o2oNwmR3outXpHk4WWmibJs4eToZzePaw/edit?tab=t.0
+    return { id: response.data.id as string };
+  });
 
 export const getGoogleDocFromUrl = createServerFn({
   method: "GET",
@@ -100,4 +101,45 @@ export const getGoogleDocFromUrl = createServerFn({
       name: response.data.name as string,
       id: response.data.id as string,
     };
+  });
+
+export const createArticleDraft = createServerFn({
+  method: "POST",
+})
+  .validator(
+    z.object({
+      title: z.string(),
+      description: z.string(),
+      coverImg: z.string().optional(),
+      docId: z.string(),
+      keyIdeas: z.string(),
+      message: z.string(),
+    })
+  )
+  .handler(async ({ data }) => {
+    const copyResult = await createArticleEditingCopy({
+      data: {
+        articleName: data.title,
+        fileId: data.docId,
+      },
+    });
+
+    const insertResult = await db
+      .insert(articleDraft)
+      .values({
+        title: data.title,
+        description: data.description,
+        coverImg: data.coverImg,
+        originalUrl: `https://docs.google.com/document/d/${data.docId}`,
+        editingUrl: `https://docs.google.com/document/d/${copyResult.id}`,
+        keyIdeas: data.keyIdeas,
+        message: data.message,
+      })
+      .returning();
+
+    if (insertResult.length >= 1) {
+      return { message: "ok" };
+    }
+
+    throw new Error("Error occured while creating draft!");
   });
