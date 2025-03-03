@@ -6,3 +6,7 @@
 @theme {
   --font-serif: "Frank Ruhl Libre", "sans-serif";
 }
+
+.ProseMirror {
+  height: 60vh;
+}

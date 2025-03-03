@@ -51,6 +51,10 @@ export const usersToArticleDraftsRelations = relations(
   })
 );
 
+export const articleDraftsRelations = relations(articleDraft, ({ many }) => ({
+  users: many(usersToArticleDrafts),
+}));
+
 export const articleRelations = relations(article, ({ many }) => ({
   users: many(usersToArticles),
   topics: many(articlesToTopics),

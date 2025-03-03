@@ -2,6 +2,7 @@ import { queryOptions } from "@tanstack/react-query";
 import {
   getAllArticles,
   getArticleBySlug,
+  getArticleDraftById,
   getGoogleDocFromUrl,
 } from "./article-fns";
 
@@ -62,4 +63,10 @@ export const getGoogleDocFromUrlQuery = (url: string | undefined) =>
       return getGoogleDocFromUrl({ data: { docUrl: url } });
     },
     retry: false,
+  });
+
+export const getArticleDraftByIdQuery = (id: string) =>
+  queryOptions({
+    queryKey: ["article-get-draft-by-id", id],
+    queryFn: () => getArticleDraftById({ data: { draftId: id } }),
   });

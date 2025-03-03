@@ -15,6 +15,7 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ArticlesIndexImport } from './routes/articles/index'
 import { Route as ArticlesSubmitImport } from './routes/articles/submit'
 import { Route as ArticlesSlugImport } from './routes/articles/$slug'
+import { Route as ArticlesPublishIdImport } from './routes/articles/publish.$id'
 
 // Create/Update Routes
 
@@ -39,6 +40,12 @@ const ArticlesSubmitRoute = ArticlesSubmitImport.update({
 const ArticlesSlugRoute = ArticlesSlugImport.update({
   id: '/articles/$slug',
   path: '/articles/$slug',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const ArticlesPublishIdRoute = ArticlesPublishIdImport.update({
+  id: '/articles/publish/$id',
+  path: '/articles/publish/$id',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -74,6 +81,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesIndexImport
       parentRoute: typeof rootRoute
     }
+    '/articles/publish/$id': {
+      id: '/articles/publish/$id'
+      path: '/articles/publish/$id'
+      fullPath: '/articles/publish/$id'
+      preLoaderRoute: typeof ArticlesPublishIdImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -84,6 +98,7 @@ export interface FileRoutesByFullPath {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
+  '/articles/publish/$id': typeof ArticlesPublishIdRoute
 }
 
 export interface FileRoutesByTo {
@@ -91,6 +106,7 @@ export interface FileRoutesByTo {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
+  '/articles/publish/$id': typeof ArticlesPublishIdRoute
 }
 
 export interface FileRoutesById {
@@ -99,14 +115,31 @@ export interface FileRoutesById {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/articles/publish/$id': typeof ArticlesPublishIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/articles/$slug' | '/articles/submit' | '/articles'
+  fullPaths:
+    | '/'
+    | '/articles/$slug'
+    | '/articles/submit'
+    | '/articles'
+    | '/articles/publish/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/articles/$slug' | '/articles/submit' | '/articles'
-  id: '__root__' | '/' | '/articles/$slug' | '/articles/submit' | '/articles/'
+  to:
+    | '/'
+    | '/articles/$slug'
+    | '/articles/submit'
+    | '/articles'
+    | '/articles/publish/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/articles/$slug'
+    | '/articles/submit'
+    | '/articles/'
+    | '/articles/publish/$id'
   fileRoutesById: FileRoutesById
 }
 
@@ -115,6 +148,7 @@ export interface RootRouteChildren {
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   ArticlesSubmitRoute: typeof ArticlesSubmitRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
+  ArticlesPublishIdRoute: typeof ArticlesPublishIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -122,6 +156,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArticlesSlugRoute: ArticlesSlugRoute,
   ArticlesSubmitRoute: ArticlesSubmitRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
+  ArticlesPublishIdRoute: ArticlesPublishIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -137,7 +172,8 @@ export const routeTree = rootRoute
         "/",
         "/articles/$slug",
         "/articles/submit",
-        "/articles/"
+        "/articles/",
+        "/articles/publish/$id"
       ]
     },
     "/": {
@@ -151,6 +187,9 @@ export const routeTree = rootRoute
     },
     "/articles/": {
       "filePath": "articles/index.tsx"
+    },
+    "/articles/publish/$id": {
+      "filePath": "articles/publish.$id.tsx"
     }
   }
 }

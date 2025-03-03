@@ -320,11 +320,10 @@ function InitialInfoForm() {
 function CoverImageForm() {
   const incrementStep = useArticleSubmissionFormStore((s) => s.incrementStep);
   const decrementStep = useArticleSubmissionFormStore((s) => s.decrementStep);
+  const { moveBackward, moveForward } = useMultiStepForm();
 
   const coverImg = useArticleSubmissionFormStore((s) => s.coverImg);
   const setCoverImg = useArticleSubmissionFormStore((s) => s.setCoverImg);
-
-  const { moveBackward, moveForward } = useMultiStepForm();
 
   return (
     <div>

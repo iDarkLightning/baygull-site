@@ -12,7 +12,7 @@ import { ThreeDotsLoading } from "./three-dots";
 
 export const button = cva(
   [
-    "rounded-md text-sm font-medium border-[0.0125rem] transition-colors whitespace-nowrap relative touch-none select-none shadow-inner",
+    "rounded-full text-sm font-medium border-[0.0125rem] transition-colors whitespace-nowrap relative touch-none select-none shadow-inner",
     "focus:outline-none",
     "disabled:scale-100 active:scale-95",
     "disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100",
