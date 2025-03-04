@@ -107,6 +107,9 @@ dependencies:
   tailwindcss:
     specifier: ^4.0.9
     version: 4.0.9
+  unenv:
+    specifier: ^1.10.0
+    version: 1.10.0
   uploadthing:
     specifier: ^7.5.2
     version: 7.5.2(tailwindcss@4.0.9)
