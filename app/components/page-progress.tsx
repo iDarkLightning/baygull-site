@@ -11,7 +11,7 @@ export const PageProgress = () => {
   return (
     <>
       <motion.div
-        className="fixed top-12 left-0 right-0 [transform-origin:0%] h-1 bg-sky-400"
+        className="fixed top-12 left-0 right-0 [transform-origin:0%] h-1 bg-sky-600"
         style={{ scaleX }}
       />
     </>
