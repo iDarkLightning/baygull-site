@@ -43,15 +43,23 @@ const useMultiSelect = () => {
   return contextValue;
 };
 
-export const MultiSelect: React.FC<React.PropsWithChildren> = (props) => {
-  const [selectedKeys, setSelectedKeys] = useState(new Set<string>());
+export const MultiSelect: React.FC<
+  React.PropsWithChildren<{
+    selectedKeys: Set<Key>;
+    setSelectedKeys: (keys: Set<Key>) => void;
+  }>
+> = (props) => {
   const triggerControl = useMeasure();
 
   return (
     <MultiSelectContext.Provider
-      value={{ selectedKeys, setSelectedKeys, triggerControl }}
+      value={{
+        selectedKeys: props.selectedKeys,
+        setSelectedKeys: props.setSelectedKeys,
+        triggerControl,
+      }}
     >
-      {props.children}
+      <div>{props.children}</div>
     </MultiSelectContext.Provider>
   );
 };
@@ -88,7 +96,7 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
         )}
         ref={triggerControl[0]}
       >
-        <span className="flex gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none]">
+        <span className="flex gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] hover:[scrollbar-width:thin]">
           {[...selectedKeys].map((key, index) => (
             <div
               key={index}
@@ -133,29 +141,28 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
 
   return (
     <Popover triggerWidth={triggerControl[1].width} {...popoverProps}>
-      <div className="p-2a">
-        <AutoComplete filter={contains}>
-          <SearchField className="my-3 mx-2">
-            <Input
-              aria-label="Search multi select"
-              leadingVisual={<SearchIcon />}
-              autoFocus
-              fullWidth
-              placeholder="Search..."
-            />
-          </SearchField>
-          <ListBox
-            selectionMode="multiple"
-            selectedKeys={selectedKeys}
-            onSelectionChange={(keys) =>
-              typeof keys !== "string" && setSelectedKeys(keys)
-            }
-            {...props}
-          >
-            {children}
-          </ListBox>
-        </AutoComplete>
-      </div>
+      <AutoComplete filter={contains}>
+        <SearchField className="my-3 mx-2">
+          <Input
+            aria-label="Search multi select"
+            leadingVisual={<SearchIcon />}
+            autoFocus
+            fullWidth
+            placeholder="Search..."
+          />
+        </SearchField>
+        <ListBox
+          selectionMode="multiple"
+          selectedKeys={selectedKeys}
+          onSelectionChange={(keys) =>
+            typeof keys !== "string" && setSelectedKeys(keys)
+          }
+          className="max-h-52 overflow-auto"
+          {...props}
+        >
+          {children}
+        </ListBox>
+      </AutoComplete>
     </Popover>
   );
 };

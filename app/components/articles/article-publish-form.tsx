@@ -1,5 +1,5 @@
 import { Suspense, useEffect } from "react";
-import { TextField } from "react-aria-components";
+import { Key, TextField } from "react-aria-components";
 import { Controller } from "react-hook-form";
 import { z } from "zod";
 import { useArticlePublishFormStore } from "~/lib/articles/article-publish-store";
@@ -24,6 +24,13 @@ import { formatBytes } from "~/lib/format-bytes";
 import { useUploadThing } from "~/lib/uploadthing/client";
 import { publishArticle } from "~/lib/articles/article-fns";
 import slugify from "slugify";
+import {
+  MultiSelect,
+  MultiSelectTrigger,
+  MultiSelectBody,
+  MultiSelectItem,
+} from "../ui/multi-select";
+import { getAllTopicsQuery } from "~/lib/topics/topic-api";
 
 const fetchCoverImgQuery = (
   articleName: string,
@@ -58,6 +65,7 @@ function InfoForm() {
     useArticlePublishFormStore((s) => s);
   const { moveForward } = useMultiStepForm();
   const coverImgQuery = useQuery(fetchCoverImgQuery(name, coverImg));
+  const topicsQuery = useSuspenseQuery(getAllTopicsQuery);
 
   const form = useZodForm({
     schema: z.object({
@@ -81,6 +89,7 @@ function InfoForm() {
             message: "That is a restricted path, please provide another slug!",
           }
         ),
+      topics: z.set(z.string()),
     }),
     defaultValues: {
       name: name,
@@ -90,6 +99,7 @@ function InfoForm() {
         strict: true,
         trim: true,
       }),
+      topics: new Set<Key>(),
     },
   });
 
@@ -111,6 +121,8 @@ function InfoForm() {
     return () => unsubscribe();
   }, [form.watch]);
 
+  const listItems = ["Aardvark", "Cat", "Dog", "Kangaroo", "Panda", "Snake"];
+
   return (
     <div>
       <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
@@ -124,6 +136,7 @@ function InfoForm() {
         className="flex flex-col gap-4"
         onSubmit={form.handleSubmit((data) => {
           moveForward(() => {
+            console.log(data.topics);
             submitInfo(data);
             incrementStep();
           });
@@ -178,6 +191,32 @@ function InfoForm() {
                 <FieldError message={formState.errors.description.message} />
               )}
             </TextField>
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="topics"
+          render={({ field }) => (
+            <MultiSelect
+              selectedKeys={field.value}
+              setSelectedKeys={field.onChange}
+            >
+              <Label>Article Topics</Label>
+
+              <MultiSelectTrigger>
+                <MultiSelectBody>
+                  {topicsQuery.data.map((topic) => (
+                    <MultiSelectItem
+                      textValue={topic.name}
+                      id={topic.name}
+                      key={topic.id}
+                    >
+                      {topic.name}
+                    </MultiSelectItem>
+                  ))}
+                </MultiSelectBody>
+              </MultiSelectTrigger>
+            </MultiSelect>
           )}
         />
         <div className="self-end">

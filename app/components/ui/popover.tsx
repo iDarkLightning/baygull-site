@@ -26,7 +26,7 @@ export const Popover: React.FC<PopoverProps> = ({
       }
       className={({ isEntering, isExiting, placement }) =>
         cn(
-          "min-w-[var(--trigger-width)] rounded-md border-[0.0125rem] border-neutral-300/70 bg-neutral-50 text-neutral-700",
+          "min-w-[var(--trigger-width)] rounded-md border-[0.0125rem] border-neutral-300/70 bg-neutral-50 text-neutral-700 ",
           "focus:outline-none",
           {
             "slide-in-from-top-2": placement === "bottom" && isEntering,
