@@ -5,12 +5,21 @@ import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Drawer } from "vaul";
 import { getUserQuery, useSignIn, useSignOut } from "~/lib/auth/auth-api";
+import { Button } from "./ui/button";
+import { MenuIcon, PencilSquareIcon, UserIcon } from "./ui/icons";
 
 const SidebarMenu = () => {
+  const userQuery = useSuspenseQuery(getUserQuery());
+  const signOut = useSignOut();
+
+  if (userQuery.data === null) throw new Error("Impossible state!");
+
   return (
     <Drawer.Root direction="right">
-      <Drawer.Trigger className="relative flex h-10 flex-shrink-0 items-center justify-center gap-2 overflow-hidden rounded-full bg-white px-4 text-sm font-medium shadow-sm transition-all hover:bg-[#FAFAFA] dark:bg-[#161615] dark:hover:bg-[#1A1A19] dark:text-white">
-        Open Drawer
+      <Drawer.Trigger asChild>
+        <Button size="icon" variant="ghost">
+          <MenuIcon />
+        </Button>
       </Drawer.Trigger>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
@@ -21,15 +30,42 @@ const SidebarMenu = () => {
             { "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
           }
         >
-          <div className="bg-zinc-50 h-full w-full grow p-5 flex flex-col rounded-[16px]">
-            <div className="max-w-md mx-auto">
-              <Drawer.Title className="font-medium mb-2 text-zinc-900">
+          <div className="bg-zinc-50 h-full w-full grow p-5 flex flex-col rounded-[16px] font-sans">
+            <div className="max-w-md flex flex-col gap-4">
+              <div className="flex items-center gap-3 border-b-[0.0125rem] border-b-neutral-200 pb-4">
+                <img
+                  src={userQuery.data.image ?? ""}
+                  className="rounded-full w-14"
+                  alt=""
+                  referrerPolicy="no-referrer"
+                />
+                <div className="leading-4">
+                  <p className="font-semibold text-lg">{userQuery.data.name}</p>
+                  <p className="text-neutral-600">{userQuery.data.email}</p>
+                </div>
+              </div>
+              <div className="flex flex-col gap-2">
+                <Link
+                  to="/articles/submit"
+                  className="flex gap-2 items-center p-2 hover:bg-neutral-200 transition-colors rounded-full px-4 text-neutral-800"
+                >
+                  <span>
+                    <PencilSquareIcon />
+                  </span>
+                  <span>Submit Article</span>
+                </Link>
+                {/* <Link to="/articles/submit">View Drafts</Link> */}
+              </div>
+              <Button onPress={() => signOut.mutate()} fullWidth>
+                Sign Out
+              </Button>
+              {/* <Drawer.Title className="font-medium mb-2 text-zinc-900">
                 It supports all directions.
               </Drawer.Title>
               <Drawer.Description className="text-zinc-600 mb-2">
                 This one specifically is not touching the edge of the screen,
                 but that&apos;s not required for a side drawer.
-              </Drawer.Description>
+              </Drawer.Description> */}
             </div>
           </div>
         </Drawer.Content>
@@ -42,19 +78,25 @@ const Account = () => {
   const userQuery = useSuspenseQuery(getUserQuery());
 
   const signIn = useSignIn();
-  const signOut = useSignOut();
 
   if (userQuery.data) return <SidebarMenu />;
 
-  return <button onClick={() => signIn.mutate()}>Sign In</button>;
+  return (
+    <Button onPress={() => signIn.mutate()} leadingVisual={<UserIcon />}>
+      Sign In
+    </Button>
+  );
 };
 
 const NavLinks = () => {
   return (
     <nav>
-      <ul className="flex gap-4">
+      <ul className="flex gap-4 font-serif items-center">
         <li>
-          <Link to="/articles" className="hover:text-sky-600">
+          <Link
+            to="/articles"
+            className="dark:hover:text-sky-300 hover:text-sky-700 font-medium"
+          >
             Articles
           </Link>
         </li>
@@ -68,8 +110,15 @@ const NavLinks = () => {
   );
 };
 
-const BayGullText = () => (
-  <h1 className="font-black text-2xl font-serif text-center">The Bay Gull</h1>
+const BayGullText: React.FC<{ animate?: boolean }> = (props) => (
+  <motion.h1
+    initial={props.animate ? { y: -40 } : {}}
+    animate={props.animate ? { y: 0 } : {}}
+    transition={{ duration: 0.35, ease: "easeInOut", delay: 0.02 }}
+    className="font-black text-2xl font-serif text-center"
+  >
+    The Bay Gull
+  </motion.h1>
 );
 
 const ExpandedHeader: React.FC<{ ref: React.Ref<HTMLDivElement> }> = (
@@ -79,7 +128,7 @@ const ExpandedHeader: React.FC<{ ref: React.Ref<HTMLDivElement> }> = (
     <header
       key="expanded-header"
       ref={props.ref}
-      className="w-full border-b border-neutral-200 bg-white"
+      className="w-full border-b border-neutral-200"
     >
       <div className="max-w-[100rem] h-24 py-6 px-4 md:mx-auto md:w-[80%] lg:w-[85%] 2xl:w-[90%] flex items-center justify-between">
         <NavLinks />
@@ -101,7 +150,7 @@ export const CollapsedHeader = () => {
   return (
     <motion.header
       key="collapsed-header"
-      className="fixed top-0 w-full border-b border-neutral-700 bg-neutral-800 text-white shadow-md"
+      className="fixed top-0 w-full border-b border-neutral-700 bg-neutral-800 text-white shadow-md dark"
       initial={{ y: -20 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
@@ -109,7 +158,7 @@ export const CollapsedHeader = () => {
       <div className="max-w-[100rem] h-12 py-6 px-4 md:mx-auto md:w-[80%] lg:w-[85%] 2xl:w-[90%] flex items-center justify-between">
         <NavLinks />
         <Link to="/">
-          <BayGullText />
+          <BayGullText animate />
         </Link>
         <nav>
           <Account />

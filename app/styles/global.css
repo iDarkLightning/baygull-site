@@ -3,8 +3,12 @@
 @import "uploadthing/tw/v4";
 @source "../../node_modules/@uploadthing/react/dist"; /** <-- depends on your project structure */
 
+@custom-variant dark (&:where(.dark, .dark *));
+@plugin "tailwindcss-animate";
+
 @theme {
   --font-serif: "Frank Ruhl Libre", "sans-serif";
+  --font-sans: "Inter";
 }
 
 .ProseMirror {

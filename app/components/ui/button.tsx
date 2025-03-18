@@ -1,19 +1,16 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import React, { AriaAttributes, forwardRef, useId } from "react";
-import { FocusRing } from "react-aria";
+import React, { useId } from "react";
 import {
   Button as AriaButton,
-  Link,
   type ButtonProps as AriaButtonProps,
-  type LinkProps,
 } from "react-aria-components";
 import { cn } from "~/lib/cn";
 import { ThreeDotsLoading } from "./three-dots";
 
 export const button = cva(
   [
-    "rounded-full text-sm font-medium border-[0.0125rem] transition-colors whitespace-nowrap relative touch-none select-none shadow-inner",
-    "focus:outline-none",
+    "rounded-full text-sm font-medium border-[0.0125rem] transition-colors whitespace-nowrap relative touch-none select-none",
+    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-offset-0 focus-visible:ring-sky-800",
     "disabled:scale-100 active:scale-95",
     "disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100",
     "data-[loading=true]:!cursor-wait",
@@ -26,7 +23,7 @@ export const button = cva(
         secondary:
           "bg-neutral-200 border-neutral-400/60 hover:bg-neutral-300/70",
         ghost:
-          "border-transparent hover:bg-neutral-400 disabled:hover:bg-transparent",
+          "border-transparent hover:bg-neutral-100 dark:hover:bg-neutral-700 disabled:hover:bg-transparent",
         danger:
           "bg-neutral-400 text-feedback-error-primary border-feedback-error-primary hover:bg-neutral-300",
         disabled: "border-neutral-300 bg-neutral-400",
@@ -77,45 +74,43 @@ export const Button: React.FC<ButtonProps> = ({
   const disabled = props.isDisabled || isLoading;
 
   return (
-    <FocusRing focusRingClass="ring-[2px] ring-sky-800 ring-offset-0">
-      <AriaButton
-        className={cn(
-          button({
-            variant: props.isDisabled ? "disabled" : variant,
-            size,
-            fullWidth,
-          })
-        )}
-        ref={ref}
-        isDisabled={disabled}
-        data-loading={isLoading}
-        aria-describedby={id}
-        {...props}
-      >
-        {isLoading && (
-          <ThreeDotsLoading
-            role="status"
-            aria-live="polite"
-            aria-atomic
-            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
-          />
-        )}
+    <AriaButton
+      className={cn(
+        button({
+          variant: props.isDisabled ? "disabled" : variant,
+          size,
+          fullWidth,
+        })
+      )}
+      ref={ref}
+      isDisabled={disabled}
+      data-loading={isLoading}
+      aria-describedby={id}
+      {...props}
+    >
+      {isLoading && (
+        <ThreeDotsLoading
+          role="status"
+          aria-live="polite"
+          aria-atomic
+          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
+        />
+      )}
 
-        <span
-          id={id}
-          aria-hidden={isLoading}
-          className={cn(
-            "flex items-center gap-2",
-            align === "center" ? "justify-center" : "justify-start",
-            isLoading ? "opacity-0" : "opacity-100"
-          )}
-        >
-          {leadingVisual && leadingVisual}
-          <span className="flex flex-col gap-1">{children}</span>
-          {trailingVisual && trailingVisual}
-        </span>
-      </AriaButton>
-    </FocusRing>
+      <span
+        id={id}
+        aria-hidden={isLoading}
+        className={cn(
+          "flex items-center gap-2",
+          align === "center" ? "justify-center" : "justify-start",
+          isLoading ? "opacity-0" : "opacity-100"
+        )}
+      >
+        {leadingVisual && leadingVisual}
+        <span className="flex flex-col gap-1">{children}</span>
+        {trailingVisual && trailingVisual}
+      </span>
+    </AriaButton>
   );
 };
 

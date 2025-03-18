@@ -7,35 +7,34 @@ import {
 import { cn } from "~/lib/cn";
 import useMeasure from "react-use-measure";
 
-const input = cva(
-  [
-    "h-8 px-2 py-2 text-sm",
-    "rounded-sm bg-neutral-50 border-[0.0125rem] border-neutral-300/70 hover:bg-neutral-100/80 placeholder:text-neutral-50 placeholder:text-xs",
-    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-offset-0",
-    "disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-neutral-100",
-  ],
-  {
-    variants: {
-      fullWidth: {
-        true: "w-full",
-        false: "w-auto",
-      },
-      visual: {
-        leading: "pl-8",
-        trailing: "pr-[var(--input-padding-right)]",
-        "leading-trailing": "pl-8 pr-[var(--input-padding-right)]",
-      },
-      invalid: {
-        true: "!border-red-700 focus-visible:ring-red-700",
-        false: "focus-visible:ring-sky-800",
-      },
+export const inputBase = cva([
+  "h-8 px-2 py-2 text-sm",
+  "rounded-sm bg-neutral-50 border-[0.0125rem] border-neutral-300/70 hover:bg-neutral-100/80 placeholder:text-neutral-500 placeholder:text-xs",
+  "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-offset-0",
+  "disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-neutral-100",
+]);
+
+const input = cva(inputBase(), {
+  variants: {
+    fullWidth: {
+      true: "w-full",
+      false: "w-auto",
     },
-    defaultVariants: {
-      fullWidth: false,
-      invalid: false,
+    visual: {
+      leading: "pl-8",
+      trailing: "pr-[var(--input-padding-right)]",
+      "leading-trailing": "pl-8 pr-[var(--input-padding-right)]",
     },
-  }
-);
+    invalid: {
+      true: "!border-red-700 focus-visible:ring-red-700",
+      false: "focus-visible:ring-sky-800",
+    },
+  },
+  defaultVariants: {
+    fullWidth: false,
+    invalid: false,
+  },
+});
 
 export type InputProps = Omit<AriaInputProps, "className" | "disabled"> &
   Omit<VariantProps<typeof input>, "visual" | "invalid"> & {
