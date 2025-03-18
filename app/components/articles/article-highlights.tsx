@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { TArticlesList } from "~/lib/articles/article-fns";
 
 type ArticleHighlightsProps = {
@@ -13,9 +14,11 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
     )}
     {props.articles.length > 0 &&
       props.articles.map((article) => (
-        <a
+        <Link
+          key={article.id}
+          to="/articles/$slug"
           className="flex flex-col gap-3 border-b border-neutral-200 pb-4 w-full group"
-          href={`/articles/${article.slug}`}
+          params={{ slug: article.slug }}
         >
           <div className="flex flex-col gap-3">
             <div>
@@ -63,7 +66,7 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
               </div>
             </div>
           </div>
-        </a>
+        </Link>
       ))}
   </div>
 );
