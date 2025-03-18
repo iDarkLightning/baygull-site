@@ -22,18 +22,7 @@ export const getHomePageArticlesQuery = () =>
   queryOptions({
     queryKey: ["articles-get-homepage"],
     queryFn: async () => {
-      const [article] = await getAllArticles();
-
-      const articles = [
-        article,
-        article,
-        article,
-        { ...article, isHighlighted: false },
-        article,
-        { ...article, isHighlighted: false },
-        article,
-        { ...article, isHighlighted: false },
-      ];
+      const articles = await getAllArticles();
 
       if (articles.length === 0) {
         return {
