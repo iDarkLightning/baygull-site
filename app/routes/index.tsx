@@ -4,6 +4,7 @@ import { ArticleHighlights } from "~/components/articles/article-highlights";
 import { ArticlesList } from "~/components/articles/article-list";
 import { ArticleSpotlight } from "~/components/articles/article-spotlight";
 import { Header } from "~/components/nav";
+import { RightArrowIcon } from "~/components/ui/icons";
 import { getHomePageArticlesQuery } from "~/lib/articles/article-api";
 
 export const Route = createFileRoute("/")({
@@ -54,20 +55,7 @@ function Home() {
                     className="py-2 mb-8 font-medium border border-neutral-300 text-center hover:underline rounded-md w-fit px-8 flex items-center justify-end self-center text-sm uppercase gap-2"
                   >
                     Browse all Articles
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke-width="1.5"
-                      stroke="currentColor"
-                      className="size-6"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3"
-                      />
-                    </svg>
+                    <RightArrowIcon />
                   </Link>
                 </div>
               </div>
