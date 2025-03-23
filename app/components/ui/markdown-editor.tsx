@@ -125,7 +125,7 @@ export const RemirrorEditor: React.FC<{
       style={
         {
           "--rmr-color-border": "var(--color-neutral-300)",
-          "--rmr-color-outline": "var(--color-neutral-400)",
+          "--rmr-color-outline": "var(--color-sky-800)",
         } as CSSProperties
       }
     >

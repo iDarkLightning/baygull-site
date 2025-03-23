@@ -11,16 +11,15 @@ import { MenuIcon, PencilSquareIcon, UserIcon } from "./ui/icons";
 const SidebarMenu = () => {
   const userQuery = useSuspenseQuery(getUserQuery());
   const signOut = useSignOut();
+  const [isOpen, setIsOpen] = useState(false);
 
   if (userQuery.data === null) throw new Error("Impossible state!");
 
   return (
-    <Drawer.Root direction="right">
-      <Drawer.Trigger asChild>
-        <Button size="icon" variant="ghost">
-          <MenuIcon />
-        </Button>
-      </Drawer.Trigger>
+    <Drawer.Root direction="right" open={isOpen} onOpenChange={setIsOpen}>
+      <Button size="icon" variant="ghost" onPress={() => setIsOpen(true)}>
+        <MenuIcon />
+      </Button>
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
         <Drawer.Content
@@ -31,8 +30,8 @@ const SidebarMenu = () => {
           }
         >
           <div className="bg-zinc-50 h-full w-full grow p-5 flex flex-col rounded-[16px] font-sans">
-            <div className="max-w-md flex flex-col gap-4">
-              <div className="flex items-center gap-3 border-b-[0.0125rem] border-b-neutral-200 pb-4">
+            <div className="max-w-md flex flex-col gap-4 h-full justify-between">
+              <div className="flex items-center gap-3 border-b-[0.0125rem] border-b-neutral-200 pb-4 flex-1/12">
                 <img
                   src={userQuery.data.image ?? ""}
                   className="rounded-full w-14"
@@ -44,7 +43,7 @@ const SidebarMenu = () => {
                   <p className="text-neutral-600">{userQuery.data.email}</p>
                 </div>
               </div>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 flex-11/12">
                 <Link
                   to="/articles/submit"
                   className="flex gap-2 items-center p-2 hover:bg-neutral-200 transition-colors rounded-full px-4 text-neutral-800"
@@ -56,9 +55,11 @@ const SidebarMenu = () => {
                 </Link>
                 {/* <Link to="/articles/submit">View Drafts</Link> */}
               </div>
-              <Button onPress={() => signOut.mutate()} fullWidth>
-                Sign Out
-              </Button>
+              <div className="flex-1/12">
+                <Button onPress={() => signOut.mutate()} fullWidth>
+                  Sign Out
+                </Button>
+              </div>
               {/* <Drawer.Title className="font-medium mb-2 text-zinc-900">
                 It supports all directions.
               </Drawer.Title>
@@ -100,11 +101,6 @@ const NavLinks = () => {
             Articles
           </Link>
         </li>
-        {/* <li>
-          <a href="/people" className="hover:text-sky-600">
-            People
-          </a>
-        </li> */}
       </ul>
     </nav>
   );

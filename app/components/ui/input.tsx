@@ -9,7 +9,7 @@ import useMeasure from "react-use-measure";
 
 export const inputBase = cva([
   "h-8 px-2 py-2 text-sm",
-  "rounded-sm bg-neutral-50 border-[0.0125rem] border-neutral-300/70 hover:bg-neutral-100/80 placeholder:text-neutral-500 placeholder:text-xs",
+  "rounded-md border-[0.0125rem] bg-white border-zinc-300/70 hover:border-zinc-400/80 placeholder:text-neutral-500 placeholder:text-xs shadow-xs",
   "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-offset-0",
   "disabled:opacity-70 disabled:cursor-not-allowed disabled:bg-neutral-100",
 ]);

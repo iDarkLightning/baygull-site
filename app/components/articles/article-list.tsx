@@ -40,7 +40,9 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
             <p className="text-xl font-semibold group-hover:underline group-hover:text-sky-600 text-balance">
               {article.title}
             </p>
-            <p className="text-neutral-600 text-sm">{article.description}</p>
+            <p className="text-neutral-600 text-sm break-words">
+              {article.description}
+            </p>
             <div className="flex items-center gap-2 text-sm text-neutral-600 mt-1">
               {article.topics.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">

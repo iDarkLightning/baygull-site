@@ -15,6 +15,14 @@ export default defineConfig({
         projects: ["./tsconfig.json"],
       }),
       tailwindcss(),
+      {
+        name: "custom-config",
+        config: () => ({
+          server: {
+            allowedHosts: true,
+          },
+        }),
+      },
     ],
   },
 });

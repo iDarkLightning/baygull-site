@@ -31,7 +31,11 @@ export const ArticleSpotlight: React.FC<ArticleSpotlightProps> = (props) => (
       </p>
     </div>
     {props.article.description.length > 0 && (
-      <p className="text-neutral-600">{props.article.description}</p>
+      <div>
+        <p className="text-neutral-600 break-words">
+          {props.article.description}
+        </p>
+      </div>
     )}
     <div className="flex flex-col gap-1">
       {props.article.topics.length > 0 && (

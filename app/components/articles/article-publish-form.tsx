@@ -8,7 +8,12 @@ import { ClientOnly } from "../client-only";
 import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
 import { Button } from "../ui/button";
 import { FieldError } from "../ui/field-error";
-import { ChevronLeftIcon, ChevronRightIcon, TrashIcon } from "../ui/icons";
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EyeIcon,
+  TrashIcon,
+} from "../ui/icons";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { RemirrorEditor } from "../ui/markdown-editor";
@@ -51,19 +56,41 @@ export const ArticlePublishForm: React.FC = () => {
   const { step } = useArticlePublishFormStore((s) => s);
 
   return (
-    <MultiStepForm>
-      {step === 0 && <InfoForm />}
-      {step === 1 && <CoverImageForm />}
-      {step === 2 && <ContentForm />}
-      {step === 3 && <PreviewForm />}
-    </MultiStepForm>
+    <div className="flex flex-col gap-4 w-full">
+      <div className="flex justify-between items-center p-4 rounded-md border-[0.0125rem] border-zinc-300 shadow-xs">
+        <p>Publish Article Nirjhor Nath</p>
+        <div className="space-x-2 flex items-center">
+          <Button variant="secondary" leadingVisual={<EyeIcon />}>
+            Preview
+          </Button>
+          <Button>Publish</Button>
+        </div>
+      </div>
+      <div className="flex gap-8 flex-col lg:flex-row">
+        <div className="flex-1 flex flex-col gap-4">
+          <div className="bg-zinc-50/40 border-[0.0125rem] border-zinc-100 shadow-xs p-6 rounded-md">
+            <InfoForm />
+          </div>
+          <CoverImageForm />
+        </div>
+        <div className="flex-1">
+          <ContentForm />
+        </div>
+      </div>
+    </div>
+    // <MultiStepForm>
+    //   {step === 0 && <InfoForm />}
+    //   {step === 1 && <CoverImageForm />}
+    //   {step === 2 && <ContentForm />}
+    //   {step === 3 && <PreviewForm />}
+    // </MultiStepForm>
   );
 };
 
 function InfoForm() {
   const { incrementStep, submitInfo, name, description, coverImg } =
     useArticlePublishFormStore((s) => s);
-  const { moveForward } = useMultiStepForm();
+  // const { moveForward } = useMultiStepForm();
   const coverImgQuery = useQuery(fetchCoverImgQuery(name, coverImg));
   const topicsQuery = useSuspenseQuery(getAllTopicsQuery);
 
@@ -89,7 +116,7 @@ function InfoForm() {
             message: "That is a restricted path, please provide another slug!",
           }
         ),
-      topics: z.set(z.string()),
+      // topics: z.set(z.string()),
     }),
     defaultValues: {
       name: name,
@@ -99,7 +126,7 @@ function InfoForm() {
         strict: true,
         trim: true,
       }),
-      topics: new Set<Key>(),
+      // topics: new Set<Key>(),
     },
   });
 
@@ -121,25 +148,16 @@ function InfoForm() {
     return () => unsubscribe();
   }, [form.watch]);
 
-  const listItems = ["Aardvark", "Cat", "Dog", "Kangaroo", "Panda", "Snake"];
-
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
-        <h1 className="text-4xl font-bold text-neutral-800">Article Info</h1>
-        <p className="text-neutral-700">
-          Finalize the name, description, and the topics for this article. The
-          author's suggestions are populated below.
-        </p>
-      </div>
       <form
         className="flex flex-col gap-4"
         onSubmit={form.handleSubmit((data) => {
-          moveForward(() => {
-            console.log(data.topics);
-            submitInfo(data);
-            incrementStep();
-          });
+          // moveForward(() => {
+          // console.log(data.topics);
+          submitInfo(data);
+          incrementStep();
+          // });
         })}
       >
         <Controller
@@ -193,7 +211,7 @@ function InfoForm() {
             </TextField>
           )}
         />
-        <Controller
+        {/* <Controller
           control={form.control}
           name="topics"
           render={({ field }) => (
@@ -218,8 +236,8 @@ function InfoForm() {
               </MultiSelectTrigger>
             </MultiSelect>
           )}
-        />
-        <div className="self-end">
+        /> */}
+        {/* <div className="self-end">
           <Button
             type="submit"
             trailingVisual={<ChevronRightIcon />}
@@ -227,7 +245,7 @@ function InfoForm() {
           >
             Next
           </Button>
-        </div>
+        </div> */}
       </form>
     </div>
   );
@@ -239,11 +257,9 @@ function ContentForm() {
   const content = useArticlePublishFormStore((s) => s.content);
   const setContent = useArticlePublishFormStore((s) => s.setContent);
 
-  const { moveBackward, moveForward } = useMultiStepForm();
-
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
+      {/* <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
         <h1 className="text-4xl font-bold text-neutral-800">Article Content</h1>
         <p className="text-neutral-700">
           Make any final changes to the article content before publishing.
@@ -251,7 +267,7 @@ function ContentForm() {
           name, etc. Any meaningful changes should happen in the editing
           document.
         </p>
-      </div>
+      </div> */}
       <ClientOnly>
         <RemirrorEditor
           value={content}
@@ -259,7 +275,7 @@ function ContentForm() {
         />
       </ClientOnly>
       <div className="flex items-center justify-between my-4">
-        <Button
+        {/* <Button
           variant="secondary"
           onPress={() => {
             moveBackward(decrementStep);
@@ -275,7 +291,7 @@ function ContentForm() {
           trailingVisual={<ChevronRightIcon />}
         >
           Next
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
@@ -284,19 +300,17 @@ function ContentForm() {
 function CoverImageForm() {
   const incrementStep = useArticlePublishFormStore((s) => s.incrementStep);
   const decrementStep = useArticlePublishFormStore((s) => s.decrementStep);
-  const { moveBackward, moveForward } = useMultiStepForm();
+  // const { moveBackward, moveForward } = useMultiStepForm();
 
   const name = useArticlePublishFormStore((s) => s.name);
   const coverImgRaw = useArticlePublishFormStore((s) => s.coverImg);
   const setCoverImg = useArticlePublishFormStore((s) => s.setCoverImg);
 
-  const { data: coverImg } = useSuspenseQuery(
-    fetchCoverImgQuery(name, coverImgRaw)
-  );
+  const { data: coverImg } = useQuery(fetchCoverImgQuery(name, coverImgRaw));
 
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
+      {/* <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
         <h1 className="text-4xl font-bold text-neutral-800">
           Now let's add a cover image...
         </h1>
@@ -306,7 +320,7 @@ function CoverImageForm() {
           some art! If you would like to submit without a cover image, you can
           skip this step.
         </p>
-      </div>
+      </div> */}
       {!coverImg && (
         <FileUpload
           onDrop={(files) => {
@@ -339,7 +353,7 @@ function CoverImageForm() {
           </Button>
         </div>
       )}
-      <div className="flex items-center justify-between my-4">
+      {/* <div className="flex items-center justify-between my-4">
         <Button
           variant="secondary"
           onPress={() => {
@@ -357,7 +371,7 @@ function CoverImageForm() {
         >
           {coverImg ? "Next" : "Skip"}
         </Button>
-      </div>
+      </div> */}
     </div>
   );
 }

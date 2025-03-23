@@ -100,11 +100,11 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
           {[...selectedKeys].map((key, index) => (
             <div
               key={index}
-              className="py-0.5 group px-3 border w-fit border-neutral-400 rounded-full font-sans text-xs font-medium flex gap-1 items-center whitespace-nowrap"
+              className="py-0.5 group px-3 border w-fit border-neutral-400 text-neutral-700 rounded-full font-sans text-xs font-medium flex gap-1 items-center whitespace-nowrap shadow-sm"
             >
               <p>{key}</p>
               <span
-                className="hidden group-hover:block animate-in slide-in-from-left-0.5 animate-out slide-out-to-right-0.5 ease-in-out"
+                className="hidden group-hover:block animate-in slide-in-from-left-0.5 ease-in-out delay-150"
                 {...pressProps}
               >
                 <XMarkIcon />
