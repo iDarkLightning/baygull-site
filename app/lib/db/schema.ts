@@ -17,6 +17,12 @@ export const user = sqliteTable("user", {
   image: text("image"),
   createdAt: integer("created_at", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp" }).notNull(),
+  /**
+   * 0 = User
+   * 1 = Published
+   * 2 = Admin
+   */
+  role: integer("role").notNull().default(0),
 });
 
 export type User = typeof user.$inferInsert;
