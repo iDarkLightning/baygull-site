@@ -7,7 +7,9 @@ import { getArticleDraftByIdQuery } from "~/lib/articles/article-api";
 import { ArticlePublishFormStoreProvider } from "~/lib/articles/article-publish-store";
 import { getAllTopicsQuery } from "~/lib/topics/topic-api";
 
-export const Route = createFileRoute("/articles/publish/$id")({
+export const Route = createFileRoute(
+  "/manage/_admin-layout/drafts/publish/$id"
+)({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(
       getArticleDraftByIdQuery(params.id)
@@ -31,16 +33,14 @@ function RouteComponent() {
 
     //   </main>
     // </div>
-    <AdminShell>
-      <ArticlePublishFormStoreProvider
-        name={draftQuery.data.title}
-        content={draftQuery.data.content}
-        description={draftQuery.data.description}
-        coverImg={draftQuery.data.coverImg}
-        users={draftQuery.data.users}
-      >
-        <ArticlePublishForm />
-      </ArticlePublishFormStoreProvider>
-    </AdminShell>
+    <ArticlePublishFormStoreProvider
+      name={draftQuery.data.title}
+      content={draftQuery.data.content}
+      description={draftQuery.data.description}
+      coverImg={draftQuery.data.coverImg}
+      users={draftQuery.data.users}
+    >
+      <ArticlePublishForm />
+    </ArticlePublishFormStoreProvider>
   );
 }

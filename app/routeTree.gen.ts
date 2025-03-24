@@ -8,6 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
+import { createFileRoute } from '@tanstack/react-router'
+
 // Import Routes
 
 import { Route as rootRoute } from './routes/__root'
@@ -15,9 +17,21 @@ import { Route as IndexImport } from './routes/index'
 import { Route as ArticlesIndexImport } from './routes/articles/index'
 import { Route as ArticlesSubmitImport } from './routes/articles/submit'
 import { Route as ArticlesSlugImport } from './routes/articles/$slug'
-import { Route as ArticlesPublishIdImport } from './routes/articles/publish.$id'
+import { Route as ManageAdminLayoutRouteImport } from './routes/manage._admin-layout/route'
+import { Route as ManageAdminLayoutDraftsIndexImport } from './routes/manage._admin-layout/drafts/index'
+import { Route as ManageAdminLayoutDraftsPublishIdImport } from './routes/manage._admin-layout/drafts/publish.$id'
+
+// Create Virtual Routes
+
+const ManageImport = createFileRoute('/manage')()
 
 // Create/Update Routes
+
+const ManageRoute = ManageImport.update({
+  id: '/manage',
+  path: '/manage',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const IndexRoute = IndexImport.update({
   id: '/',
@@ -43,11 +57,24 @@ const ArticlesSlugRoute = ArticlesSlugImport.update({
   getParentRoute: () => rootRoute,
 } as any)
 
-const ArticlesPublishIdRoute = ArticlesPublishIdImport.update({
-  id: '/articles/publish/$id',
-  path: '/articles/publish/$id',
-  getParentRoute: () => rootRoute,
+const ManageAdminLayoutRouteRoute = ManageAdminLayoutRouteImport.update({
+  id: '/_admin-layout',
+  getParentRoute: () => ManageRoute,
 } as any)
+
+const ManageAdminLayoutDraftsIndexRoute =
+  ManageAdminLayoutDraftsIndexImport.update({
+    id: '/drafts/',
+    path: '/drafts/',
+    getParentRoute: () => ManageAdminLayoutRouteRoute,
+  } as any)
+
+const ManageAdminLayoutDraftsPublishIdRoute =
+  ManageAdminLayoutDraftsPublishIdImport.update({
+    id: '/drafts/publish/$id',
+    path: '/drafts/publish/$id',
+    getParentRoute: () => ManageAdminLayoutRouteRoute,
+  } as any)
 
 // Populate the FileRoutesByPath interface
 
@@ -59,6 +86,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexImport
       parentRoute: typeof rootRoute
+    }
+    '/manage': {
+      id: '/manage'
+      path: '/manage'
+      fullPath: '/manage'
+      preLoaderRoute: typeof ManageImport
+      parentRoute: typeof rootRoute
+    }
+    '/manage/_admin-layout': {
+      id: '/manage/_admin-layout'
+      path: '/manage'
+      fullPath: '/manage'
+      preLoaderRoute: typeof ManageAdminLayoutRouteImport
+      parentRoute: typeof ManageRoute
     }
     '/articles/$slug': {
       id: '/articles/$slug'
@@ -81,82 +122,131 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesIndexImport
       parentRoute: typeof rootRoute
     }
-    '/articles/publish/$id': {
-      id: '/articles/publish/$id'
-      path: '/articles/publish/$id'
-      fullPath: '/articles/publish/$id'
-      preLoaderRoute: typeof ArticlesPublishIdImport
-      parentRoute: typeof rootRoute
+    '/manage/_admin-layout/drafts/': {
+      id: '/manage/_admin-layout/drafts/'
+      path: '/drafts'
+      fullPath: '/manage/drafts'
+      preLoaderRoute: typeof ManageAdminLayoutDraftsIndexImport
+      parentRoute: typeof ManageAdminLayoutRouteImport
+    }
+    '/manage/_admin-layout/drafts/publish/$id': {
+      id: '/manage/_admin-layout/drafts/publish/$id'
+      path: '/drafts/publish/$id'
+      fullPath: '/manage/drafts/publish/$id'
+      preLoaderRoute: typeof ManageAdminLayoutDraftsPublishIdImport
+      parentRoute: typeof ManageAdminLayoutRouteImport
     }
   }
 }
 
 // Create and export the route tree
 
+interface ManageAdminLayoutRouteRouteChildren {
+  ManageAdminLayoutDraftsIndexRoute: typeof ManageAdminLayoutDraftsIndexRoute
+  ManageAdminLayoutDraftsPublishIdRoute: typeof ManageAdminLayoutDraftsPublishIdRoute
+}
+
+const ManageAdminLayoutRouteRouteChildren: ManageAdminLayoutRouteRouteChildren =
+  {
+    ManageAdminLayoutDraftsIndexRoute: ManageAdminLayoutDraftsIndexRoute,
+    ManageAdminLayoutDraftsPublishIdRoute:
+      ManageAdminLayoutDraftsPublishIdRoute,
+  }
+
+const ManageAdminLayoutRouteRouteWithChildren =
+  ManageAdminLayoutRouteRoute._addFileChildren(
+    ManageAdminLayoutRouteRouteChildren,
+  )
+
+interface ManageRouteChildren {
+  ManageAdminLayoutRouteRoute: typeof ManageAdminLayoutRouteRouteWithChildren
+}
+
+const ManageRouteChildren: ManageRouteChildren = {
+  ManageAdminLayoutRouteRoute: ManageAdminLayoutRouteRouteWithChildren,
+}
+
+const ManageRouteWithChildren =
+  ManageRoute._addFileChildren(ManageRouteChildren)
+
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/manage': typeof ManageAdminLayoutRouteRouteWithChildren
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
-  '/articles/publish/$id': typeof ArticlesPublishIdRoute
+  '/manage/drafts': typeof ManageAdminLayoutDraftsIndexRoute
+  '/manage/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/manage': typeof ManageAdminLayoutRouteRouteWithChildren
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
-  '/articles/publish/$id': typeof ArticlesPublishIdRoute
+  '/manage/drafts': typeof ManageAdminLayoutDraftsIndexRoute
+  '/manage/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
+  '/manage': typeof ManageRouteWithChildren
+  '/manage/_admin-layout': typeof ManageAdminLayoutRouteRouteWithChildren
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles/': typeof ArticlesIndexRoute
-  '/articles/publish/$id': typeof ArticlesPublishIdRoute
+  '/manage/_admin-layout/drafts/': typeof ManageAdminLayoutDraftsIndexRoute
+  '/manage/_admin-layout/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/manage'
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles'
-    | '/articles/publish/$id'
+    | '/manage/drafts'
+    | '/manage/drafts/publish/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/manage'
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles'
-    | '/articles/publish/$id'
+    | '/manage/drafts'
+    | '/manage/drafts/publish/$id'
   id:
     | '__root__'
     | '/'
+    | '/manage'
+    | '/manage/_admin-layout'
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles/'
-    | '/articles/publish/$id'
+    | '/manage/_admin-layout/drafts/'
+    | '/manage/_admin-layout/drafts/publish/$id'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  ManageRoute: typeof ManageRouteWithChildren
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   ArticlesSubmitRoute: typeof ArticlesSubmitRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
-  ArticlesPublishIdRoute: typeof ArticlesPublishIdRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  ManageRoute: ManageRouteWithChildren,
   ArticlesSlugRoute: ArticlesSlugRoute,
   ArticlesSubmitRoute: ArticlesSubmitRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
-  ArticlesPublishIdRoute: ArticlesPublishIdRoute,
 }
 
 export const routeTree = rootRoute
@@ -170,14 +260,28 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
+        "/manage",
         "/articles/$slug",
         "/articles/submit",
-        "/articles/",
-        "/articles/publish/$id"
+        "/articles/"
       ]
     },
     "/": {
       "filePath": "index.tsx"
+    },
+    "/manage": {
+      "filePath": "manage._admin-layout",
+      "children": [
+        "/manage/_admin-layout"
+      ]
+    },
+    "/manage/_admin-layout": {
+      "filePath": "manage._admin-layout/route.tsx",
+      "parent": "/manage",
+      "children": [
+        "/manage/_admin-layout/drafts/",
+        "/manage/_admin-layout/drafts/publish/$id"
+      ]
     },
     "/articles/$slug": {
       "filePath": "articles/$slug.tsx"
@@ -188,8 +292,13 @@ export const routeTree = rootRoute
     "/articles/": {
       "filePath": "articles/index.tsx"
     },
-    "/articles/publish/$id": {
-      "filePath": "articles/publish.$id.tsx"
+    "/manage/_admin-layout/drafts/": {
+      "filePath": "manage._admin-layout/drafts/index.tsx",
+      "parent": "/manage/_admin-layout"
+    },
+    "/manage/_admin-layout/drafts/publish/$id": {
+      "filePath": "manage._admin-layout/drafts/publish.$id.tsx",
+      "parent": "/manage/_admin-layout"
     }
   }
 }

@@ -15,13 +15,13 @@ const tabs = [
   {
     id: "articles-tab",
     name: "Articles",
-    link: "/articles",
+    link: "/manage/articles",
     icon: DocumentDuplicatesIcon,
   },
   {
     id: "drafts-tab",
     name: "Drafts",
-    link: "/test",
+    link: "/manage/drafts",
     icon: PencilSquareIcon,
   },
   {
