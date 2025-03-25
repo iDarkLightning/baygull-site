@@ -41,11 +41,11 @@ const Nav = () => {
 
   return (
     <>
-      <div className="flex gap-2 items-center border-b-[0.0125rem] border-zinc-800 p-3 flex-1/12">
+      <div className="flex gap-2 items-center border-b-[0.0125rem] border-zinc-300 p-3 flex-1/12">
         <img src="/logo.png" alt="" className="size-12" />
         <div className="leading-5">
           <p className="font-semibold">The Bay Gull</p>
-          <p className="font-medium text-xs text-cyan-500">Admin</p>
+          <p className="font-medium text-xs text-cyan-700">Admin</p>
         </div>
       </div>
       <div className="flex flex-col gap-3 flex-10/12 my-2">
@@ -53,15 +53,15 @@ const Nav = () => {
           <Link
             to={tab.link as any}
             key={tab.id}
-            className="px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-200 flex items-center gap-2 rounded-md hover:bg-zinc-700/80 transition-colors"
+            className="px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-400/50 transition-colors"
             // activeOptions={{ exact: true }}
             activeProps={{
               className:
-                "bg-zinc-800 border-[0.0125rem] border-zinc-700 shadow-xs",
+                "bg-zinc-300 border-[0.0125rem] border-zinc-400/30 shadow-xs",
             }}
           >
             <tab.icon />
-            <p>{tab.name}</p>
+            <p className="text-neutral-950 font-medium">{tab.name}</p>
           </Link>
         ))}
       </div>
@@ -74,7 +74,7 @@ const Nav = () => {
         />
         <div className="leading-6">
           <p className="font-medium">{userQuery.data.name}</p>
-          <p className="text-neutral-400 text-xs">{userQuery.data.email}</p>
+          <p className="text-neutral-800 text-xs">{userQuery.data.email}</p>
         </div>
       </div>
     </>
@@ -114,11 +114,11 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row">
-      <div className="min-w-64 h-screen bg-zinc-950 border-r-[0.0125rem] text-white border-zinc-800 flex-col gap-4 rounded-r-2xl shadow-sm hidden lg:flex">
+    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen lg:bg-zinc-100 overflow-auto">
+      <div className="min-w-64 max-w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed">
         <Nav />
       </div>
-      <div className="p-3 flex items-center justify-between lg:hidden">
+      <div className="p-3 flex items-center justify-between lg:hidden bg-zinc-100 border-b-[0.0125rem] border-zinc-300">
         <MobileNavDrawer>
           <div className="w-full h-screen flex flex-col gap-4 rounded-r-2xl shadow-sm">
             <Nav />
@@ -131,7 +131,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
           referrerPolicy="no-referrer"
         />
       </div>
-      <div className="max-w-[125rem] mx-auto w-full lg:w-[85%] 2xl:w-[90%] font-serif px-4 lg:px-8 py-8">
+      <div className="px-4 lg:px-8 py-8 bg-white lg:mt-2 lg:ml-64 lg:mr-2 rounded-t-2xl w-full lg:border-[0.0125rem] lg:border-zinc-300 lg:shadow-sm">
         {props.children}
       </div>
     </div>
