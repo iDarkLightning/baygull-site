@@ -1,10 +1,9 @@
-import { createDriveClient } from "~/lib/google-drive";
-import { authedProcedure } from "../middleware/auth-middleware";
-import { z } from "zod";
-import { db } from "~/lib/db";
-import { articleDraft, usersToArticleDrafts } from "~/lib/db/schema";
 import { TRPCError } from "@trpc/server";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
+import { articleDraft, usersToArticleDrafts } from "~/lib/db/schema";
+import { createDriveClient } from "~/lib/google-drive";
+import { authedProcedure } from "../middleware/auth-middleware";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
@@ -31,8 +30,8 @@ const createArticleEditingCopy = async (data: {
 export const draftRouter = {
   getById: authedProcedure
     .input(z.object({ draftId: z.string() }))
-    .query(async ({ input }) => {
-      const draft = await db.query.articleDraft.findFirst({
+    .query(async ({ input, ctx }) => {
+      const draft = await ctx.db.query.articleDraft.findFirst({
         where: eq(articleDraft.id, input.draftId),
         with: {
           users: {
@@ -81,7 +80,7 @@ export const draftRouter = {
         fileId: input.docId,
       });
 
-      const [insertResult] = await db
+      const [insertResult] = await ctx.db
         .insert(articleDraft)
         .values({
           title: input.title,
@@ -94,7 +93,7 @@ export const draftRouter = {
         })
         .returning();
 
-      await db.insert(usersToArticleDrafts).values({
+      await ctx.db.insert(usersToArticleDrafts).values({
         draftId: insertResult.id,
         userId: ctx.user.id,
       });

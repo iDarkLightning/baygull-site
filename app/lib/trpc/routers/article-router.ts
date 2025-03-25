@@ -4,9 +4,9 @@ import DOMPurify from "isomorphic-dompurify";
 import parse from "node-html-parser";
 import { UTApi } from "uploadthing/server";
 import { z } from "zod";
-import { db } from "~/lib/db";
 import { article, usersToArticles } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
+import { type TRPCContext } from "../context";
 import { publicProcedure } from "../init";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
 import { draftRouter } from "./draft-router";
@@ -33,8 +33,8 @@ const processArticleContent = async (htmlContent: string) => {
   return DOMPurify.sanitize(parsed.toString());
 };
 
-const getAllArticles = async () =>
-  db.query.article.findMany({
+const getAllArticles = async (ctx: TRPCContext) =>
+  ctx.db.query.article.findMany({
     with: {
       users: {
         with: {
@@ -55,8 +55,8 @@ export const articleRouter = {
 
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
-    .query(async ({ input }) => {
-      const queryResult = await db.query.article.findFirst({
+    .query(async ({ input, ctx }) => {
+      const queryResult = await ctx.db.query.article.findFirst({
         where: eq(article.slug, input.slug),
         with: {
           users: {
@@ -77,12 +77,12 @@ export const articleRouter = {
       return queryResult;
     }),
 
-  getAll: publicProcedure.query(async () => {
-    return getAllArticles();
+  getAll: publicProcedure.query(async ({ ctx }) => {
+    return getAllArticles(ctx);
   }),
 
-  getHomePage: publicProcedure.query(async () => {
-    const articles = await getAllArticles();
+  getHomePage: publicProcedure.query(async ({ ctx }) => {
+    const articles = await getAllArticles(ctx);
 
     if (articles.length === 0) {
       return {
@@ -147,7 +147,7 @@ export const articleRouter = {
 
       const content = await processArticleContent(input.content);
 
-      const [insertResult] = await db
+      const [insertResult] = await ctx.db
         .insert(article)
         .values({
           title: input.title,
@@ -158,7 +158,7 @@ export const articleRouter = {
         })
         .returning();
 
-      await db.insert(usersToArticles).values({
+      await ctx.db.insert(usersToArticles).values({
         articleId: insertResult.id,
         userId: ctx.user.id,
       });

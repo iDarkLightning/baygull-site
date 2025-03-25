@@ -1,8 +1,7 @@
-import { db } from "~/lib/db";
 import { authedProcedure } from "../middleware/auth-middleware";
 
 export const topicRouter = {
-  getAll: authedProcedure.query(async () => {
-    return await db.query.topic.findMany();
+  getAll: authedProcedure.query(async ({ ctx }) => {
+    return await ctx.db.query.topic.findMany();
   }),
 };

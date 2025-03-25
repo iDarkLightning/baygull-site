@@ -2,7 +2,6 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArticlePublishForm } from "~/components/articles/article-publish-form";
 import { ArticlePublishFormStoreProvider } from "~/lib/articles/article-publish-store";
-import { getAllTopicsQuery } from "~/lib/topics/topic-api";
 import { useTRPC } from "~/lib/trpc/client";
 
 export const Route = createFileRoute(
