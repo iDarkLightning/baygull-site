@@ -1,13 +1,23 @@
-import { Suspense, useEffect } from "react";
-import { Key, TextField } from "react-aria-components";
+import {
+  queryOptions,
+  useQuery,
+  useSuspenseQuery
+} from "@tanstack/react-query";
+import { useEffect } from "react";
+import { TextField } from "react-aria-components";
 import { Controller } from "react-hook-form";
+import slugify from "slugify";
 import { z } from "zod";
 import { useArticlePublishFormStore } from "~/lib/articles/article-publish-store";
+import { formatBytes } from "~/lib/format-bytes";
 import { useZodForm } from "~/lib/hooks/use-zod-form";
+import { useTRPC } from "~/lib/trpc/client";
+import { useUploadThing } from "~/lib/uploadthing/client";
 import { ClientOnly } from "../client-only";
-import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
+import { useMultiStepForm } from "../ui/animated-multistep-form";
 import { Button } from "../ui/button";
 import { FieldError } from "../ui/field-error";
+import { FileUpload } from "../ui/file-upload";
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -18,24 +28,6 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { RemirrorEditor } from "../ui/markdown-editor";
 import { TextArea } from "../ui/textarea";
-import {
-  queryOptions,
-  useMutation,
-  useQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
-import { FileUpload } from "../ui/file-upload";
-import { formatBytes } from "~/lib/format-bytes";
-import { useUploadThing } from "~/lib/uploadthing/client";
-import { publishArticle } from "~/lib/articles/article-fns";
-import slugify from "slugify";
-import {
-  MultiSelect,
-  MultiSelectTrigger,
-  MultiSelectBody,
-  MultiSelectItem,
-} from "../ui/multi-select";
-import { getAllTopicsQuery } from "~/lib/topics/topic-api";
 
 const fetchCoverImgQuery = (
   articleName: string,
@@ -88,11 +80,12 @@ export const ArticlePublishForm: React.FC = () => {
 };
 
 function InfoForm() {
+  const trpc = useTRPC();
   const { incrementStep, submitInfo, name, description, coverImg } =
     useArticlePublishFormStore((s) => s);
   // const { moveForward } = useMultiStepForm();
   const coverImgQuery = useQuery(fetchCoverImgQuery(name, coverImg));
-  const topicsQuery = useSuspenseQuery(getAllTopicsQuery);
+  const topicsQuery = useSuspenseQuery(trpc.topic.getAll.queryOptions());
 
   const form = useZodForm({
     schema: z.object({
@@ -382,38 +375,38 @@ function PreviewForm() {
 
   const { startUpload } = useUploadThing("imageUploader");
 
-  const publish = useMutation({
-    mutationKey: ["article-publish"],
-    mutationFn: async () => {
-      let coverImgUrl: string | undefined = undefined;
+  // const publish = useMutation({
+  //   mutationKey: ["article-publish"],
+  //   mutationFn: async () => {
+  //     let coverImgUrl: string | undefined = undefined;
 
-      if (data.coverImg && typeof data.coverImg !== "string") {
-        const uploadResult = await startUpload([data.coverImg]);
+  //     if (data.coverImg && typeof data.coverImg !== "string") {
+  //       const uploadResult = await startUpload([data.coverImg]);
 
-        if (!uploadResult) throw new Error("Image Upload Failed!");
+  //       if (!uploadResult) throw new Error("Image Upload Failed!");
 
-        coverImgUrl = uploadResult[0].ufsUrl;
-      }
+  //       coverImgUrl = uploadResult[0].ufsUrl;
+  //     }
 
-      await publishArticle({
-        data: {
-          title: data.name,
-          description: data.description,
-          coverImg: coverImgUrl,
-          content: data.content,
-          slug: slugify(data.slug, {
-            lower: true,
-            strict: true,
-            trim: true,
-          }),
-        },
-      });
-    },
-    // onSuccess: () => moveForward(data.incrementStep),
-    onError: (err) => {
-      console.error(err);
-    },
-  });
+  //     await publishArticle({
+  //       data: {
+  //         title: data.name,
+  //         description: data.description,
+  //         coverImg: coverImgUrl,
+  //         content: data.content,
+  //         slug: slugify(data.slug, {
+  //           lower: true,
+  //           strict: true,
+  //           trim: true,
+  //         }),
+  //       },
+  //     });
+  //   },
+  //   // onSuccess: () => moveForward(data.incrementStep),
+  //   onError: (err) => {
+  //     console.error(err);
+  //   },
+  // });
 
   return (
     <div className="">
@@ -497,10 +490,10 @@ function PreviewForm() {
         </Button>
         <Button
           onPress={() => {
-            publish.mutate();
+            // publish.mutate();
           }}
           trailingVisual={<ChevronRightIcon />}
-          isDisabled={publish.isPending}
+          // isDisabled={publish.isPending}
         >
           Publish
         </Button>

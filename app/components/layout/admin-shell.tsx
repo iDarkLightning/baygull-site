@@ -1,15 +1,15 @@
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { Drawer } from "vaul";
+import { useTRPC } from "~/lib/trpc/client";
+import { Button } from "../ui/button";
 import {
   DocumentDuplicatesIcon,
   MenuIcon,
   PencilSquareIcon,
   PeopleIcon,
 } from "../ui/icons";
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { getUserQuery } from "~/lib/auth/auth-api";
-import { Drawer } from "vaul";
-import { Button } from "../ui/button";
-import { useState } from "react";
 
 const tabs = [
   {
@@ -34,9 +34,10 @@ const tabs = [
 
 //
 const Nav = () => {
-  const userQuery = useSuspenseQuery(getUserQuery());
+  const trpc = useTRPC();
+  const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
-  if (userQuery.data === null) throw new Error("Impossible state!");
+  if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
     <>
@@ -107,9 +108,10 @@ const MobileNavDrawer: React.FC<React.PropsWithChildren> = (props) => {
 };
 
 export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
-  const userQuery = useSuspenseQuery(getUserQuery());
+  const trpc = useTRPC();
+  const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
-  if (userQuery.data === null) throw new Error("Impossible state!");
+  if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
     <div className="font-sans flex flex-col lg:flex-row">

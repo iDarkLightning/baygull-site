@@ -4,16 +4,19 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Drawer } from "vaul";
-import { getUserQuery, useSignIn, useSignOut } from "~/lib/auth/auth-api";
+import { useSignIn, useSignOut } from "~/lib/auth/auth-client";
+import { useTRPC } from "~/lib/trpc/client";
 import { Button } from "./ui/button";
 import { MenuIcon, PencilSquareIcon, UserIcon } from "./ui/icons";
 
 const SidebarMenu = () => {
-  const userQuery = useSuspenseQuery(getUserQuery());
+  const trpc = useTRPC();
+  const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
+
   const signOut = useSignOut();
   const [isOpen, setIsOpen] = useState(false);
 
-  if (userQuery.data === null) throw new Error("Impossible state!");
+  if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
     <Drawer.Root direction="right" open={isOpen} onOpenChange={setIsOpen}>
@@ -76,7 +79,8 @@ const SidebarMenu = () => {
 };
 
 const Account = () => {
-  const userQuery = useSuspenseQuery(getUserQuery());
+  const trpc = useTRPC();
+  const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
   const signIn = useSignIn();
 

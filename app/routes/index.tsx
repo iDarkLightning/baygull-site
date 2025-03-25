@@ -5,17 +5,20 @@ import { ArticlesList } from "~/components/articles/article-list";
 import { ArticleSpotlight } from "~/components/articles/article-spotlight";
 import { Header } from "~/components/nav";
 import { RightArrowIcon } from "~/components/ui/icons";
-import { getHomePageArticlesQuery } from "~/lib/articles/article-api";
+import { useTRPC } from "~/lib/trpc/client";
 
 export const Route = createFileRoute("/")({
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(getHomePageArticlesQuery());
+    await context.queryClient.ensureQueryData(
+      context.trpc.article.getHomePage.queryOptions()
+    );
   },
   component: Home,
 });
 
 function Home() {
-  const { data } = useSuspenseQuery(getHomePageArticlesQuery());
+  const trpc = useTRPC();
+  const { data } = useSuspenseQuery(trpc.article.getHomePage.queryOptions());
 
   return (
     <div>

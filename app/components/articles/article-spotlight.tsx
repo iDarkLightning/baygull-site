@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { TArticlesList } from "~/lib/articles/article-fns";
+import type { TArticlesList } from "~/lib/trpc/types";
 
 type ArticleSpotlightProps = {
   article: TArticlesList[0];

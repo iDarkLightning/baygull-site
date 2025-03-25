@@ -2,12 +2,12 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CollapsedHeader } from "~/components/nav";
 import { PageProgress } from "~/components/page-progress";
-import { getArticleBySlugQuery } from "~/lib/articles/article-api";
+import { useTRPC } from "~/lib/trpc/client";
 
 export const Route = createFileRoute("/articles/$slug")({
   loader: async ({ params, context }) => {
     await context.queryClient.ensureQueryData(
-      getArticleBySlugQuery(params.slug)
+      context.trpc.article.getBySlug.queryOptions({ slug: params.slug })
     );
   },
   component: RouteComponent,
@@ -15,8 +15,9 @@ export const Route = createFileRoute("/articles/$slug")({
 
 function RouteComponent() {
   const params = Route.useParams();
+  const trpc = useTRPC();
   const { data: article } = useSuspenseQuery(
-    getArticleBySlugQuery(params.slug)
+    trpc.article.getBySlug.queryOptions({ slug: params.slug })
   );
 
   return (

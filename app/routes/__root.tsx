@@ -1,52 +1,55 @@
 // app/routes/__root.tsx
-import type { ReactNode } from "react";
 import {
-  Outlet,
-  createRootRoute,
   HeadContent,
+  Outlet,
   Scripts,
   createRootRouteWithContext,
 } from "@tanstack/react-router";
+import type { ReactNode } from "react";
 
-import globalCss from "~/styles/global.css?url";
 import { QueryClient } from "@tanstack/react-query";
-import { getUserQuery } from "~/lib/auth/auth-api";
+import { type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import { type TRPCRouter } from "~/lib/trpc/routers/root-router";
+import globalCss from "~/styles/global.css?url";
 
-export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
-  {
-    head: () => ({
-      meta: [
-        {
-          charSet: "utf-8",
-        },
-        {
-          name: "viewport",
-          content: "width=device-width, initial-scale=1",
-        },
-        {
-          title: "TanStack Start Starter",
-        },
-      ],
-      links: [
-        {
-          rel: "stylesheet",
-          href: globalCss,
-        },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
-        },
-      ],
-    }),
-    beforeLoad: async ({ context }) => {
-      const user = await context.queryClient.ensureQueryData(getUserQuery());
+export const Route = createRootRouteWithContext<{
+  queryClient: QueryClient;
+  trpc: TRPCOptionsProxy<TRPCRouter>;
+}>()({
+  head: () => ({
+    meta: [
+      {
+        charSet: "utf-8",
+      },
+      {
+        name: "viewport",
+        content: "width=device-width, initial-scale=1",
+      },
+      {
+        title: "TanStack Start Starter",
+      },
+    ],
+    links: [
+      {
+        rel: "stylesheet",
+        href: globalCss,
+      },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@300..900&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+      },
+    ],
+  }),
+  beforeLoad: async ({ context }) => {
+    const user = await context.queryClient.ensureQueryData(
+      context.trpc.user.me.queryOptions()
+    );
 
-      return { user };
-    },
-    errorComponent: () => <p>Oh noes! An error! Run!!</p>,
-    component: RootComponent,
-  }
-);
+    return { user };
+  },
+  errorComponent: () => <p>Oh noes! An error! Run!!</p>,
+  component: RootComponent,
+});
 
 function RootComponent() {
   return (

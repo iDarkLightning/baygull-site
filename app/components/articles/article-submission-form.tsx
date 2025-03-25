@@ -1,16 +1,17 @@
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { TextField } from "react-aria-components";
+import Confetti from "react-confetti";
 import { Controller } from "react-hook-form";
 import { useDebounce } from "use-debounce";
 import { z } from "zod";
 import { create } from "zustand";
-import { getGoogleDocFromUrlQuery } from "~/lib/articles/article-api";
-import { createArticleDraft } from "~/lib/articles/article-fns";
-import { getUserQuery } from "~/lib/auth/auth-api";
 import { formatBytes } from "~/lib/format-bytes";
 import { getGreeting } from "~/lib/get-greeting";
+import useWindowSize from "~/lib/hooks/use-window-size";
 import { useZodForm } from "~/lib/hooks/use-zod-form";
+import { useTRPC } from "~/lib/trpc/client";
 import { useUploadThing } from "~/lib/uploadthing/client";
 import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
 import { Button } from "../ui/button";
@@ -26,9 +27,6 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { TextArea } from "../ui/textarea";
-import Confetti from "react-confetti";
-import useWindowSize from "~/lib/hooks/use-window-size";
-import { Link } from "@tanstack/react-router";
 
 type TArticleSubmissionFormStore = {
   // Step Controls
@@ -116,7 +114,8 @@ function SplashScreen() {
   const incrementStep = useArticleSubmissionFormStore((s) => s.incrementStep);
   const { moveForward } = useMultiStepForm();
 
-  const userQuery = useSuspenseQuery(getUserQuery());
+  const trpc = useTRPC();
+  const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
   return (
     <div className="flex flex-col gap-0.5 py-4">
@@ -164,8 +163,12 @@ function InitialInfoForm() {
   const [docsUrl_, setDocsUrl_] = useState<string | undefined>(docsUrl);
   const [debouncedDocsUrl] = useDebounce(docsUrl_, 1_000);
 
+  const trpc = useTRPC();
+
   const docInfoQuery = useQuery({
-    ...getGoogleDocFromUrlQuery(debouncedDocsUrl),
+    ...trpc.article.getGoogleDocFromUrl.queryOptions({
+      docUrl: debouncedDocsUrl,
+    }),
     enabled: true,
   });
 
@@ -490,36 +493,39 @@ function PreviewForm() {
   const { moveBackward, moveForward } = useMultiStepForm();
 
   const { startUpload } = useUploadThing("imageUploader");
+  const trpc = useTRPC();
 
-  const submit = useMutation({
-    mutationKey: ["article-submit-draft"],
-    mutationFn: async () => {
-      let coverImgUrl: string | undefined = undefined;
+  const submit = useMutation(
+    trpc.article.draft.create.mutationOptions({
+      onSuccess: () => moveForward(data.incrementStep),
+      onError: (err) => {
+        console.error(err);
+      },
+    })
+  );
 
-      if (data.coverImg) {
-        const uploadResult = await startUpload([data.coverImg]);
+  // const submit = useMutation({
+  // mutationKey: ["article-submit-draft"],
+  // mutationFn: async () => {
+  //   let coverImgUrl: string | undefined = undefined;
+  //   if (data.coverImg) {
+  //     const uploadResult = await startUpload([data.coverImg]);
+  //     if (!uploadResult) throw new Error("Image Upload Failed!");
+  //     coverImgUrl = uploadResult[0].ufsUrl;
+  //   }
+  //   await createArticleDraft({
+  //     data: {
+  //       title: data.name,
+  //       description: data.description,
+  //       keyIdeas: data.keyIdeas,
+  //       message: data.message,
+  //       coverImg: coverImgUrl,
+  //       docId: data.docId,
+  //     },
+  //   });
+  // },
 
-        if (!uploadResult) throw new Error("Image Upload Failed!");
-
-        coverImgUrl = uploadResult[0].ufsUrl;
-      }
-
-      await createArticleDraft({
-        data: {
-          title: data.name,
-          description: data.description,
-          keyIdeas: data.keyIdeas,
-          message: data.message,
-          coverImg: coverImgUrl,
-          docId: data.docId,
-        },
-      });
-    },
-    onSuccess: () => moveForward(data.incrementStep),
-    onError: (err) => {
-      console.error(err);
-    },
-  });
+  // });
 
   return (
     <div>
@@ -606,8 +612,22 @@ function PreviewForm() {
             Back
           </Button>
           <Button
-            onPress={() => {
-              submit.mutate();
+            onPress={async () => {
+              let coverImgUrl: string | undefined = undefined;
+              if (data.coverImg) {
+                const uploadResult = await startUpload([data.coverImg]);
+                if (!uploadResult) throw new Error("Image Upload Failed!");
+                coverImgUrl = uploadResult[0].ufsUrl;
+              }
+
+              submit.mutate({
+                title: data.name,
+                description: data.description,
+                keyIdeas: data.keyIdeas,
+                message: data.message,
+                coverImg: coverImgUrl,
+                docId: data.docId,
+              });
             }}
             trailingVisual={<ChevronRightIcon />}
             isDisabled={submit.isPending}

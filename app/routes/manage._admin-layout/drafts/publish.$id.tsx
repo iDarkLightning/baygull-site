@@ -1,21 +1,21 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArticlePublishForm } from "~/components/articles/article-publish-form";
-import { AdminShell } from "~/components/layout/admin-shell";
-import { CollapsedHeader } from "~/components/nav";
-import { getArticleDraftByIdQuery } from "~/lib/articles/article-api";
 import { ArticlePublishFormStoreProvider } from "~/lib/articles/article-publish-store";
 import { getAllTopicsQuery } from "~/lib/topics/topic-api";
+import { useTRPC } from "~/lib/trpc/client";
 
 export const Route = createFileRoute(
   "/manage/_admin-layout/drafts/publish/$id"
 )({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(
-      getArticleDraftByIdQuery(params.id)
+      context.trpc.article.draft.getById.queryOptions({ draftId: params.id })
     );
 
-    await context.queryClient.ensureQueryData(getAllTopicsQuery);
+    await context.queryClient.ensureQueryData(
+      context.trpc.topic.getAll.queryOptions()
+    );
   },
   component: RouteComponent,
 });
@@ -23,8 +23,10 @@ export const Route = createFileRoute(
 // max-w-[80rem] py-6 px-4 md:mx-auto md:w-[70%] lg:w-[50%] xl:w-[40%] flex flex-col mt-16 justify-center font-serif gap-8
 function RouteComponent() {
   const { id } = Route.useParams();
-
-  const draftQuery = useSuspenseQuery(getArticleDraftByIdQuery(id));
+  const trpc = useTRPC();
+  const draftQuery = useSuspenseQuery(
+    trpc.article.draft.getById.queryOptions({ draftId: id })
+  );
 
   return (
     // <div>

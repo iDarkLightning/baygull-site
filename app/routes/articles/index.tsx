@@ -2,17 +2,22 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArticlesList } from "~/components/articles/article-list";
 import { Header } from "~/components/nav";
-import { getAllArticlesQuery } from "~/lib/articles/article-api";
+import { useTRPC } from "~/lib/trpc/client";
 
 export const Route = createFileRoute("/articles/")({
   loader: async ({ context }) => {
-    await context.queryClient.ensureQueryData(getAllArticlesQuery());
+    await context.queryClient.ensureQueryData(
+      context.trpc.article.getAll.queryOptions()
+    );
   },
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const { data: articles } = useSuspenseQuery(getAllArticlesQuery());
+  const trpc = useTRPC();
+  const { data: articles } = useSuspenseQuery(
+    trpc.article.getAll.queryOptions()
+  );
 
   return (
     <>
