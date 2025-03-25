@@ -3,7 +3,7 @@ import { eq } from "drizzle-orm";
 import { z } from "zod";
 import { articleDraft, usersToArticleDrafts } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
-import { authedProcedure } from "../middleware/auth-middleware";
+import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
@@ -28,6 +28,18 @@ const createArticleEditingCopy = async (data: {
 };
 
 export const draftRouter = {
+  getAll: adminProcedure.query(async ({ ctx }) => {
+    return ctx.db.query.articleDraft.findMany({
+      with: {
+        users: {
+          with: {
+            user: true,
+          },
+        },
+      },
+    });
+  }),
+
   getById: authedProcedure
     .input(z.object({ draftId: z.string() }))
     .query(async ({ input, ctx }) => {
