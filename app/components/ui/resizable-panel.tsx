@@ -22,33 +22,19 @@ export const ResizablePanel: React.FC<React.PropsWithChildren> = ({
     <motion.div
       animate={{ height: height || "auto" }}
       className="relative overflow-hidden"
+      transition={{
+        duration: 0.4,
+        type: "spring",
+        bounce: 0.3,
+      }}
     >
-      <AnimatePresence initial={false}>
-        <motion.div
-          key={JSON.stringify(children, ignoreCircularReferences())}
-          initial={{
-            // opacity: 0,
-            x: 382,
-          }}
-          animate={{
-            // opacity: 1,
-            x: 0,
-            // transition: { duration: duration / 2, delay: duration / 2 },
-          }}
-          exit={{
-            // opacity: 0,
-            x: -382,
-            // transition: { duration: duration / 2 }
-          }}
-        >
-          <div
-            ref={ref}
-            className={`${height ? "absolute" : "relative"} px-8 pb-8`}
-          >
-            {children}
-          </div>
-        </motion.div>
-      </AnimatePresence>
+      {/* <AnimatePresence initial={false}> */}
+      <motion.div key={JSON.stringify(children, ignoreCircularReferences())}>
+        <div ref={ref} className={`${height ? "absolute" : "relative"} w-full`}>
+          {children}
+        </div>
+      </motion.div>
+      {/* </AnimatePresence> */}
     </motion.div>
   );
 };

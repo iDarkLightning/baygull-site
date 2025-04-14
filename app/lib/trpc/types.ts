@@ -5,3 +5,4 @@ type RouterInput = inferRouterInputs<TRPCRouter>;
 type RouterOutput = inferRouterOutputs<TRPCRouter>;
 
 export type TArticlesList = RouterOutput["article"]["getAll"];
+export type TDraftList = RouterOutput["article"]["draft"]["getAll"];

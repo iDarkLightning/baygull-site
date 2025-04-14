@@ -29,7 +29,7 @@ const createArticleEditingCopy = async (data: {
 
 export const draftRouter = {
   getAll: adminProcedure.query(async ({ ctx }) => {
-    return ctx.db.query.articleDraft.findMany({
+    const result = await ctx.db.query.articleDraft.findMany({
       with: {
         users: {
           with: {
@@ -37,7 +37,12 @@ export const draftRouter = {
           },
         },
       },
+      orderBy: (draft, { asc }) => asc(draft.status),
     });
+
+    console.log(result);
+
+    return result;
   }),
 
   getById: authedProcedure

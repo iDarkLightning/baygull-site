@@ -107,6 +107,15 @@ export const articleDraft = sqliteTable("article_draft", {
   editingUrl: text("editing_url").notNull(),
   keyIdeas: text("key_ideas").notNull(),
   message: text("message").notNull(),
+  /**
+   * 0 = User
+   * 1 = Published
+   * 2 = Admin
+   */
+  status: integer("status").notNull().default(0),
+  submittedAt: integer("submitted_at")
+    .notNull()
+    .default(sql`(current_timestamp)`),
 });
 
 export const usersToArticleDrafts = sqliteTable(

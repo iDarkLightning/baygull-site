@@ -10,6 +10,7 @@ import {
   PencilSquareIcon,
   PeopleIcon,
 } from "../ui/icons";
+import { cn } from "~/lib/cn";
 
 const tabs = [
   {
@@ -41,11 +42,11 @@ const Nav = () => {
 
   return (
     <>
-      <div className="flex gap-2 items-center border-b-[0.0125rem] border-zinc-300 p-3 flex-1/12">
+      <div className="flex gap-2 items-center border-b-[0.0125rem] border-zinc-400/60 p-3 flex-1/12">
         <img src="/logo.png" alt="" className="size-12" />
         <div className="leading-5">
           <p className="font-semibold">The Bay Gull</p>
-          <p className="font-medium text-xs text-cyan-700">Admin</p>
+          <p className="font-medium text-xs text-sky-700">Admin</p>
         </div>
       </div>
       <div className="flex flex-col gap-3 flex-10/12 my-2">
@@ -53,11 +54,14 @@ const Nav = () => {
           <Link
             to={tab.link as any}
             key={tab.id}
-            className="px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-400/50 transition-colors"
+            className={cn(
+              "px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-100 transition-colors",
+              "focus:outline-none focus:bg-zinc-100"
+            )}
             // activeOptions={{ exact: true }}
             activeProps={{
               className:
-                "bg-zinc-300 border-[0.0125rem] border-zinc-400/30 shadow-xs",
+                "bg-zinc-50 border-[0.0125rem] border-zinc-400/60 shadow-sm",
             }}
           >
             <tab.icon />
@@ -65,7 +69,7 @@ const Nav = () => {
           </Link>
         ))}
       </div>
-      <div className="flex-1/12 items-center gap-2 p-3 border-t-[0.0125rem] border-zinc-950/5 lg:flex hidden">
+      <div className="flex-1/12 items-center gap-2 p-3 border-t-[0.0125rem] border-zinc-400/60 lg:flex hidden">
         <img
           src={userQuery.data.image ?? ""}
           className="rounded-xl size-10"
@@ -114,7 +118,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen lg:bg-zinc-100 overflow-auto">
+    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen lg:bg-[#E0E2E6] overflow-auto">
       <div className="min-w-64 max-w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed">
         <Nav />
       </div>
@@ -131,7 +135,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
           referrerPolicy="no-referrer"
         />
       </div>
-      <div className="px-4 lg:px-8 py-8 bg-white lg:mt-2 lg:ml-64 lg:mr-2 rounded-t-2xl w-full lg:border-[0.0125rem] lg:border-zinc-300 lg:shadow-sm">
+      <div className="bg-white lg:my-2 lg:ml-64 lg:mr-2 rounded-2xl w-full lg:border-[0.0125rem] lg:border-zinc-400/60 lg:shadow-sm">
         {props.children}
       </div>
     </div>

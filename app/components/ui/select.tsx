@@ -43,15 +43,21 @@ type SelectItemProps = Omit<ComponentProps<typeof Item>, "className">;
 export const SelectItem: React.FC<SelectItemProps> = (props) => {
   return (
     <Item
-      className={({ isSelected, isDisabled, isFocused, isHovered }) =>
+      className={({
+        isSelected,
+        isDisabled,
+        isFocused,
+        isHovered,
+        isFocusVisible,
+      }) =>
         cn(
-          "mx-1.5 my-1 flex cursor-default flex-col rounded-md px-4 py-1.5 text-sm text-neutral-700 font-medium outline-none transition-[background-color]",
+          "mx-1.5 my-1 flex cursor-default flex-col rounded-md px-2 py-1.5 text-sm text-neutral-600 font-medium outline-none transition-[background-color]",
           {
-            "bg-neutral-400/30": isFocused,
-            "bg-neutral-200 text-neutral-800 outline-none":
+            "bg-neutral-200": isFocusVisible,
+            "bg-neutral-100 text-neutral-800 outline-none":
               isHovered && !isDisabled,
-            "bg-sky-800/80 text-white": isSelected,
-            "bg-sky-900/80 text-white": isSelected && (isHovered || isFocused),
+            // "bg-sky-800/80 text-white": isSelected,
+            // "bg-sky-900/80 text-white": isSelected && (isHovered || isFocused),
             "cursor-not-allowed opacity-70": isDisabled,
           }
         )

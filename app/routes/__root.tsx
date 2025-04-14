@@ -4,6 +4,7 @@ import {
   Outlet,
   Scripts,
   createRootRouteWithContext,
+  useNavigate,
 } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
@@ -11,6 +12,7 @@ import { QueryClient } from "@tanstack/react-query";
 import { type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { type TRPCRouter } from "~/lib/trpc/routers/root-router";
 import globalCss from "~/styles/global.css?url";
+import { RouterProvider } from "react-aria-components";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
@@ -52,9 +54,13 @@ export const Route = createRootRouteWithContext<{
 });
 
 function RootComponent() {
+  const navigate = useNavigate();
+
   return (
     <RootDocument>
-      <Outlet />
+      <RouterProvider navigate={(route) => navigate({ to: route })}>
+        <Outlet />
+      </RouterProvider>
     </RootDocument>
   );
 }
