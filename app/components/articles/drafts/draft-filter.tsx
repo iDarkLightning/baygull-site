@@ -10,16 +10,17 @@ import {
   today,
 } from "@internationalized/date";
 import { useQuery } from "@tanstack/react-query";
-import React from "react";
+import { getRouteApi } from "@tanstack/react-router";
+import React, { useEffect } from "react";
 import {
   Button as AriaButton,
   DateRange,
+  DialogTrigger,
   Key,
   Menu,
   SubmenuTrigger,
   TextField,
 } from "react-aria-components";
-import { create } from "zustand";
 import { useShallow } from "zustand/react/shallow";
 import { Button } from "~/components/ui/button";
 import {
@@ -31,13 +32,14 @@ import {
 } from "~/components/ui/icons";
 import { Input } from "~/components/ui/input";
 import { MenuItem, MenuTrigger } from "~/components/ui/menu";
+import { ModalPopover } from "~/components/ui/modal-popover";
 import {
   MultiSelect,
   MultiSelectBody,
   MultiSelectItem,
 } from "~/components/ui/multi-select";
-import { Popover, PopoverTrigger } from "~/components/ui/popover";
 import { RangeCalendar } from "~/components/ui/range-calendar";
+import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
 import { cn } from "~/lib/cn";
 import { useTRPC } from "~/lib/trpc/client";
 
@@ -107,52 +109,57 @@ const submissionRangePresets = {
 
 type TDatePresets = keyof typeof submissionRangePresets | "none";
 
-type TDraftFilterStore = {
-  statuses: Set<Key>;
-  setStatuses: (statuses: Set<Key>) => void;
-  authors: Set<Key>;
-  setAuthors: (setAuthors: Set<Key>) => void;
-  titleDesc: string;
-  setTitleDesc: (titleDesc: string) => void;
-  submissionTime: DateRange | null;
-  setSubmissionTime: (submissionTime: DateRange) => void;
-  presetSelected: TDatePresets;
-  setPresetSelected: (preset: TDatePresets) => void;
-};
-
-export const useFilterStore = create<TDraftFilterStore>((set) => ({
-  statuses: new Set(),
-  setStatuses: (statuses) => set({ statuses }),
-  authors: new Set(),
-  setAuthors: (authors) => set({ authors }),
-  titleDesc: "",
-  setTitleDesc: (titleDesc) => set({ titleDesc }),
-  submissionTime: null,
-  setSubmissionTime: (submissionTime) => set({ submissionTime }),
-  presetSelected: "none",
-  setPresetSelected: (presetSelected) => set({ presetSelected }),
-}));
+const routeApi = getRouteApi("/manage/_admin-layout/drafts/");
 
 export const DraftFilterMenu = () => {
+  const state = useDraftFilterStore((s) => s);
+  const navigate = routeApi.useNavigate();
+  const search = routeApi.useSearch();
+
+  useEffect(() => {
+    navigate({
+      replace: true,
+      search: {
+        statuses: [...state.statuses],
+        authors: [...state.authors],
+        titleDesc: state.titleDesc,
+        submissionTime:
+          state.submissionTime === null
+            ? null
+            : {
+                start: state.submissionTime.start.toString(),
+                end: state.submissionTime.end.toString(),
+              },
+        preset: state.presetSelected,
+      },
+    });
+
+    console.log("SEARCH TIME", state.submissionTime);
+  }, [state]);
+
   return (
     <div className="flex flex-col-reverse items-center gap-4">
       <MenuTrigger>
         <Button leadingVisual={<FunnelIcon />}>Filter</Button>
-        <Popover placement="bottom right">
+        <ModalPopover
+          popoverProps={{
+            placement: "bottom right",
+          }}
+        >
           <Menu className="focus:outline-none min-w-42">
             <TitleDescFilter />
             <StatusFilter />
             <AuthorFilter />
             <SubmissionTimeFilter />
           </Menu>
-        </Popover>
+        </ModalPopover>
       </MenuTrigger>
     </div>
   );
 };
 
 export const DraftFilterDisplay = () => {
-  const state = useFilterStore();
+  const state = useDraftFilterStore((s) => s);
 
   const trpc = useTRPC();
   const authors = useQuery(trpc.article.draft.getAuthorList.queryOptions());
@@ -262,20 +269,20 @@ function TitleDescFilter() {
           <ChevronRightIcon />
         </div>
       </MenuItem>
-      <Popover>
+      <ModalPopover>
         <TitleDescFilterBody />
-      </Popover>
+      </ModalPopover>
     </SubmenuTrigger>
   );
 }
 
 function TitleDescFilterBody() {
-  const [titleDesc, setTitleDesc] = useFilterStore(
+  const [titleDesc, setTitleDesc] = useDraftFilterStore(
     useShallow((s) => [s.titleDesc, s.setTitleDesc])
   );
 
   return (
-    <div className="flex flex-col gap-2 p-4 outline-none w-sm">
+    <div className="flex flex-col gap-2 p-4 outline-none">
       <p className="text-xs font-semibold">Search by Title or Description</p>
       <TextField autoFocus value={titleDesc} onChange={setTitleDesc}>
         <Input fullWidth placeholder="Contains..." />
@@ -308,14 +315,14 @@ function MultiSelectFilterDisplay(
             selectedKeys={props.keys}
             setSelectedKeys={props.setKeys}
           >
-            <PopoverTrigger>
+            <DialogTrigger>
               <AriaButton className="items-center flex gap-2 hover:bg-zinc-300/30 transition-colors">
                 <div className="flex items-center h-8 px-4 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70">
                   {props.buttonContent}
                 </div>
               </AriaButton>
               {props.children}
-            </PopoverTrigger>
+            </DialogTrigger>
           </MultiSelect>
           <AriaButton
             className="flex gap-2 items-center rounded-e-md h-8 px-3 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70 hover:bg-zinc-300/30 transition-colors"
@@ -357,14 +364,14 @@ function DateRangeFilterDisplay(
                 : "between"}
             </p>
           </div>
-          <PopoverTrigger>
+          <DialogTrigger>
             <AriaButton className="items-center flex gap-2 hover:bg-zinc-300/30 transition-colors">
               <div className="flex items-center h-8 px-4 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70">
                 {props.buttonContent}
               </div>
             </AriaButton>
-            <Popover>{props.children}</Popover>
-          </PopoverTrigger>
+            <ModalPopover>{props.children}</ModalPopover>
+          </DialogTrigger>
           <AriaButton
             className="flex gap-2 items-center rounded-e-md h-8 px-3 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70 hover:bg-zinc-300/30 transition-colors"
             onPress={() => props.setRange(null)}
@@ -399,14 +406,14 @@ function TextFilterDisplay(
           <div className="h-8 px-2 py-1 items-center justify-center border-[0.0125rem] border-zinc-300/70">
             <p className="mt-1">contains</p>
           </div>
-          <PopoverTrigger>
+          <DialogTrigger>
             <AriaButton className="items-center flex gap-2 hover:bg-zinc-300/30 transition-colors">
-              <div className="flex items-center h-8 px-4 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70">
+              <div className="flex items-center h-8 px-4 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70 max-w-[8ch] truncate">
                 {props.text}
               </div>
             </AriaButton>
-            <Popover>{props.children}</Popover>
-          </PopoverTrigger>
+            <ModalPopover>{props.children}</ModalPopover>
+          </DialogTrigger>
           <AriaButton
             className="flex gap-2 items-center rounded-e-md h-8 px-3 py-1 border-e-[0.0125rem] border-t-[0.0125rem] border-b-[0.0125rem] border-zinc-300/70 hover:bg-zinc-300/30 transition-colors"
             onPress={() => props.setText("")}
@@ -422,7 +429,7 @@ function TextFilterDisplay(
 }
 
 function StatusFilter() {
-  const [selectedKeys, setSelectedKeys] = useFilterStore(
+  const [selectedKeys, setSelectedKeys] = useDraftFilterStore(
     useShallow((s) => [s.statuses, s.setStatuses])
   );
 
@@ -466,7 +473,7 @@ function StatusMultiSelectBody() {
 }
 
 function AuthorFilter() {
-  const [selectedKeys, setSelectedKeys] = useFilterStore(
+  const [selectedKeys, setSelectedKeys] = useDraftFilterStore(
     useShallow((s) => [s.authors, s.setAuthors])
   );
 
@@ -529,22 +536,23 @@ function SubmissionTimeFilter() {
           <ChevronRightIcon />
         </div>
       </MenuItem>
-      <Popover>
+      <ModalPopover>
         <SubmissionTimeFilterPopoverBody />
-      </Popover>
+      </ModalPopover>
     </SubmenuTrigger>
   );
 }
 
 function SubmissionTimeFilterPopoverBody() {
-  const [value, setValue, presetSelected, setPresetSelected] = useFilterStore(
-    useShallow((s) => [
-      s.submissionTime,
-      s.setSubmissionTime,
-      s.presetSelected,
-      s.setPresetSelected,
-    ])
-  );
+  const [value, setValue, presetSelected, setPresetSelected] =
+    useDraftFilterStore(
+      useShallow((s) => [
+        s.submissionTime,
+        s.setSubmissionTime,
+        s.presetSelected,
+        s.setPresetSelected,
+      ])
+    );
 
   return (
     <div className="flex flex-col gap-2 p-4 outline-none">

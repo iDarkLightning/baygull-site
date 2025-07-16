@@ -1,23 +1,20 @@
+import { getLocalTimeZone, isToday } from "@internationalized/date";
+import React from "react";
 import {
+  RangeCalendar as AriaRangeCalendar,
   CalendarCell,
   CalendarGrid,
   Heading,
-  RangeCalendar as AriaRangeCalendar,
-  CalendarGridBody,
-  CalendarGridHeader,
-  CalendarHeaderCell,
 } from "react-aria-components";
-import { Button } from "./button";
 import { cn } from "~/lib/cn";
+import { Button } from "./button";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
-import React from "react";
-import { isToday, getLocalTimeZone } from "@internationalized/date";
 
 export const RangeCalendar: React.FC<
   React.ComponentProps<typeof AriaRangeCalendar>
 > = (props) => {
   return (
-    <AriaRangeCalendar {...props}>
+    <AriaRangeCalendar className="w-full" {...props}>
       <header className="flex items-center py-2 w-full justify-between relative">
         <Button size="icon" slot="previous" variant="ghost">
           <ChevronLeftIcon />
@@ -27,7 +24,7 @@ export const RangeCalendar: React.FC<
           <ChevronRightIcon />
         </Button>
       </header>
-      <CalendarGrid>
+      <CalendarGrid className="w-full">
         {(date) => (
           <CalendarCell
             date={date}

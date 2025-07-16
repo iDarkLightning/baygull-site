@@ -17,8 +17,6 @@ import {
 import { Button } from "./button";
 import { cn } from "~/lib/cn";
 
-export const ModalTrigger = DialogTrigger;
-
 const MODAL_SIZES = {
   base: "max-w-md",
   screen: "max-w-7xl",
@@ -46,7 +44,7 @@ export const Modal: React.FC<ModalProps> = ({
       onOpenChange={props.onOpenChange}
       className={({ isEntering, isExiting }) =>
         cn(
-          "fixed inset-0 z-10 flex min-h-full items-end justify-center bg-white/20 backdrop-blur-xs p-3 md:items-center",
+          "fixed inset-0 z-10 flex min-h-full justify-center bg-white/20 backdrop-blur-xs p-3 items-center",
           {
             "animate-in fade-in-0 fill-mode-forwards md:zoom-in-95 duration-150 ease-out":
               isEntering,

@@ -30,7 +30,7 @@ import { MenuItem } from "~/components/ui/menu";
 import { Checkbox } from "~/components/ui/checkbox";
 import { CalendarDate } from "@internationalized/date";
 import { useEffect, useState } from "react";
-import { useFilterStore } from "./draft-filter";
+import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
 
 const mapStatusToLabel = ["Active", "Published", "Archived"];
 
@@ -42,7 +42,7 @@ const columns = [
     {
       id: "title-desc",
       cell: (info) => (
-        <div className="pl-4">
+        <div className="pl-4 mr-4">
           <p className="font-medium">{info.getValue().title}</p>
           <p className="text-xs text-neutral-600">
             {info.getValue().desc.slice(0, 20)}...
@@ -52,7 +52,6 @@ const columns = [
       header: () => <span className="pl-4">Title</span>,
       filterFn: (row, columnId, value: string) => {
         if (value === "") return true;
-        console.log("NOT TRUE");
 
         const { title, desc } = row.getValue<{ title: string; desc: string }>(
           columnId
@@ -73,7 +72,7 @@ const columns = [
 
       return (
         <div>
-          <div className="flex-1/12 items-center gap-2 flex px-3 py-2">
+          <div className="flex-1/12 items-center gap-2 flex px-3 py-2 mr-4">
             <div className="leading-6">
               <p className="font-medium">{firstUser.name}</p>
               <p className="text-neutral-600 text-xs">{firstUser.email}</p>
@@ -98,7 +97,6 @@ const columns = [
     header: () => <span className="pl-3">Author</span>,
     filterFn: (row, columnId, value: Set<Key>) => {
       if (value.size === 0) return true;
-      console.log("NOT TRUE");
 
       const user = row.getValue<TDraftList[number]["users"]>(columnId);
 
@@ -113,7 +111,7 @@ const columns = [
       return (
         <div
           className={cn(
-            "flex items-center gap-2 px-3 py-0.5 rounded-full text-sm w-fit font-medium",
+            "flex items-center gap-2 px-3 py-0.5 rounded-full text-sm w-fit font-medium mr-4",
             status == 0 && "bg-sky-100 text-sky-800",
             status == 1 && "bg-green-100 text-green-800",
             status == 2 && "bg-neutral-100 text-neutral-800"
@@ -125,7 +123,6 @@ const columns = [
     },
     filterFn: (row, columnId, value: Set<Key>) => {
       if (value.size === 0) return true;
-      console.log("NOT TRUE");
 
       const status = row.getValue<number>(columnId);
 
@@ -138,7 +135,7 @@ const columns = [
       const date = new Date(info.getValue());
 
       return (
-        <div className="flex items-center gap-2 text-neutral-600">
+        <div className="flex items-center gap-2 text-neutral-600 mr-4">
           <ClockIcon />
           <p className="text-xs whitespace-nowrap">
             {date.toLocaleDateString("en-US", {
@@ -159,11 +156,6 @@ const columns = [
         submittedAt.getFullYear(),
         submittedAt.getMonth(),
         submittedAt.getDay()
-      );
-
-      console.log(
-        date.compare(value.start) === 0 ||
-          (date.compare(value.start) > 0 && date.compare(value.end) < 0)
       );
 
       return (
@@ -204,14 +196,18 @@ export const DraftTable = () => {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(trpc.article.draft.getAll.queryOptions());
 
+  const state = useDraftFilterStore((s) => s);
   const [filters, setFilters] = useState<
     {
       id: string;
       value: unknown;
     }[]
-  >([]);
-
-  const state = useFilterStore();
+  >([
+    { id: "title-desc", value: state.titleDesc },
+    { id: "users", value: state.authors },
+    { id: "status", value: state.statuses },
+    { id: "submittedAt", value: state.submissionTime },
+  ]);
 
   const table = useReactTable({
     data,
@@ -234,8 +230,8 @@ export const DraftTable = () => {
   }, [state]);
 
   return (
-    <div className="px-6">
-      <table className="w-full overflow-x-auto">
+    <div className="px-1 md:px-6 overflow-auto">
+      <table className="w-full">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="text-left">

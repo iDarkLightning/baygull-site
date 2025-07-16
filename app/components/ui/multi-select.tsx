@@ -8,6 +8,7 @@ import { usePress } from "react-aria";
 import {
   Autocomplete as AutoComplete,
   Button,
+  DialogTrigger,
   Input,
   type Key,
   ListBox,
@@ -20,8 +21,8 @@ import { cn } from "~/lib/cn";
 import { Checkbox } from "./checkbox";
 import { ChevronUpDownIcon, XMarkIcon } from "./icons";
 import { inputBase } from "./input";
-import { Popover, PopoverTrigger } from "./popover";
-import { ResizablePanel } from "./resizable-panel";
+import { ModalPopover } from "./modal-popover";
+import { Popover } from "./popover";
 import { SelectItem } from "./select";
 
 type TMultiSelectContext = {
@@ -62,7 +63,7 @@ export const MultiSelect: React.FC<
   );
 };
 
-type MultiSelectTriggerProps = ComponentProps<typeof PopoverTrigger> & {
+type MultiSelectTriggerProps = ComponentProps<typeof DialogTrigger> & {
   btnProps?: Omit<ComponentPropsWithoutRef<typeof Button>, "className"> & {
     placeholder?: string;
   };
@@ -88,7 +89,7 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
   });
 
   return (
-    <PopoverTrigger>
+    <DialogTrigger>
       <Button
         {...btnProps}
         className={cn(
@@ -122,7 +123,7 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
         </span>
       </Button>
       {props.children}
-    </PopoverTrigger>
+    </DialogTrigger>
   );
 };
 
@@ -145,7 +146,7 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
   const { contains } = useFilter({ sensitivity: "base" });
 
   return (
-    <Popover triggerWidth={triggerControl[1].width} {...popoverProps}>
+    <ModalPopover popoverProps={popoverProps}>
       <AutoComplete filter={contains}>
         <SearchField
           className="px-2"
@@ -155,27 +156,28 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
           <Input
             className={cn(
               inputBase(),
-              "focus-visible:ring-0 border-0 shadow-none"
+              "focus-visible:ring-0 border-0 shadow-none w-full"
             )}
             placeholder="Search..."
           />
         </SearchField>
-        <ResizablePanel>
-          <ListBox
-            selectionMode="multiple"
-            shouldFocusWrap
-            selectedKeys={selectedKeys}
-            onSelectionChange={(keys) =>
-              typeof keys !== "string" && setSelectedKeys(keys)
-            }
-            className="max-h-52 overflow-auto min-w-max border-t-[0.0125rem] border-zinc-300/70"
-            {...props}
-          >
-            {children}
-          </ListBox>
-        </ResizablePanel>
+        {/* <ResizablePanel> */}
+        <ListBox
+          selectionMode="multiple"
+          shouldFocusWrap
+          selectedKeys={selectedKeys}
+          onSelectionChange={(keys) =>
+            typeof keys !== "string" && setSelectedKeys(keys)
+          }
+          className="max-h-52 overflow-auto min-w-max border-t-[0.0125rem] border-zinc-300/70"
+          {...props}
+        >
+          {children}
+        </ListBox>
+
+        {/* </ResizablePanel> */}
       </AutoComplete>
-    </Popover>
+    </ModalPopover>
   );
 };
 

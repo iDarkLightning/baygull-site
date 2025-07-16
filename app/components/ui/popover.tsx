@@ -6,8 +6,6 @@ import {
 } from "react-aria-components";
 import { cn } from "~/lib/cn";
 
-export const PopoverTrigger = DialogTrigger;
-
 type PopoverProps = Omit<ComponentProps<typeof AriaPopover>, "className"> & {
   triggerWidth?: number;
 };
