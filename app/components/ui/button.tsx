@@ -21,6 +21,8 @@ export const button = cva(
       variant: {
         primary:
           "bg-neutral-800 hover:bg-neutral-800/85 text-white disabled:hover:bg-neutral-300",
+        outline:
+          "border-[0.0125rem] border-zinc-300/70 hover:bg-neutral-100 dark:hover:bg-neutral-700 disabled:hover:bg-transparent",
         secondary:
           "bg-sky-100 text-sky-900 border-[0.0125rem] border-sky-700/60 hover:bg-sky-200/70",
         ghost:

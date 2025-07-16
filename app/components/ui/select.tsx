@@ -1,8 +1,4 @@
-import React, {
-  ComponentProps,
-  forwardRef,
-  type ComponentPropsWithoutRef,
-} from "react";
+import React, { ComponentProps, type ComponentPropsWithoutRef } from "react";
 import {
   Select as AriaSelect,
   SelectValue as AriaSelectValue,

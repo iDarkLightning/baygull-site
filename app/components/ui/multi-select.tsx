@@ -3,30 +3,26 @@ import React, {
   ComponentPropsWithoutRef,
   createContext,
   useContext,
-  useState,
 } from "react";
-import { Popover, PopoverTrigger } from "./popover";
+import { usePress } from "react-aria";
 import {
+  Autocomplete as AutoComplete,
+  Button,
+  Input,
   type Key,
   ListBox,
-  UNSTABLE_Autocomplete as AutoComplete,
+  Menu,
   SearchField,
-  Button,
   useFilter,
 } from "react-aria-components";
 import useMeasure from "react-use-measure";
-import { Input, inputBase } from "./input";
 import { cn } from "~/lib/cn";
-import {
-  CheckCircleSolidIcon,
-  ChevronUpDownIcon,
-  SearchIcon,
-  XMarkIcon,
-} from "./icons";
-import { SelectItem } from "./select";
-import { usePress } from "react-aria";
 import { Checkbox } from "./checkbox";
+import { ChevronUpDownIcon, XMarkIcon } from "./icons";
+import { inputBase } from "./input";
+import { Popover, PopoverTrigger } from "./popover";
 import { ResizablePanel } from "./resizable-panel";
+import { SelectItem } from "./select";
 
 type TMultiSelectContext = {
   selectedKeys: Set<Key>;
@@ -131,7 +127,7 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
 };
 
 type MultiSelectBodyProps = Omit<
-  ComponentProps<typeof ListBox>,
+  ComponentProps<typeof Menu>,
   "className" | "selectionMode" | "selectedKeys" | "onSelectionChange"
 > & {
   popoverProps?: Omit<
@@ -151,11 +147,16 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
   return (
     <Popover triggerWidth={triggerControl[1].width} {...popoverProps}>
       <AutoComplete filter={contains}>
-        <SearchField className="px-2" aria-label="Search multi select">
+        <SearchField
+          className="px-2"
+          aria-label="Search multi select"
+          autoFocus
+        >
           <Input
-            // leadingVisual={<SearchIcon />}
-            autoFocus
-            fullWidth
+            className={cn(
+              inputBase(),
+              "focus-visible:ring-0 border-0 shadow-none"
+            )}
             placeholder="Search..."
           />
         </SearchField>
@@ -167,7 +168,7 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
             onSelectionChange={(keys) =>
               typeof keys !== "string" && setSelectedKeys(keys)
             }
-            className="max-h-52 overflow-auto w-full border-t-[0.0125rem] border-zinc-300/70"
+            className="max-h-52 overflow-auto min-w-max border-t-[0.0125rem] border-zinc-300/70"
             {...props}
           >
             {children}
@@ -198,17 +199,13 @@ export const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
             isSelected={isSelected}
             onChange={() => {
               if (selectedKeys.has(value)) {
-                setSelectedKeys((prev) => {
-                  const newSet = new Set(prev);
-                  newSet.delete(value);
-                  return newSet;
-                });
+                const newSet = new Set(selectedKeys);
+                newSet.delete(value);
+                setSelectedKeys(newSet);
               } else {
-                setSelectedKeys((prev) => {
-                  const newSet = new Set(prev);
-                  newSet.add(value);
-                  return newSet;
-                });
+                const newSet = new Set(selectedKeys);
+                newSet.add(value);
+                setSelectedKeys(newSet);
               }
             }}
           />

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { articleDraft, usersToArticleDrafts } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
+import { authorizedbuyersmarketplace } from "googleapis/build/src/apis/authorizedbuyersmarketplace";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
@@ -124,4 +125,24 @@ export const draftRouter = {
         message: "Error occured while creating draft!",
       });
     }),
+
+    getAuthorList: adminProcedure.query(async ({input, ctx}) => {
+      const queryResult = await ctx.db.query.usersToArticleDrafts.findMany({
+        with: {
+          user: true, 
+        }
+      });
+
+      const authors = queryResult.map(author => author.user)
+      
+        const seenKeys = new Set<string>();
+  return authors.reduce((accumulator, currentItem) => {
+    if (!seenKeys.has(currentItem.id)) {
+      seenKeys.add(currentItem.id);
+      accumulator.push(currentItem);
+    }
+    return accumulator;
+  }, [] as typeof authors); 
+
+    }) 
 };

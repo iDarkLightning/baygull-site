@@ -118,7 +118,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen lg:bg-[#E0E2E6] overflow-auto">
+    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen lg:bg-[#F6F6F6] overflow-auto">
       <div className="min-w-64 max-w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed">
         <Nav />
       </div>
@@ -135,7 +135,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
           referrerPolicy="no-referrer"
         />
       </div>
-      <div className="bg-white lg:my-2 lg:ml-64 lg:mr-2 rounded-2xl w-full lg:border-[0.0125rem] lg:border-zinc-400/60 lg:shadow-sm">
+      <div className="bg-white lg:my-2 lg:ml-64 lg:mr-2 rounded-md w-full lg:border-[0.0125rem] lg:border-zinc-400/60 lg:shadow-sm">
         {props.children}
       </div>
     </div>

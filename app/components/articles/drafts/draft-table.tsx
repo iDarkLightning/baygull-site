@@ -6,10 +6,17 @@ import {
   getCoreRowModel,
   useReactTable,
   flexRender,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { TDraftList } from "~/lib/trpc/types";
 import { TooltipTrigger, Tooltip } from "~/components/ui/tooltip";
-import { Button as AriaButton, Menu, MenuTrigger } from "react-aria-components";
+import {
+  Button as AriaButton,
+  DateRange,
+  Key,
+  Menu,
+  MenuTrigger,
+} from "react-aria-components";
 import { Button } from "~/components/ui/button";
 import { cn } from "~/lib/cn";
 import {
@@ -21,6 +28,9 @@ import {
 import { Popover } from "~/components/ui/popover";
 import { MenuItem } from "~/components/ui/menu";
 import { Checkbox } from "~/components/ui/checkbox";
+import { CalendarDate } from "@internationalized/date";
+import { useEffect, useState } from "react";
+import { useFilterStore } from "./draft-filter";
 
 const mapStatusToLabel = ["Active", "Published", "Archived"];
 
@@ -40,6 +50,19 @@ const columns = [
         </div>
       ),
       header: () => <span className="pl-4">Title</span>,
+      filterFn: (row, columnId, value: string) => {
+        if (value === "") return true;
+        console.log("NOT TRUE");
+
+        const { title, desc } = row.getValue<{ title: string; desc: string }>(
+          columnId
+        );
+
+        return (
+          title.toLowerCase().includes(value.toLowerCase()) ||
+          desc.toLowerCase().includes(value.toLowerCase())
+        );
+      },
     }
   ),
   columnHelper.accessor("users", {
@@ -73,6 +96,14 @@ const columns = [
       );
     },
     header: () => <span className="pl-3">Author</span>,
+    filterFn: (row, columnId, value: Set<Key>) => {
+      if (value.size === 0) return true;
+      console.log("NOT TRUE");
+
+      const user = row.getValue<TDraftList[number]["users"]>(columnId);
+
+      return user.some((user) => value.has(user.userId));
+    },
   }),
   columnHelper.accessor("status", {
     header: () => <span>Status</span>,
@@ -92,6 +123,14 @@ const columns = [
         </div>
       );
     },
+    filterFn: (row, columnId, value: Set<Key>) => {
+      if (value.size === 0) return true;
+      console.log("NOT TRUE");
+
+      const status = row.getValue<number>(columnId);
+
+      return value.has(mapStatusToLabel[status].toLowerCase());
+    },
   }),
   columnHelper.accessor("submittedAt", {
     header: () => <span>Submitted</span>,
@@ -109,6 +148,27 @@ const columns = [
             })}
           </p>
         </div>
+      );
+    },
+    filterFn: (row, columnId, value: DateRange) => {
+      if (value === null) return true;
+
+      const submittedAt = new Date(row.getValue<number>(columnId));
+
+      const date = new CalendarDate(
+        submittedAt.getFullYear(),
+        submittedAt.getMonth(),
+        submittedAt.getDay()
+      );
+
+      console.log(
+        date.compare(value.start) === 0 ||
+          (date.compare(value.start) > 0 && date.compare(value.end) < 0)
+      );
+
+      return (
+        date.compare(value.start) === 0 ||
+        (date.compare(value.start) > 0 && date.compare(value.end) < 0)
       );
     },
   }),
@@ -144,15 +204,38 @@ export const DraftTable = () => {
   const trpc = useTRPC();
   const { data } = useSuspenseQuery(trpc.article.draft.getAll.queryOptions());
 
+  const [filters, setFilters] = useState<
+    {
+      id: string;
+      value: unknown;
+    }[]
+  >([]);
+
+  const state = useFilterStore();
+
   const table = useReactTable({
     data,
     columns,
+    state: {
+      columnFilters: filters,
+    },
+    onColumnFiltersChange: setFilters,
     getCoreRowModel: getCoreRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
   });
 
+  useEffect(() => {
+    table.setColumnFilters([
+      { id: "title-desc", value: state.titleDesc },
+      { id: "users", value: state.authors },
+      { id: "status", value: state.statuses },
+      { id: "submittedAt", value: state.submissionTime },
+    ]);
+  }, [state]);
+
   return (
-    <div className="pt-2 px-6">
-      <table className="w-full">
+    <div className="px-6">
+      <table className="w-full overflow-x-auto">
         <thead>
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="text-left">

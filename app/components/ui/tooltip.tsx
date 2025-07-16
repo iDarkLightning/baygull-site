@@ -1,10 +1,3 @@
-"use client";
-
-import React, {
-  forwardRef,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from "react";
 import {
   Tooltip as AriaTooltip,
   TooltipTrigger as AriaTooltipTrigger,
@@ -16,7 +9,7 @@ export const TooltipTrigger: React.FC<TooltipTriggerComponentProps> = ({
   delay = 250,
   ...props
 }) => {
-  return <AriaTooltipTrigger delay={delay}  {...props} />;
+  return <AriaTooltipTrigger delay={delay} {...props} />;
 };
 
 TooltipTrigger.displayName = "TooltipTrigger";
