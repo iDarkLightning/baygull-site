@@ -55,13 +55,12 @@ const Nav = () => {
             to={tab.link as any}
             key={tab.id}
             className={cn(
-              "px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-100 transition-colors",
+              "px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-200/70 transition-colors",
               "focus:outline-none focus:bg-zinc-100"
             )}
-            // activeOptions={{ exact: true }}
             activeProps={{
               className:
-                "bg-zinc-50 border-[0.0125rem] border-zinc-400/60 shadow-sm",
+                "bg-white !hover:bg-zinc-50 border-[0.0125rem] border-zinc-400/60 shadow-sm",
             }}
           >
             <tab.icon />
@@ -96,7 +95,7 @@ const MobileNavDrawer: React.FC<React.PropsWithChildren> = (props) => {
       <Drawer.Portal>
         <Drawer.Overlay className="fixed inset-0 bg-zinc-300/50 backdrop-blur-xs" />
         <Drawer.Content
-          className="left-0 top-0 bottom-0 fixed z-10 outline-none w-64 flex border-r-[0.0125rem] border-zinc-950/5  bg-zinc-950 text-white rounded-r-lg"
+          className="left-0 top-0 bottom-0 fixed z-10 outline-none w-64 flex bg-[#F6F6F6] rounded-e-lg"
           // The gap between the edge of the screen and the drawer is 8px in this case.
           style={
             {
@@ -118,11 +117,11 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen lg:bg-[#F6F6F6] overflow-auto">
+    <div className="font-sans flex flex-col lg:flex-row h-screen w-screen bg-[#F6F6F6] overflow-auto">
       <div className="min-w-64 max-w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed">
         <Nav />
       </div>
-      <div className="p-3 flex items-center justify-between lg:hidden bg-zinc-100 border-b-[0.0125rem] border-zinc-300">
+      <div className="p-3 flex items-center justify-between lg:hidden bg-[#F6F6F6] ">
         <MobileNavDrawer>
           <div className="w-full h-screen flex flex-col gap-4 rounded-r-2xl shadow-sm">
             <Nav />
@@ -131,11 +130,11 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
         <img
           src={userQuery.data.image ?? ""}
           className="rounded-xl size-10"
-          alt=""
+          alt={userQuery.data.name + "profile-photo"}
           referrerPolicy="no-referrer"
         />
       </div>
-      <div className="bg-white lg:my-2 lg:ml-64 lg:mr-2 rounded-md w-full lg:border-[0.0125rem] lg:border-zinc-400/60 lg:shadow-sm">
+      <div className="bg-white m-2 lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100vh-80px)] lg:w-full border-[0.0125rem] border-zinc-400/60 shadow-sm">
         {props.children}
       </div>
     </div>
