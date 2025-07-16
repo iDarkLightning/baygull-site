@@ -140,7 +140,7 @@ const columns = [
       return (
         <div className="flex items-center gap-2 text-neutral-600">
           <ClockIcon />
-          <p className="text-xs">
+          <p className="text-xs whitespace-nowrap">
             {date.toLocaleDateString("en-US", {
               month: "short",
               day: "2-digit",
@@ -265,15 +265,6 @@ export const DraftTable = () => {
           ))}
         </tbody>
       </table>
-      {/* {data.map((draft) => (
-        <Link
-          to="/manage/drafts/publish/$id"
-          params={{ id: draft.id }}
-          key={draft.id}
-        >
-          <h1>{draft.title}</h1>
-        </Link>
-      ))} */}
     </div>
   );
 };
