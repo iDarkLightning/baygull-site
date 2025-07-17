@@ -1,16 +1,7 @@
 import React, { createContext, useContext, useRef } from "react";
-import { createStore, StoreApi, useStore } from "zustand";
-import { type User } from "../db/schema";
 import { DateRange, Key } from "react-aria-components";
-
-type TDatePresets =
-  | "none"
-  | "today"
-  | "week"
-  | "month"
-  | "year"
-  | "sem"
-  | "academic";
+import { createStore, StoreApi, useStore } from "zustand";
+import { TDatePresets } from "~/components/articles/drafts/draft-filter";
 
 type TDraftFilterStore = {
   statuses: Set<Key>;
@@ -20,7 +11,7 @@ type TDraftFilterStore = {
   titleDesc: string;
   setTitleDesc: (titleDesc: string) => void;
   submissionTime: DateRange | null;
-  setSubmissionTime: (submissionTime: DateRange) => void;
+  setSubmissionTime: (submissionTime: DateRange | null) => void;
   presetSelected: TDatePresets;
   setPresetSelected: (preset: TDatePresets) => void;
 };

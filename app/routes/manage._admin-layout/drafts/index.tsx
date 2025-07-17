@@ -5,6 +5,7 @@ import { z } from "zod";
 import {
   DraftFilterDisplay,
   DraftFilterMenu,
+  submissionRangePresets,
 } from "~/components/articles/drafts/draft-filter";
 import { DraftTable } from "~/components/articles/drafts/draft-table";
 import { DraftFilterStoreProvider } from "~/lib/articles/draft-filter-store";
@@ -38,7 +39,10 @@ const filterParamSchema = z.object({
     ),
     filterParamDefaultValues.submissionTime
   ),
-  preset: fallback(z.string(), "none").default(filterParamDefaultValues.preset),
+  preset: fallback(
+    z.enum([...Object.keys(submissionRangePresets), "none"] as [string]),
+    "none"
+  ).default(filterParamDefaultValues.preset),
 });
 
 export const Route = createFileRoute("/manage/_admin-layout/drafts/")({

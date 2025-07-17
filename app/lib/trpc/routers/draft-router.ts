@@ -126,23 +126,22 @@ export const draftRouter = {
       });
     }),
 
-    getAuthorList: adminProcedure.query(async ({input, ctx}) => {
-      const queryResult = await ctx.db.query.usersToArticleDrafts.findMany({
-        with: {
-          user: true, 
-        }
-      });
+  getAuthorList: adminProcedure.query(async ({ input, ctx }) => {
+    const queryResult = await ctx.db.query.usersToArticleDrafts.findMany({
+      with: {
+        user: true,
+      },
+    });
 
-      const authors = queryResult.map(author => author.user)
-      
-        const seenKeys = new Set<string>();
-  return authors.reduce((accumulator, currentItem) => {
-    if (!seenKeys.has(currentItem.id)) {
-      seenKeys.add(currentItem.id);
-      accumulator.push(currentItem);
-    }
-    return accumulator;
-  }, [] as typeof authors); 
+    const authors = queryResult.map((author) => author.user);
 
-    }) 
+    const seenKeys = new Set<string>();
+    return authors.reduce((accumulator, currentItem) => {
+      if (!seenKeys.has(currentItem.id)) {
+        seenKeys.add(currentItem.id);
+        accumulator.push(currentItem);
+      }
+      return accumulator;
+    }, [] as typeof authors);
+  }),
 };
