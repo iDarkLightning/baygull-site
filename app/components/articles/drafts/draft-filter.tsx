@@ -289,14 +289,17 @@ export const DraftFilterDisplay = () => {
       </FilterDisplay>
       <FilterDisplay isActive={state.submissionTime !== null}>
         <FilterAttribute icon={<ClockIcon />}>Submitted</FilterAttribute>
-        <FilterDescription>
-          {state.presetSelected !== "none"
-            ? "during"
-            : state.submissionTime?.start.compare(state.submissionTime?.end) ===
-              0
-            ? "on"
-            : "between"}
-        </FilterDescription>
+        {state.presetSelected !== "today" && (
+          <FilterDescription>
+            {state.presetSelected !== "none"
+              ? "during"
+              : state.submissionTime?.start.compare(
+                  state.submissionTime?.end
+                ) === 0
+              ? "on"
+              : "between"}
+          </FilterDescription>
+        )}
         <FilterMenu>
           <FilterMenuButton>
             {state.presetSelected !== "none" &&
