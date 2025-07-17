@@ -1,7 +1,7 @@
 import {
   queryOptions,
   useQuery,
-  useSuspenseQuery
+  useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { TextField } from "react-aria-components";
@@ -262,10 +262,10 @@ function ContentForm() {
         </p>
       </div> */}
       <ClientOnly>
-        <RemirrorEditor
+        {/* <RemirrorEditor
           value={content}
           setValue={(value) => setContent(value)}
-        />
+        /> */}
       </ClientOnly>
       <div className="flex items-center justify-between my-4">
         {/* <Button

@@ -41,8 +41,6 @@ export const draftRouter = {
       orderBy: (draft, { asc }) => asc(draft.status),
     });
 
-    console.log(result);
-
     return result;
   }),
 
