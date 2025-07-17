@@ -64,16 +64,16 @@ const Nav = () => {
             to={tab.to}
             key={tab.id}
             className={cn(
-              "relative px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-200/70 transition-colors",
+              "relative px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
               "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800"
             )}
           >
-            <MatchRoute to={tab.to}>
+            <MatchRoute to={tab.to} fuzzy>
               {(match) =>
                 match && (
                   <motion.span
                     layoutId="bubble"
-                    className="absolute inset-0 z-10 bg-white mix-bled-difference rounded-md hover:bg-zinc-200/70 transition-colors border-[0.0125rem] border-zinc-400/60 shadow-sm"
+                    className="absolute inset-0 z-10 bg-white mix-bled-difference rounded-md hover:bg-zinc-200/40 transition-colors border-[0.0125rem] border-zinc-400/60 shadow-sm"
                     transition={{ type: "spring", bounce: 0.4, duration: 0.8 }}
                   />
                 )
@@ -141,7 +141,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
       </div>
       <div className="p-3 flex items-center justify-between lg:hidden bg-[#F6F6F6] ">
         <MobileNavDrawer>
-          <div className="w-full h-screen flex flex-col gap-4 rounded-r-2xl shadow-sm">
+          <div className="w-full h-screen flex flex-col gap-4 rounded-r-lg shadow-sm">
             <Nav />
           </div>
         </MobileNavDrawer>
