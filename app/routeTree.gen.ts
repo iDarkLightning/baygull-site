@@ -18,6 +18,8 @@ import { Route as ArticlesIndexImport } from './routes/articles/index'
 import { Route as ArticlesSubmitImport } from './routes/articles/submit'
 import { Route as ArticlesSlugImport } from './routes/articles/$slug'
 import { Route as ManageAdminLayoutRouteImport } from './routes/manage._admin-layout/route'
+import { Route as ManageAdminLayoutPeopleImport } from './routes/manage._admin-layout/people'
+import { Route as ManageAdminLayoutArticlesImport } from './routes/manage._admin-layout/articles'
 import { Route as ManageAdminLayoutDraftsIndexImport } from './routes/manage._admin-layout/drafts/index'
 import { Route as ManageAdminLayoutDraftsPublishIdImport } from './routes/manage._admin-layout/drafts/publish.$id'
 
@@ -60,6 +62,18 @@ const ArticlesSlugRoute = ArticlesSlugImport.update({
 const ManageAdminLayoutRouteRoute = ManageAdminLayoutRouteImport.update({
   id: '/_admin-layout',
   getParentRoute: () => ManageRoute,
+} as any)
+
+const ManageAdminLayoutPeopleRoute = ManageAdminLayoutPeopleImport.update({
+  id: '/people',
+  path: '/people',
+  getParentRoute: () => ManageAdminLayoutRouteRoute,
+} as any)
+
+const ManageAdminLayoutArticlesRoute = ManageAdminLayoutArticlesImport.update({
+  id: '/articles',
+  path: '/articles',
+  getParentRoute: () => ManageAdminLayoutRouteRoute,
 } as any)
 
 const ManageAdminLayoutDraftsIndexRoute =
@@ -122,6 +136,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesIndexImport
       parentRoute: typeof rootRoute
     }
+    '/manage/_admin-layout/articles': {
+      id: '/manage/_admin-layout/articles'
+      path: '/articles'
+      fullPath: '/manage/articles'
+      preLoaderRoute: typeof ManageAdminLayoutArticlesImport
+      parentRoute: typeof ManageAdminLayoutRouteImport
+    }
+    '/manage/_admin-layout/people': {
+      id: '/manage/_admin-layout/people'
+      path: '/people'
+      fullPath: '/manage/people'
+      preLoaderRoute: typeof ManageAdminLayoutPeopleImport
+      parentRoute: typeof ManageAdminLayoutRouteImport
+    }
     '/manage/_admin-layout/drafts/': {
       id: '/manage/_admin-layout/drafts/'
       path: '/drafts'
@@ -142,12 +170,16 @@ declare module '@tanstack/react-router' {
 // Create and export the route tree
 
 interface ManageAdminLayoutRouteRouteChildren {
+  ManageAdminLayoutArticlesRoute: typeof ManageAdminLayoutArticlesRoute
+  ManageAdminLayoutPeopleRoute: typeof ManageAdminLayoutPeopleRoute
   ManageAdminLayoutDraftsIndexRoute: typeof ManageAdminLayoutDraftsIndexRoute
   ManageAdminLayoutDraftsPublishIdRoute: typeof ManageAdminLayoutDraftsPublishIdRoute
 }
 
 const ManageAdminLayoutRouteRouteChildren: ManageAdminLayoutRouteRouteChildren =
   {
+    ManageAdminLayoutArticlesRoute: ManageAdminLayoutArticlesRoute,
+    ManageAdminLayoutPeopleRoute: ManageAdminLayoutPeopleRoute,
     ManageAdminLayoutDraftsIndexRoute: ManageAdminLayoutDraftsIndexRoute,
     ManageAdminLayoutDraftsPublishIdRoute:
       ManageAdminLayoutDraftsPublishIdRoute,
@@ -175,6 +207,8 @@ export interface FileRoutesByFullPath {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
+  '/manage/articles': typeof ManageAdminLayoutArticlesRoute
+  '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/drafts': typeof ManageAdminLayoutDraftsIndexRoute
   '/manage/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
 }
@@ -185,6 +219,8 @@ export interface FileRoutesByTo {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
+  '/manage/articles': typeof ManageAdminLayoutArticlesRoute
+  '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/drafts': typeof ManageAdminLayoutDraftsIndexRoute
   '/manage/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
 }
@@ -197,6 +233,8 @@ export interface FileRoutesById {
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/manage/_admin-layout/articles': typeof ManageAdminLayoutArticlesRoute
+  '/manage/_admin-layout/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/_admin-layout/drafts/': typeof ManageAdminLayoutDraftsIndexRoute
   '/manage/_admin-layout/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
 }
@@ -209,6 +247,8 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles'
+    | '/manage/articles'
+    | '/manage/people'
     | '/manage/drafts'
     | '/manage/drafts/publish/$id'
   fileRoutesByTo: FileRoutesByTo
@@ -218,6 +258,8 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles'
+    | '/manage/articles'
+    | '/manage/people'
     | '/manage/drafts'
     | '/manage/drafts/publish/$id'
   id:
@@ -228,6 +270,8 @@ export interface FileRouteTypes {
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles/'
+    | '/manage/_admin-layout/articles'
+    | '/manage/_admin-layout/people'
     | '/manage/_admin-layout/drafts/'
     | '/manage/_admin-layout/drafts/publish/$id'
   fileRoutesById: FileRoutesById
@@ -279,6 +323,8 @@ export const routeTree = rootRoute
       "filePath": "manage._admin-layout/route.tsx",
       "parent": "/manage",
       "children": [
+        "/manage/_admin-layout/articles",
+        "/manage/_admin-layout/people",
         "/manage/_admin-layout/drafts/",
         "/manage/_admin-layout/drafts/publish/$id"
       ]
@@ -291,6 +337,14 @@ export const routeTree = rootRoute
     },
     "/articles/": {
       "filePath": "articles/index.tsx"
+    },
+    "/manage/_admin-layout/articles": {
+      "filePath": "manage._admin-layout/articles.tsx",
+      "parent": "/manage/_admin-layout"
+    },
+    "/manage/_admin-layout/people": {
+      "filePath": "manage._admin-layout/people.tsx",
+      "parent": "/manage/_admin-layout"
     },
     "/manage/_admin-layout/drafts/": {
       "filePath": "manage._admin-layout/drafts/index.tsx",

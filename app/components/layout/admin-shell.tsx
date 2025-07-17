@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { Link, linkOptions, MatchRoute } from "@tanstack/react-router";
 import { Drawer } from "vaul";
+import { cn } from "~/lib/cn";
 import { useTRPC } from "~/lib/trpc/client";
 import { Button } from "../ui/button";
 import {
@@ -10,30 +10,39 @@ import {
   PencilSquareIcon,
   PeopleIcon,
 } from "../ui/icons";
-import { cn } from "~/lib/cn";
 
-const tabs = [
+import { motion } from "framer-motion";
+import { useState } from "react";
+
+const tabs = linkOptions([
   {
     id: "articles-tab",
     name: "Articles",
-    link: "/manage/articles",
+    to: "/manage/articles",
     icon: DocumentDuplicatesIcon,
   },
   {
     id: "drafts-tab",
+    //@ts-ignore
     name: "Drafts",
-    link: "/manage/drafts",
+    to: "/manage/drafts",
+    search: {
+      statuses: [],
+      authors: [],
+      titleDesc: "",
+      submissionTime: null,
+      preset: "none",
+    },
     icon: PencilSquareIcon,
   },
   {
     id: "people-tab",
     name: "People",
-    link: "/adaa",
+    to: "/manage/people",
     icon: PeopleIcon,
   },
-] as const;
+]);
 
-//
 const Nav = () => {
   const trpc = useTRPC();
   const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
@@ -52,19 +61,28 @@ const Nav = () => {
       <div className="flex flex-col gap-3 flex-10/12 my-2">
         {tabs.map((tab) => (
           <Link
-            to={tab.link as any}
+            to={tab.to}
             key={tab.id}
             className={cn(
-              "px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-200/70 transition-colors",
-              "focus:outline-none focus:bg-zinc-100"
+              "relative px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-200/70 transition-colors",
+              "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800"
             )}
-            activeProps={{
-              className:
-                "bg-white !hover:bg-zinc-50 border-[0.0125rem] border-zinc-400/60 shadow-sm",
-            }}
           >
-            <tab.icon />
-            <p className="text-neutral-950 font-medium">{tab.name}</p>
+            <MatchRoute to={tab.to}>
+              {(match) =>
+                match && (
+                  <motion.span
+                    layoutId="bubble"
+                    className="absolute inset-0 z-10 bg-white mix-bled-difference rounded-md hover:bg-zinc-200/70 transition-colors border-[0.0125rem] border-zinc-400/60 shadow-sm"
+                    transition={{ type: "spring", bounce: 0.4, duration: 0.8 }}
+                  />
+                )
+              }
+            </MatchRoute>
+            <span className="z-20">
+              <tab.icon />
+            </span>
+            <p className="text-neutral-950 font-medium z-20">{tab.name}</p>
           </Link>
         ))}
       </div>
