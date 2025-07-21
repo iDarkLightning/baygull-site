@@ -67,10 +67,12 @@ type MultiSelectTriggerProps = ComponentProps<typeof DialogTrigger> & {
   btnProps?: Omit<ComponentPropsWithoutRef<typeof Button>, "className"> & {
     placeholder?: string;
   };
+  keyDisplayMap?: Map<Key, string>;
 };
 
 export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
   btnProps,
+  keyDisplayMap,
   ...props
 }) => {
   const { triggerControl, selectedKeys, setSelectedKeys } = useMultiSelect();
@@ -79,9 +81,7 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
     preventFocusOnPress: true,
     onPress: (e) => {
       const newSet = new Set(
-        [...selectedKeys].filter(
-          (i) => i !== e.target.parentElement?.textContent
-        )
+        [...selectedKeys].filter((i) => i !== e.target.parentElement?.id)
       );
 
       setSelectedKeys(newSet);
@@ -100,17 +100,19 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
       >
         <span className="flex gap-1.5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] hover:[scrollbar-width:thin]">
           {selectedKeys.size === 0 && btnProps?.placeholder && (
-            <p>{btnProps.placeholder}</p>
+            <p className="text-neutral-500">{btnProps.placeholder}</p>
           )}
           {selectedKeys.size > 0 &&
-            [...selectedKeys].map((key, index) => (
+            [...selectedKeys].map((key) => (
               <div
-                key={index}
-                className="py-0.5 group px-3 border w-fit border-neutral-400 text-neutral-700 rounded-full font-sans text-xs font-medium flex gap-1 items-center whitespace-nowrap shadow-sm"
+                id={key as string}
+                key={key}
+                className="py-0.5 group px-3 border-[0.0125rem] w-fit border-sky-200 bg-sky-50 text-sky-800 rounded-full font-sans text-xs font-medium flex gap-1 items-center whitespace-nowrap shadow-sm"
               >
-                <p>{key}</p>
+                <p>{keyDisplayMap ? keyDisplayMap.get(key) : key}</p>
+
                 <span
-                  className="hidden group-hover:block animate-in slide-in-from-left-0.5 ease-in-out delay-150"
+                  className="hidden group-hover:block animate ease-in-out fade-in-0 fade-out-0 duration-75 delay-100"
                   {...pressProps}
                 >
                   <XMarkIcon />
@@ -142,11 +144,15 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
   children,
   ...props
 }) => {
-  const { selectedKeys, setSelectedKeys, triggerControl } = useMultiSelect();
+  const {
+    selectedKeys,
+    setSelectedKeys,
+    triggerControl: [_, { width }],
+  } = useMultiSelect();
   const { contains } = useFilter({ sensitivity: "base" });
 
   return (
-    <ModalPopover popoverProps={popoverProps}>
+    <ModalPopover popoverProps={{ ...popoverProps, triggerWidth: width }}>
       <AutoComplete filter={contains}>
         <SearchField
           className="px-2"
@@ -161,21 +167,18 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
             placeholder="Search..."
           />
         </SearchField>
-        {/* <ResizablePanel> */}
         <ListBox
           selectionMode="multiple"
           shouldFocusWrap
           selectedKeys={selectedKeys}
-          onSelectionChange={(keys) =>
-            typeof keys !== "string" && setSelectedKeys(keys)
-          }
+          onSelectionChange={(keys) => {
+            typeof keys !== "string" && setSelectedKeys(keys);
+          }}
           className="max-h-52 overflow-auto min-w-max border-t-[0.0125rem] border-zinc-300/70"
           {...props}
         >
           {children}
         </ListBox>
-
-        {/* </ResizablePanel> */}
       </AutoComplete>
     </ModalPopover>
   );
@@ -200,6 +203,7 @@ export const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
           <Checkbox
             isSelected={isSelected}
             onChange={() => {
+              console.log(selectedKeys);
               if (selectedKeys.has(value)) {
                 const newSet = new Set(selectedKeys);
                 newSet.delete(value);
