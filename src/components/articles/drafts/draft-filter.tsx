@@ -408,7 +408,11 @@ function AuthorMultiSelect() {
               textValue={author.name}
             >
               {author.image && (
-                <img src={author.image} className="size-4 rounded-full" />
+                <img
+                  src={author.image}
+                  className="size-4 rounded-full"
+                  referrerPolicy="no-referrer"
+                />
               )}
               <div className="flex flex-col">
                 <p>{author.name}</p>
