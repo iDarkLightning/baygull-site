@@ -7,7 +7,7 @@ import {
 import { inputBase } from "./input";
 import { cn } from "~/lib/cn";
 
-const textArea = cva(cn(inputBase(), "h-auto px-2 py-1 text-sm"), {
+const textArea = cva(cn(inputBase(), "h-auto px-2 py-1"), {
   variants: {
     fullWidth: {
       true: "w-full",
