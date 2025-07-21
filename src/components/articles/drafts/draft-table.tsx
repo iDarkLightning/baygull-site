@@ -43,7 +43,9 @@ const columns = [
       id: "title-desc",
       cell: (info) => (
         <div className="pl-4 mr-4">
-          <p className="font-medium">{info.getValue().title}</p>
+          <p className="font-medium max-w-[24ch] truncate">
+            {info.getValue().title}
+          </p>
           <p className="text-xs text-neutral-600">
             {info.getValue().desc.slice(0, 20)}...
           </p>
@@ -154,8 +156,8 @@ const columns = [
 
       const date = new CalendarDate(
         submittedAt.getFullYear(),
-        submittedAt.getMonth(),
-        submittedAt.getDay()
+        submittedAt.getMonth() + 1,
+        submittedAt.getDate()
       );
 
       return (
