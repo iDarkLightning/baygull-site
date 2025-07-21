@@ -18,7 +18,9 @@ import { Button } from "./button";
 import { cn } from "~/lib/cn";
 
 const MODAL_SIZES = {
+  sm: "max-w-sm",
   base: "max-w-md",
+  md: "max-w-3xl",
   screen: "max-w-7xl",
 } as const;
 

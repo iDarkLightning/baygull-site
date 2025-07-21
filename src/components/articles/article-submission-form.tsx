@@ -1,679 +1,773 @@
+import { formOptions, useStore } from "@tanstack/react-form";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { TextField } from "react-aria-components";
+import { AnimatePresence, motion } from "framer-motion";
+import React, { useMemo } from "react";
+import { Key, TextField } from "react-aria-components";
 import Confetti from "react-confetti";
-import { Controller } from "react-hook-form";
-import { useDebounce } from "use-debounce";
+import useMeasure from "react-use-measure";
 import { z } from "zod";
-import { create } from "zustand";
+import { cn } from "~/lib/cn";
+import { useAppForm, withForm } from "~/lib/form";
 import { formatBytes } from "~/lib/format-bytes";
 import { getGreeting } from "~/lib/get-greeting";
-import useWindowSize from "~/lib/hooks/use-window-size";
-import { useZodForm } from "~/lib/hooks/use-zod-form";
 import { useTRPC } from "~/lib/trpc/client";
 import { useUploadThing } from "~/lib/uploadthing/client";
-import { MultiStepForm, useMultiStepForm } from "../ui/animated-multistep-form";
-import { Button } from "../ui/button";
-import { FieldError } from "../ui/field-error";
-import { FileUpload } from "../ui/file-upload";
 import {
+  MultiStepForm,
+  MultiStepFormProgress,
+  useMultiStepFormControl,
+} from "../ui/animated-multistep-form";
+import { BarLoading } from "../ui/bar-loading";
+import { Button } from "../ui/button";
+import { FileUpload } from "../ui/file-upload";
+import { FieldError } from "../ui/form-field";
+import {
+  AnimatedCheckIcon,
+  AnimatedXMarkIcon,
   CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   GoogleDocsIcon,
+  LinkIcon,
   TrashIcon,
 } from "../ui/icons";
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
-import { TextArea } from "../ui/textarea";
+import { Modal } from "../ui/modal";
+import {
+  MultiSelect,
+  MultiSelectBody,
+  MultiSelectItem,
+  MultiSelectTrigger,
+} from "../ui/multi-select";
 
-type TArticleSubmissionFormStore = {
-  // Step Controls
-  step: number;
-  incrementStep: () => void;
-  decrementStep: () => void;
+const steps = [
+  "splash",
+  "initial",
+  "coverImg",
+  "additionalInfo",
+  "preview",
+] as const;
 
-  // Initial Info
-  name: string;
-  description: string;
-  docsUrl: string;
-
-  docId: string;
-
-  submitInitialInfo: (data: {
-    name: string;
-    description: string;
-    docsUrl: string;
-    docId: string;
-  }) => void;
-
-  // Cover Image
-  coverImg: File | null;
-  setCoverImg: (file: File | null) => void;
-
-  // Additional Info
-  keyIdeas: string;
-  message: string;
-  submitAdditionalInfo: (data: { keyIdeas: string; message: string }) => void;
-};
-
-const useArticleSubmissionFormStore = create<TArticleSubmissionFormStore>(
-  (set) => ({
-    step: 0,
-    incrementStep: () =>
-      set((state) => ({
-        step: state.step + 1,
-      })),
-    decrementStep: () =>
-      set((state) => ({
-        step: state.step - 1,
-      })),
-
+const defaultValues = {
+  initial: {
     name: "",
     description: "",
     docsUrl: "",
     docId: "",
-    submitInitialInfo: (data) =>
-      set({
-        name: data.name,
-        description: data.description,
-        docsUrl: data.docsUrl,
-        docId: data.docId,
-      }),
-
-    coverImg: null,
-    setCoverImg: (file) => set({ coverImg: file }),
-
+    docName: "",
+    collaborators: new Set<Key>(),
+  },
+  coverImg: {
+    coverImg: null as File | null,
+  },
+  additionalInfo: {
     keyIdeas: "",
     message: "",
-    submitAdditionalInfo: (data) =>
-      set({
-        keyIdeas: data.keyIdeas,
-        message: data.message,
-      }),
-  })
-);
-
-export const ArticleSubmissionForm = () => {
-  const step = useArticleSubmissionFormStore((s) => s.step);
-
-  return (
-    <MultiStepForm>
-      {step === 0 && <SplashScreen />}
-      {step === 1 && <InitialInfoForm />}
-      {step === 2 && <CoverImageForm />}
-      {step === 3 && <AdditionalInfoForm />}
-      {step === 4 && <PreviewForm />}
-      {step === 5 && <ConfirmationScreen />}
-    </MultiStepForm>
-  );
+  },
 };
 
-function SplashScreen() {
-  const incrementStep = useArticleSubmissionFormStore((s) => s.incrementStep);
-  const { moveForward } = useMultiStepForm();
+const formOpts = formOptions({
+  defaultValues,
+});
 
+const FormSectionHeading: React.FC<{
+  title: string;
+  description: string;
+}> = (props) => (
+  <div className="flex flex-col gap-1 py-4">
+    <h1 className="text-4xl font-bold text-neutral-800">{props.title}</h1>
+    <p className="text-neutral-700">{props.description}</p>
+  </div>
+);
+
+const SplashScreen = () => {
   const trpc = useTRPC();
   const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
   return (
-    <div className="flex flex-col gap-0.5 py-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-2xl font-bold text-neutral-500 my-1">
-            {getGreeting()}, {userQuery.data?.name}!
-          </h1>
-          <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
-            Let's submit an article!
-          </h2>
-          <div className="flex flex-col gap-2 my-2">
-            <p className="text-neutral-700">
-              Submitted articles will be reviewed and edited by the editing team
-              1PM on Wednesdays. You will receive your edited work via email in
-              3-5 days after the editing meeting, and we'll talk then about
-              changes as needed.
-            </p>
-            <p className="text-neutral-700">
-              Interested in joining the editing team? Fill out the form to
-              request to join in our LinkTree, or reach out to an executive
-              member through Discord.
-            </p>
-          </div>
+    <div className="flex justify-between items-center">
+      <div>
+        <h1 className="text-2xl font-bold text-neutral-500 my-1">
+          {getGreeting()}, {userQuery.data?.name}!
+        </h1>
+        <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
+          Let's submit an article!
+        </h2>
+        <div className="flex flex-col gap-2 my-2">
+          <p className="text-neutral-700">
+            Submitted articles will be reviewed and edited by the editing team
+            1PM on Wednesdays. You will receive your edited work via email in
+            3-5 days after the editing meeting, and we'll talk then about
+            changes as needed.
+          </p>
+          <p className="text-neutral-700">
+            Interested in joining the editing team? Fill out the form to request
+            to join in our LinkTree, or reach out to an executive member through
+            Discord.
+          </p>
         </div>
       </div>
-      <Button
-        fullWidth
-        onPress={() => {
-          moveForward(incrementStep);
-        }}
-        trailingVisual={<ChevronRightIcon />}
-      >
-        Start
-      </Button>
     </div>
   );
-}
+};
 
-function InitialInfoForm() {
-  const { incrementStep, submitInitialInfo, name, description, docsUrl } =
-    useArticleSubmissionFormStore();
-  const { moveForward } = useMultiStepForm();
+const InitialInfo = withForm({
+  ...formOpts,
 
-  const [docsUrl_, setDocsUrl_] = useState<string | undefined>(docsUrl);
-  const [debouncedDocsUrl] = useDebounce(docsUrl_, 1_000);
+  render: ({ form }) => {
+    const trpc = useTRPC();
+    const docUrl = useStore(form.store, (s) => s.values.initial.docsUrl);
 
-  const trpc = useTRPC();
-
-  const docInfoQuery = useQuery({
-    ...trpc.article.getGoogleDocFromUrl.queryOptions({
-      docUrl: debouncedDocsUrl,
-    }),
-    enabled: true,
-  });
-
-  const form = useZodForm({
-    schema: z.object({
-      name: z
-        .string()
-        .min(5, "Please make sure the name is at least 5 characters long!"),
-      description: z
-        .string()
-        .min(
-          30,
-          "Please make sure the description is at least 30 characters long!"
-        ),
-      docsUrl: z
-        .string()
-        .url({
-          message: "Please provide a Google Doc URL with link sharing enabled!",
-        })
-        .refine(
-          async (val) => {
-            if (val !== "") {
-              const data = await docInfoQuery.refetch();
-              return !data.isError;
-            }
-          },
-          {
-            message:
-              "We can't find the Google Doc you provided! Please make sure you're using a valid Google Doc link with link sharing enabled!",
-          }
-        ),
-    }),
-    defaultValues: {
-      name,
-      description,
-      docsUrl,
-    },
-  });
-  useEffect(() => {
-    const { unsubscribe } = form.watch((value) => {
-      setDocsUrl_(value.docsUrl);
+    const docInfoQuery = useQuery({
+      ...trpc.article.getGoogleDocFromUrl.queryOptions({
+        docUrl: docUrl,
+      }),
+      enabled: false,
+      retry: false,
     });
-    return () => unsubscribe();
-  }, [form.watch]);
 
-  useEffect(() => {
-    if (docInfoQuery.status === "error") {
-      form.setError("docsUrl", {
-        type: "required",
-        message:
-          "We can't find the Google Doc you provided! Please make sure you're using a valid Google Doc link with link sharing enabled!",
-      });
-    } else if (docInfoQuery.status === "success") {
-      form.clearErrors("docsUrl");
-    }
-  }, [docInfoQuery.status]);
+    const usersQuery = useQuery(trpc.user.getUsers.queryOptions());
 
-  return (
-    <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
-        <h1 className="text-4xl font-bold text-neutral-800">
-          Let's start off with the basics...
-        </h1>
-        <p className="text-neutral-700">
-          Give us your vision for a title and a description, and most
-          importantly, a link to your article! Please note that all of this will
-          be worked on during the editing process.
-        </p>
-      </div>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={form.handleSubmit((data) => {
-          moveForward(() => {
-            submitInitialInfo({
-              ...data,
-              docId: docInfoQuery.data?.id as string,
-            });
-            incrementStep();
-          });
-        })}
-      >
-        <Controller
-          control={form.control}
-          name="name"
-          render={({ field, formState }) => (
-            <TextField isInvalid={!!formState.errors.name} {...field}>
-              <Label>Article Name</Label>
-              <Input fullWidth />
-              {formState.errors.name && (
-                <FieldError message={formState.errors.name.message} />
-              )}
-            </TextField>
+    const displayMap = useMemo(() => {
+      if (usersQuery.status !== "success") return undefined;
+
+      const map = new Map<string, string>();
+      usersQuery.data.map((user) => map.set(user.id, user.name));
+
+      return map;
+    }, [usersQuery.status]);
+
+    const [ref, { width }] = useMeasure();
+
+    return (
+      <div className="flex flex-col gap-2">
+        <FormSectionHeading
+          title="Let's start off with the basics..."
+          description="Give us your vision for a title and a description, and most importantly, a link to your article! Please note that all of this will be worked on during the editing process."
+        />
+        <form.AppField
+          name="initial.name"
+          validators={{
+            onChange: z
+              .string()
+              .min(
+                5,
+                "Please make sure the name is at least 5 characters long!"
+              ),
+          }}
+          children={(field) => (
+            <field.TextField label="Name" isTextArea={false} />
           )}
         />
-        <Controller
-          control={form.control}
-          name="description"
-          render={({ field, formState }) => (
-            <TextField isInvalid={!!formState.errors.name} {...field}>
-              <Label>Article Description</Label>
-              <TextArea fullWidth />
-              {formState.errors.description && (
-                <FieldError message={formState.errors.description.message} />
-              )}
-            </TextField>
+        <form.AppField
+          name="initial.description"
+          validators={{
+            onChange: z
+              .string()
+              .min(
+                30,
+                "Please make sure the description is at least 30 characters long!"
+              ),
+          }}
+          children={(field) => (
+            <field.TextField label="Description" isTextArea />
           )}
         />
-        <Controller
-          control={form.control}
-          name="docsUrl"
-          render={({ field, formState }) => (
-            <TextField isInvalid={!!formState.errors.docsUrl} {...field}>
-              <Label>Article Google Doc Link</Label>
-              <p className="text-sm text-neutral-600 mb-2">
-                Please ensure that link sharing is enabled for your article,
-                otherwise we cannot access it!
-              </p>
-              <Input fullWidth />
-              {formState.errors.docsUrl && (
-                <FieldError message={formState.errors.docsUrl.message} />
-              )}
-            </TextField>
-          )}
-        />
+        <form.AppField
+          name="initial.docsUrl"
+          validators={{
+            onChange: z.string().url({
+              message:
+                "Please provide a Google Doc URL with link sharing enabled!",
+            }),
+            onChangeAsync: async (field) => {
+              const errors = await field.fieldApi.parseValueWithSchemaAsync(
+                z.string().refine(
+                  async (val) => {
+                    if (val !== "") {
+                      const data = await docInfoQuery.refetch();
 
-        {docInfoQuery.status === "success" && !!docInfoQuery.data && (
-          <div className="flex items-center justify-between gap-4 p-2 bg-neutral-50 border-neutral-300/70 border-[0.0125rem] rounded-sm my-4">
-            <div className="flex items-center gap-4">
-              <GoogleDocsIcon />
-              <div className="flex flex-col gap-0">
-                <p className="font-medium text-neutral-800">
-                  {docInfoQuery.data.name}
+                      if (data.isSuccess && !!data.data) {
+                        field.fieldApi.form.setFieldValue(
+                          "initial.docId",
+                          data.data?.id
+                        );
+                        field.fieldApi.form.setFieldValue(
+                          "initial.docName",
+                          data.data?.name
+                        );
+                      }
+
+                      return !data.isError;
+                    }
+                  },
+                  {
+                    message:
+                      "We can't find the Google Doc you provided! Please make sure you're using a valid Google Doc link with link sharing enabled!",
+                  }
+                )
+              );
+
+              if (errors) return errors;
+            },
+          }}
+          asyncDebounceMs={1_000}
+          children={(field) => {
+            const isInputDisplayed = !(
+              field.state.meta.isBlurred &&
+              !field.state.meta.isValidating &&
+              docInfoQuery.isSuccess &&
+              !!docInfoQuery.data
+            );
+
+            return (
+              <TextField
+                isInvalid={field.state.meta.errors.length > 0}
+                value={field.state.value}
+                onChange={field.handleChange}
+                onBlur={field.handleBlur}
+              >
+                <Label>Google Docs Link</Label>
+                <p className="text-sm text-neutral-600 mb-2">
+                  Please ensure that link sharing is enabled for your article,
+                  otherwise we cannot access it!
                 </p>
+                <div className="flex items-center gap-2">
+                  {isInputDisplayed && (
+                    <Input fullWidth autoFocus={field.state.meta.isDirty} />
+                  )}
+                  {field.state.meta.isDirty && (
+                    <Button
+                      variant="outline"
+                      fullWidth={!isInputDisplayed}
+                      onPress={() =>
+                        field.setMeta((m) => ({
+                          ...m,
+                          isBlurred: false,
+                        }))
+                      }
+                      isCircular={false}
+                    >
+                      <motion.div
+                        animate={{
+                          width: width || "auto",
+                        }}
+                        transition={{
+                          duration: 0.35,
+                          type: "spring",
+                          bounce: 0.05,
+                        }}
+                      >
+                        <AnimatePresence mode="wait">
+                          <motion.div
+                            key={
+                              field.state.meta.isValidating
+                                ? "validating"
+                                : "result"
+                            }
+                            transition={{
+                              duration: 0.2,
+                              delay: isInputDisplayed ? undefined : 0.3,
+                              ease: "easeInOut",
+                              type: "spring",
+                              bounce: 0.2,
+                            }}
+                            className="flex items-center gap-2 font-sans"
+                          >
+                            <div
+                              ref={ref}
+                              className="flex items-center gap-2 text-neutral-700"
+                            >
+                              {field.state.meta.isValidating ||
+                              docInfoQuery.status !== "success" ? (
+                                <>
+                                  <BarLoading />
+                                </>
+                              ) : docInfoQuery.isSuccess ? (
+                                <>
+                                  {!isInputDisplayed ? (
+                                    <GoogleDocsIcon />
+                                  ) : (
+                                    <AnimatedCheckIcon className="size-4 text-sky-600" />
+                                  )}
+                                  {!isInputDisplayed && (
+                                    <p className="text-xs">
+                                      {docInfoQuery.data?.name}
+                                    </p>
+                                  )}
+                                </>
+                              ) : (
+                                <AnimatedXMarkIcon className="size-4 text-rose-600" />
+                              )}
+                            </div>
+                          </motion.div>
+                        </AnimatePresence>
+                      </motion.div>
+                    </Button>
+                  )}
+                </div>
+                {field.state.meta.errors.map(
+                  ({ message }: { message: string }) => (
+                    <FieldError key={message} message={message} />
+                  )
+                )}
+              </TextField>
+            );
+          }}
+        />
+        <form.AppField
+          name="initial.collaborators"
+          children={(field) => (
+            <MultiSelect
+              selectedKeys={field.state.value}
+              setSelectedKeys={field.setValue}
+            >
+              <Label>Collaborators</Label>
+              <p className="text-sm text-neutral-600 mb-2">
+                If you worked with anyone else on this article, please add them
+                here. If you do not see them in this list, they have not yet
+                registered with The Bay Gull.
+              </p>
+              <MultiSelectTrigger
+                keyDisplayMap={displayMap}
+                btnProps={{
+                  placeholder: "Add Collaborators...",
+                }}
+              >
+                <MultiSelectBody>
+                  {usersQuery.data?.map((user) => (
+                    <MultiSelectItem
+                      value={user.id}
+                      textValue={user.name}
+                      id={user.id}
+                      key={user.id}
+                    >
+                      {user.image && (
+                        <img
+                          src={user.image}
+                          className="size-4 rounded-full"
+                          referrerPolicy="no-referrer"
+                        />
+                      )}
+                      <p className="text-xs font-medium">{user.name}</p>
+                    </MultiSelectItem>
+                  ))}
+                </MultiSelectBody>
+              </MultiSelectTrigger>
+            </MultiSelect>
+          )}
+        />
+      </div>
+    );
+  },
+});
+
+const CoverImage = withForm({
+  ...formOpts,
+  render: ({ form }) => {
+    return (
+      <form.AppField
+        name="coverImg.coverImg"
+        validators={{
+          onChange: ({ value }) => {
+            if (value === null) return false;
+            return value.size > 1024 * 1000 * 4;
+          },
+        }}
+        children={(field) => {
+          return (
+            <div>
+              <FormSectionHeading
+                title="Now let's add a cover image..."
+                description="Add a cover image to add some visual intrigue to your article! If you don't have an image, feel free to ask (nicely) in the art team for some art! If you would like to submit without a cover image, you can skip this step."
+              />
+              <div>
+                {!field.state.value && (
+                  <FileUpload
+                    onDrop={(files) => {
+                      if (files.length === 0) return;
+
+                      if (files.length > 1)
+                        throw new Error(
+                          "Articles can only have 1 cover image!"
+                        );
+
+                      field.handleChange(files[0]);
+                    }}
+                  />
+                )}
+                {field.state.value && (
+                  <div
+                    className={cn(
+                      "flex items-center justify-between gap-4 p-4 bg-zinc-50 border-zinc-300/70 border-[0.0125rem] rounded-sm my-4",
+                      !field.state.meta.isValid && "!border-red-700"
+                    )}
+                  >
+                    <div className="flex items-center gap-4">
+                      <img
+                        src={URL.createObjectURL(field.state.value)}
+                        alt="Cover Image"
+                        className="h-16 aspect-video rounded-md object-scale-down"
+                      />
+                      <div className="flex flex-col gap-0">
+                        <p className="font-medium text-neutral-800">
+                          {field.state.value.name}
+                        </p>
+                        <p className="text-neutral-600 text-sm">
+                          {formatBytes(field.state.value.size, 0)}
+                        </p>
+                      </div>
+                    </div>
+                    <Button size="icon" onPress={() => field.setValue(null)}>
+                      <TrashIcon />
+                    </Button>
+                  </div>
+                )}
+                {field.state.meta.errors.map((err) =>
+                  err ? (
+                    <FieldError message="Cover Images cannot be larger than 4MB" />
+                  ) : null
+                )}
               </div>
             </div>
-          </div>
-        )}
-        <div className="self-end">
-          <Button
-            type="submit"
-            trailingVisual={<ChevronRightIcon />}
-            isDisabled={docInfoQuery.isPending || docsUrl_ !== debouncedDocsUrl}
-          >
-            Next
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
-}
+          );
+        }}
+      />
+    );
+    // }
+  },
+});
 
-function CoverImageForm() {
-  const incrementStep = useArticleSubmissionFormStore((s) => s.incrementStep);
-  const decrementStep = useArticleSubmissionFormStore((s) => s.decrementStep);
-  const { moveBackward, moveForward } = useMultiStepForm();
-
-  const coverImg = useArticleSubmissionFormStore((s) => s.coverImg);
-  const setCoverImg = useArticleSubmissionFormStore((s) => s.setCoverImg);
-
-  return (
-    <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
-        <h1 className="text-4xl font-bold text-neutral-800">
-          Now let's add a cover image...
-        </h1>
-        <p className="text-neutral-700">
-          Add a cover image to add some visual intrigue to your article! If you
-          don't have an image, feel free to ask (nicely) in the art team for
-          some art! If you would like to submit without a cover image, you can
-          skip this step.
-        </p>
-      </div>
-      {!coverImg && (
-        <FileUpload
-          onDrop={(files) => {
-            if (files.length === 0) return;
-
-            if (files.length > 1)
-              throw new Error("Articles can only have 1 cover image!");
-
-            setCoverImg(files[0]);
-          }}
+const AdditionalInfoForm = withForm({
+  ...formOpts,
+  render: ({ form }) => {
+    return (
+      <div className="flex flex-col gap-3">
+        <FormSectionHeading
+          title="One last step..."
+          description="Please tell us a little bit about the message that   you wanted to portray with your article. These are the ideas that our editing team will try to ensure your article conveys well so we'd appreciate it if you took your time with this section!"
         />
-      )}
-      {coverImg && (
-        <div className="flex items-center justify-between gap-4 p-4 bg-neutral-50 border-neutral-200/50 border-[0.0125rem] rounded-sm my-4">
-          <div className="flex items-center gap-4">
-            <img
-              src={URL.createObjectURL(coverImg)}
-              alt="Cover Image"
-              className="h-16 aspect-video rounded-md object-scale-down"
+        <form.AppField
+          name="additionalInfo.keyIdeas"
+          validators={{
+            onChange: z
+              .string()
+              .min(10, "Please provide at least 10 characters"),
+          }}
+          children={(field) => (
+            <field.TextField
+              label="What ideas in your article are most important to preserve during editing?"
+              isTextArea={true}
             />
-            <div className="flex flex-col gap-0">
-              <p className="font-medium text-neutral-800">{coverImg.name}</p>
-              <p className="text-neutral-600 text-sm">
-                {formatBytes(coverImg.size, 0)}
+          )}
+        />
+        <form.AppField
+          name="additionalInfo.message"
+          validators={{
+            onChange: z
+              .string()
+              .min(30, "Please provide at least 30 characters"),
+          }}
+          children={(field) => (
+            <field.TextField
+              label="What message is your article meant to convey?"
+              isTextArea={true}
+            />
+          )}
+        />
+      </div>
+    );
+  },
+});
+
+const FieldPreview: React.FC<React.PropsWithChildren<{ label: string }>> = (
+  props
+) => (
+  <div className="border-[0.0125rem] rounded-md pb-1 border-zinc-300">
+    <div className="text-zinc-800 font-sans font-semibold text-xs bg-zinc-50 p-2 rounded-t-md shadow-sm">
+      {props.label}
+    </div>
+    {props.children}
+  </div>
+);
+
+const PreviewForm = withForm({
+  ...formOpts,
+  render: ({ form }) => {
+    const data = useStore(form.store, (s) => s.values);
+
+    const trpc = useTRPC();
+    const usersQuery = useQuery(trpc.user.getUsers.queryOptions());
+
+    return (
+      <div>
+        <FormSectionHeading
+          title="Does everything look okay?"
+          description="If everything looks correct, you can now submit your article. Our editors will look them over and get back to you soon!"
+        />
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 rounded-sm">
+            <FieldPreview label="Name">
+              <p className="text-zinc-700 text-sm px-2 my-1 wrap-break-word">
+                {data.initial.name}
               </p>
-            </div>
+            </FieldPreview>
+            <FieldPreview label="Description">
+              <p className="text-zinc-700 text-sm px-2 my-1 wrap-break-word">
+                {data.initial.description}
+              </p>
+            </FieldPreview>
+            <FieldPreview label="Google Doc Link">
+              <a
+                href={`https://docs.google.com/document/d/${data.initial.docId}/preview`}
+                target="_blank"
+                className="group"
+              >
+                <div className="flex items-center justify-between gap-2 px-2 my-2">
+                  <div className="flex items-center gap-2">
+                    <GoogleDocsIcon />
+
+                    <p className="text-zinc-700 text-sm px-2 -ml-2 group-hover:underline">
+                      {data.initial.docName}
+                    </p>
+                  </div>
+
+                  <div className="invisible group-hover:visible transition-all">
+                    <LinkIcon />
+                  </div>
+                </div>
+              </a>
+            </FieldPreview>
+            {data.initial.collaborators.size > 0 && (
+              <FieldPreview label="Collaborators">
+                <div className="flex flex-row gap-2 my-2.5 mx-2">
+                  {usersQuery.data
+                    ?.filter((user) => data.initial.collaborators.has(user.id))
+                    .map((user) => (
+                      <div
+                        key={user.id}
+                        className="py-1 px-3 flex items-center gap-1 border-[0.0125rem] border-sky-200 bg-sky-50 text-sky-800 rounded-full"
+                      >
+                        {user.image && (
+                          <img
+                            src={user.image}
+                            className="size-4 rounded-full"
+                            referrerPolicy="no-referrer"
+                          />
+                        )}
+                        <p className="text-sm">{user.name}</p>
+                      </div>
+                    ))}
+                </div>
+              </FieldPreview>
+            )}
+
+            {data.coverImg.coverImg && (
+              <FieldPreview label="Cover Image">
+                <div className="flex items-center gap-2 px-2 py-4">
+                  <img
+                    src={URL.createObjectURL(data.coverImg.coverImg)}
+                    alt="Cover Image"
+                    className="h-16 aspect-video rounded-md object-scale-down"
+                  />
+                  <div className="flex flex-col gap-0">
+                    <p className="font-medium text-neutral-800 text-sm">
+                      {data.coverImg.coverImg.name}
+                    </p>
+                    <p className="text-neutral-600 text-xs">
+                      {formatBytes(data.coverImg.coverImg.size, 0)}
+                    </p>
+                  </div>
+                </div>
+              </FieldPreview>
+            )}
+            <FieldPreview label="Key Ideas">
+              <p className="text-zinc-700 text-sm px-2 my-1 wrap-break-word">
+                {data.additionalInfo.keyIdeas}
+              </p>
+            </FieldPreview>
+            <FieldPreview label="Message">
+              <p className="text-zinc-700 text-sm px-2 my-1 wrap-break-word">
+                {data.additionalInfo.message}
+              </p>
+            </FieldPreview>
           </div>
-          <Button size="icon" onPress={() => setCoverImg(null)}>
-            <TrashIcon />
-          </Button>
         </div>
-      )}
-      <div className="flex items-center justify-between my-4">
-        <Button
-          variant="secondary"
-          onPress={() => {
-            moveBackward(decrementStep);
-          }}
-          leadingVisual={<ChevronLeftIcon />}
-        >
-          Back
-        </Button>
-        <Button
-          onPress={() => {
-            moveForward(incrementStep);
-          }}
-          trailingVisual={<ChevronRightIcon />}
-        >
-          {coverImg ? "Next" : "Skip"}
-        </Button>
       </div>
-    </div>
-  );
-}
+    );
+  },
+});
 
-function AdditionalInfoForm() {
-  const {
-    incrementStep,
-    decrementStep,
-    submitAdditionalInfo,
-    keyIdeas,
-    message,
-  } = useArticleSubmissionFormStore();
-  const { moveBackward, moveForward } = useMultiStepForm();
-
-  const form = useZodForm({
-    schema: z.object({
-      keyIdeas: z.string().min(10, "Please provide at least 10 characters"),
-      message: z.string().min(30, "Please provide at least 30 characters"),
-    }),
-    defaultValues: {
-      keyIdeas,
-      message,
-    },
-  });
-
-  return (
-    <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
-        <h1 className="text-4xl font-bold text-neutral-800">
-          One last step...
-        </h1>
-        <p className="text-neutral-700">
-          Please tell us a little bit about the message that you wanted to
-          portray with your article. These are the ideas that our editing team
-          will try to ensure your article conveys well so we'd appreciate it if
-          you took your time with this section!
-        </p>
-      </div>
-      <form
-        className="flex flex-col gap-4"
-        onSubmit={form.handleSubmit((data) => {
-          moveForward(() => {
-            submitAdditionalInfo(data);
-            incrementStep();
-          });
-        })}
-      >
-        <Controller
-          control={form.control}
-          name="keyIdeas"
-          render={({ field, formState }) => (
-            <TextField isInvalid={!!formState.errors.keyIdeas} {...field}>
-              <Label>
-                What ideas in your article are most important to preserved
-                during editing?
-              </Label>
-              <TextArea fullWidth />
-              {formState.errors.keyIdeas && (
-                <FieldError message={formState.errors.keyIdeas.message} />
-              )}
-            </TextField>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="message"
-          render={({ field, formState }) => (
-            <TextField isInvalid={!!formState.errors.message} {...field}>
-              <Label>What message is your article meant to convey?</Label>
-              <TextArea fullWidth />
-              {formState.errors.message && (
-                <FieldError message={formState.errors.message.message} />
-              )}
-            </TextField>
-          )}
-        />
-        <div className="flex items-center justify-between my-4">
-          <Button
-            type="button"
-            variant="secondary"
-            onPress={() => {
-              moveBackward(decrementStep);
-            }}
-            leadingVisual={<ChevronLeftIcon />}
-          >
-            Back
-          </Button>
-          <Button type="submit" trailingVisual={<ChevronRightIcon />}>
-            Next
-          </Button>
-        </div>
-      </form>
-    </div>
-  );
-}
-
-function PreviewForm() {
-  const data = useArticleSubmissionFormStore();
-  const { moveBackward, moveForward } = useMultiStepForm();
+export const ArticleSubmissionForm = () => {
+  const multiStepControl = useMultiStepFormControl();
 
   const { startUpload } = useUploadThing("imageUploader");
   const trpc = useTRPC();
 
   const submit = useMutation(
     trpc.article.draft.create.mutationOptions({
-      onSuccess: () => moveForward(data.incrementStep),
       onError: (err) => {
         console.error(err);
       },
     })
   );
 
-  // const submit = useMutation({
-  // mutationKey: ["article-submit-draft"],
-  // mutationFn: async () => {
-  //   let coverImgUrl: string | undefined = undefined;
-  //   if (data.coverImg) {
-  //     const uploadResult = await startUpload([data.coverImg]);
-  //     if (!uploadResult) throw new Error("Image Upload Failed!");
-  //     coverImgUrl = uploadResult[0].ufsUrl;
-  //   }
-  //   await createArticleDraft({
-  //     data: {
-  //       title: data.name,
-  //       description: data.description,
-  //       keyIdeas: data.keyIdeas,
-  //       message: data.message,
-  //       coverImg: coverImgUrl,
-  //       docId: data.docId,
-  //     },
-  //   });
-  // },
+  const form = useAppForm({
+    defaultValues,
+    onSubmit: async ({ value }) => {
+      let coverImgUrl: string | undefined = undefined;
+      if (value.coverImg.coverImg) {
+        const uploadResult = await startUpload([value.coverImg.coverImg]);
+        if (!uploadResult) throw new Error("Image Upload Failed!");
+        coverImgUrl = uploadResult[0].ufsUrl;
+      }
 
-  // });
+      await submit.mutateAsync({
+        title: value.initial.name,
+        description: value.initial.description,
+        keyIdeas: value.additionalInfo.keyIdeas,
+        message: value.additionalInfo.message,
+        coverImg: coverImgUrl,
+        docId: value.initial.docId,
+        collaborators: [...(value.initial.collaborators as Set<string>)],
+      });
+    },
+  });
+
+  const next = async () => {
+    if (steps[multiStepControl.step] === "splash")
+      return multiStepControl.moveForward();
+    if (steps[multiStepControl.step] === "preview") return form.handleSubmit();
+
+    const fieldData = Object.keys(defaultValues[steps[multiStepControl.step]])
+      .map((field) => `${steps[multiStepControl.step]}.${field}`)
+      .map((field) => {
+        const fieldInfo = form.getFieldInfo(field as any);
+        if (!fieldInfo.instance) return null;
+
+        const fieldMeta = fieldInfo.instance.getMeta();
+
+        return {
+          id: fieldInfo.instance.name,
+          isValid: fieldMeta.isValid,
+          isPristine: fieldMeta.isPristine,
+        };
+      });
+
+    if (
+      fieldData
+        .filter((field) => field !== null)
+        .some((field) => !field.isValid)
+    )
+      return;
+
+    const validateResult = await Promise.all(
+      fieldData
+        .filter((field) => field !== null)
+        .filter((field) => field.isPristine)
+        .map((field) => form.validateField(field.id, "submit"))
+    ).then((res) => res.flat());
+
+    if (validateResult.length === 0) {
+      multiStepControl.moveForward();
+    }
+  };
+
+  const prev = async () => {
+    if (multiStepControl.step === 0) return;
+
+    multiStepControl.moveBackward();
+  };
 
   return (
     <div>
-      <div className="mb-8 flex flex-col gap-1 border-b py-4 border-b-neutral-300">
-        <h1 className="text-4xl font-bold text-neutral-800">
-          Does everything look okay?
-        </h1>
-        <p className="text-neutral-700">
-          If everything looks correct, you can now submit your article. Our
-          editors will look them over and get back to you soon!
-        </p>
-      </div>
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-2 p-4 bg-neutral-50 border-neutral-200/50 border-[0.0125rem] rounded-sm">
-          <div>
-            <p className="text-neutral-800 font-semibold">Article Name</p>
-            <p className="text-neutral-700">{data.name}</p>
-          </div>
+      {multiStepControl.step > 0 && (
+        <MultiStepFormProgress
+          steps={steps.slice(1)}
+          currentStep={multiStepControl.step - 1}
+        />
+      )}
+      <MultiStepForm multiStepControl={multiStepControl}>
+        {steps[multiStepControl.step] === "splash" && <SplashScreen />}
+        {steps[multiStepControl.step] === "initial" && (
+          <InitialInfo form={form} />
+        )}
+        {steps[multiStepControl.step] === "coverImg" && (
+          <CoverImage form={form} />
+        )}
+        {steps[multiStepControl.step] === "additionalInfo" && (
+          <AdditionalInfoForm form={form} />
+        )}
+        {steps[multiStepControl.step] === "preview" && (
+          <PreviewForm form={form} />
+        )}
+      </MultiStepForm>
 
-          <div>
-            <p className="text-neutral-800 font-semibold">
-              Article Description
-            </p>
-            <p className="text-neutral-700">{data.description}</p>
-          </div>
-
-          <div>
-            <p className="text-neutral-800 font-semibold">Key Ideas</p>
-            <p className="text-neutral-700">{data.keyIdeas}</p>
-          </div>
-
-          <div>
-            <p className="text-neutral-800 font-semibold">Message</p>
-            <p className="text-neutral-700">{data.message}</p>
-          </div>
-        </div>
-
-        {data.coverImg && (
-          <div className="flex flex-col gap-4 p-4 bg-neutral-50 border-neutral-200/50 border-[0.0125rem] rounded-sm">
-            <p className="text-neutral-800 font-semibold">
-              Article Cover Image
-            </p>
-            <div className="flex items-center gap-4">
-              <img
-                src={URL.createObjectURL(data.coverImg)}
-                alt="Cover Image"
-                className="h-16 aspect-video rounded-md object-scale-down"
-              />
-              <div className="flex flex-col gap-0">
-                <p className="font-medium text-neutral-800">
-                  {data.coverImg.name}
-                </p>
-                <p className="text-neutral-600 text-sm">
-                  {formatBytes(data.coverImg.size, 0)}
-                </p>
-              </div>
-            </div>
+      <form.Subscribe
+        selector={(state) =>
+          [
+            state.isSubmitting,
+            state.isFieldsValidating,
+            state.values.coverImg.coverImg,
+          ] as const
+        }
+        children={([isSubmitting, isValidating, coverImg]) => (
+          <div className="w-full flex items-center justify-between my-4 font-sans">
+            <span className={cn(multiStepControl.step === 0 && "hidden")}>
+              <Button
+                onPress={prev}
+                leadingVisual={<ChevronLeftIcon />}
+                variant="ghost"
+                isDisabled={isSubmitting || isValidating}
+              >
+                Back
+              </Button>
+            </span>
+            <Button
+              fullWidth={multiStepControl.step === 0}
+              onPress={next}
+              trailingVisual={<ChevronRightIcon />}
+              isLoading={isSubmitting}
+              isDisabled={isSubmitting || isValidating}
+            >
+              {steps[multiStepControl.step] === "coverImg" && !coverImg
+                ? "Skip"
+                : steps[multiStepControl.step] === "preview"
+                ? "Submit"
+                : "Next"}
+            </Button>
           </div>
         )}
+      />
 
-        <div className="flex flex-col gap-4 p-4 bg-neutral-50 border-neutral-200/50 border-[0.0125rem] rounded-sm">
-          <div>
-            <p className="text-neutral-800 font-semibold">
-              Article Content Preview
-            </p>
-            <p className="text-neutral-600 text-sm">
-              This will go through the editing process and then formatted for
-              the website! Don't worry if it doesn't look perfect right now.
-            </p>
+      <Modal isOpen={submit.isSuccess} size="sm">
+        <div className="flex items-center justify-center flex-col px-8 py-6">
+          <div className="text-emerald-600">
+            <CheckCircleIcon />
           </div>
-          <iframe
-            className="w-full h-96"
-            src={`https://docs.google.com/document/d/${data.docId}/preview`}
-          />
+          <p className="text-center font-semibold text-lg mb-1 mt-2">
+            Congratulations your article has been submitted!
+          </p>
+          <p className="text-xs text-zinc-500 text-center">
+            We look forward to reading your work. You can expect an email within
+            a week with updates about the editing process and updates on being
+            published!
+          </p>
+          <div className="mt-4 w-full flex flex-col gap-2">
+            <Link to="/">
+              <Button fullWidth>Return Home</Button>
+            </Link>
+            <Link to="/articles/submit">
+              <Button fullWidth variant="ghost">
+                Submit Another
+              </Button>
+            </Link>
+          </div>
         </div>
-        <div className="flex items-center justify-between my-4">
-          <Button
-            variant="secondary"
-            onPress={() => {
-              moveBackward(data.decrementStep);
-            }}
-            leadingVisual={<ChevronLeftIcon />}
-          >
-            Back
-          </Button>
-          <Button
-            onPress={async () => {
-              let coverImgUrl: string | undefined = undefined;
-              if (data.coverImg) {
-                const uploadResult = await startUpload([data.coverImg]);
-                if (!uploadResult) throw new Error("Image Upload Failed!");
-                coverImgUrl = uploadResult[0].ufsUrl;
-              }
-
-              submit.mutate({
-                title: data.name,
-                description: data.description,
-                keyIdeas: data.keyIdeas,
-                message: data.message,
-                coverImg: coverImgUrl,
-                docId: data.docId,
-              });
-            }}
-            trailingVisual={<ChevronRightIcon />}
-            isDisabled={submit.isPending}
-          >
-            Submit
-          </Button>
-        </div>
-      </div>
+        <Confetti />
+      </Modal>
     </div>
   );
-}
-
-function ConfirmationScreen() {
-  const { windowSize } = useWindowSize();
-
-  return (
-    <>
-      <div className="flex flex-col gap-0.5 py-4">
-        <div className="flex justify-between items-center">
-          <div>
-            <div>
-              <div className="flex items-center gap-4">
-                <div className="text-emerald-600">
-                  <CheckCircleIcon />
-                </div>
-                <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
-                  Congratulations your article has been submitted!
-                </h2>
-              </div>
-              <div className="flex flex-col gap-2 my-2">
-                <p className="text-neutral-700">
-                  We look forward to reading your work. You can expect an email
-                  within a week with updates about the editing process and
-                  updates on being published!
-                  <span>
-                    <Link to="/" className="mx-1 text-sky-700 underline">
-                      Return Home
-                    </Link>
-                  </span>
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Confetti width={windowSize.width} height={windowSize.height} />
-    </>
-  );
-}
+};

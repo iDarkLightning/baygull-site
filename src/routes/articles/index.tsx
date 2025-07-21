@@ -1,7 +1,7 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { ArticlesList } from "~/components/articles/article-list";
-import { Header } from "~/components/nav";
+import { Header } from "~/components/layout/nav";
 import { useTRPC } from "~/lib/trpc/client";
 
 export const Route = createFileRoute("/articles/")({

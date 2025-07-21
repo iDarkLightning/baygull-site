@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArticleHighlights } from "~/components/articles/article-highlights";
 import { ArticlesList } from "~/components/articles/article-list";
 import { ArticleSpotlight } from "~/components/articles/article-spotlight";
-import { Header } from "~/components/nav";
+import { Header } from "~/components/layout/nav";
 import { RightArrowIcon } from "~/components/ui/icons";
 import { useTRPC } from "~/lib/trpc/client";
 

@@ -16,7 +16,7 @@ import { useUploadThing } from "~/lib/uploadthing/client";
 import { ClientOnly } from "../client-only";
 import { useMultiStepForm } from "../ui/animated-multistep-form";
 import { Button } from "../ui/button";
-import { FieldError } from "../ui/field-error";
+import { FieldError } from "../ui/form-field";
 import { FileUpload } from "../ui/file-upload";
 import {
   ChevronLeftIcon,

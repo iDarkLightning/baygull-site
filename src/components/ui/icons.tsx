@@ -1,3 +1,6 @@
+import { motion } from "framer-motion";
+import React from "react";
+
 export const ChevronLeftIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -78,9 +81,8 @@ export const GoogleDocsIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     x="0px"
     y="0px"
-    width="64"
-    height="64"
     viewBox="0 0 48 48"
+    className="size-4"
   >
     <path
       fill="#2196f3"
@@ -132,7 +134,7 @@ export const CheckCircleSolidIcon = () => (
     xmlns="http://www.w3.org/2000/svg"
     viewBox="0 0 16 16"
     fill="currentColor"
-    className="size-4 text-white"
+    className="size-4"
   >
     <path
       fillRule="evenodd"
@@ -317,6 +319,26 @@ export const FunnelIcon = () => (
   </svg>
 );
 
+export const LinkIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 16 16"
+    fill="currentColor"
+    className="size-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M8.914 6.025a.75.75 0 0 1 1.06 0 3.5 3.5 0 0 1 0 4.95l-2 2a3.5 3.5 0 0 1-5.396-4.402.75.75 0 0 1 1.251.827 2 2 0 0 0 3.085 2.514l2-2a2 2 0 0 0 0-2.828.75.75 0 0 1 0-1.06Z"
+      clipRule="evenodd"
+    />
+    <path
+      fillRule="evenodd"
+      d="M7.086 9.975a.75.75 0 0 1-1.06 0 3.5 3.5 0 0 1 0-4.95l2-2a3.5 3.5 0 0 1 5.396 4.402.75.75 0 0 1-1.251-.827 2 2 0 0 0-3.085-2.514l-2 2a2 2 0 0 0 0 2.828.75.75 0 0 1 0 1.06Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
 export const TextIcon = () => (
   <div className="w-4 font-bold items-center justify-center text-center font-serif">
     T
@@ -325,4 +347,70 @@ export const TextIcon = () => (
 
 export const StatusIcon = () => (
   <div className="size-4 border-[0.125rem] border-dashed rounded-full" />
+);
+
+export const AnimatedCheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props
+) => (
+  <svg
+    {...props}
+    fill="none"
+    viewBox="0 0 24 24  "
+    stroke="currentColor"
+    strokeWidth={3}
+  >
+    <motion.path
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{
+        delay: 0.2,
+        type: "tween",
+        ease: "easeOut",
+        duration: 0.3,
+      }}
+      d="M5 13l4 4L19 7"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const AnimatedXMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
+  props
+) => (
+  <svg
+    {...props}
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    strokeWidth={3}
+  >
+    {/* First stroke of the X */}
+    <motion.path
+      d="M6 6l12 12"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{
+        delay: 0.2,
+        duration: 0.3,
+        ease: "easeOut",
+      }}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+
+    {/* Second stroke of the X */}
+    <motion.path
+      d="M18 6l-12 12"
+      initial={{ pathLength: 0 }}
+      animate={{ pathLength: 1 }}
+      transition={{
+        delay: 0.5, // start after the first line
+        duration: 0.3,
+        ease: "easeOut",
+      }}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
 );

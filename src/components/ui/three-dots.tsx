@@ -6,7 +6,7 @@ export const ThreeDotsLoading: React.FC<React.SVGProps<SVGSVGElement>> = (
     height="32"
     viewBox="0 0 120 30"
     xmlns="http://www.w3.org/2000/svg"
-    fill="#fff"
+    fill="currentColor"
     {...svgProps}
   >
     <circle cx="15" cy="15" r="15">

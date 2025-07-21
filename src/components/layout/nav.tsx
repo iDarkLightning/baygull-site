@@ -6,8 +6,8 @@ import { useInView } from "react-intersection-observer";
 import { Drawer } from "vaul";
 import { useSignIn, useSignOut } from "~/lib/auth/auth-client";
 import { useTRPC } from "~/lib/trpc/client";
-import { Button } from "./ui/button";
-import { MenuIcon, PencilSquareIcon, UserIcon } from "./ui/icons";
+import { Button } from "../ui/button";
+import { MenuIcon, PencilSquareIcon, UserIcon } from "../ui/icons";
 
 const SidebarMenu = () => {
   const trpc = useTRPC();
@@ -121,7 +121,7 @@ const BayGullText: React.FC<{ animate?: boolean }> = (props) => (
   </motion.h1>
 );
 
-const ExpandedHeader: React.FC<{ ref: React.Ref<HTMLDivElement> }> = (
+export const ExpandedHeader: React.FC<{ ref?: React.Ref<HTMLDivElement> }> = (
   props
 ) => {
   return (
@@ -150,14 +150,16 @@ export const CollapsedHeader = () => {
   return (
     <motion.header
       key="collapsed-header"
-      className="fixed top-0 w-full border-b border-neutral-700 bg-neutral-800 text-white shadow-md dark"
+      className="fixed top-0 w-full border-b border-neutral-700 bg-neutral-800 text-white shadow-md dark z-10"
       initial={{ y: -20 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.25, ease: "easeInOut" }}
     >
       <div className="max-w-[100rem] h-12 py-6 px-4 md:mx-auto md:w-[80%] lg:w-[85%] 2xl:w-[90%] flex items-center justify-between">
         <NavLinks />
-        <Link to="/">
+        <Link to="/" className="-ml-12 flex items-center gap-2">
+          <img src="/logo.png" alt="Logo" width="32" height="32" />
+
           <BayGullText animate />
         </Link>
         <nav>

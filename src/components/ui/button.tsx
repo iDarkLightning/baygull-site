@@ -10,10 +10,10 @@ import { FocusRing } from "react-aria";
 
 export const button = cva(
   [
-    "rounded-full text-sm font-medium transition-colors whitespace-nowrap relative touch-none select-none",
+    "text-sm font-medium transition-colors transition-[width] whitespace-nowrap relative touch-none select-none",
     "focus:outline-none",
     "disabled:scale-100 active:scale-95",
-    "disabled:opacity-70 disabled:cursor-not-allowed disabled:active:scale-100",
+    "disabled:opacity-70 disabled:bg-neutral-200 disabled:cursor-not-allowed disabled:active:scale-100",
     "data-[loading=true]:!cursor-wait",
   ],
   {
@@ -42,11 +42,16 @@ export const button = cva(
         true: "w-full",
         false: "w-max",
       },
+      isCircular: {
+        true: "rounded-full",
+        false: "rounded-md",
+      },
     },
     defaultVariants: {
       variant: "primary",
       size: "base",
       fullWidth: false,
+      isCircular: true,
     },
   }
 );
@@ -67,6 +72,7 @@ export const Button: React.FC<ButtonProps> = ({
   size,
   fullWidth,
   isLoading,
+  isCircular,
   leadingVisual,
   trailingVisual,
   align = "center",
@@ -84,6 +90,7 @@ export const Button: React.FC<ButtonProps> = ({
             variant: props.isDisabled ? "disabled" : variant,
             size,
             fullWidth,
+            isCircular,
           })
         )}
         ref={ref}

@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CollapsedHeader } from "~/components/nav";
+import { CollapsedHeader } from "~/components/layout/nav";
 import { PageProgress } from "~/components/page-progress";
 import { useTRPC } from "~/lib/trpc/client";
 

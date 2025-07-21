@@ -1,5 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { z } from "zod";
 import { articleDraft, usersToArticleDrafts } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
@@ -38,7 +38,10 @@ export const draftRouter = {
           },
         },
       },
-      orderBy: (draft, { asc }) => asc(draft.status),
+      orderBy: (draft, { asc, desc }) => [
+        asc(draft.status),
+        desc(draft.submittedAt),
+      ],
     });
 
     return result;
@@ -88,6 +91,7 @@ export const draftRouter = {
         docId: z.string(),
         keyIdeas: z.string(),
         message: z.string(),
+        collaborators: z.array(z.string()),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -109,10 +113,16 @@ export const draftRouter = {
         })
         .returning();
 
-      await ctx.db.insert(usersToArticleDrafts).values({
-        draftId: insertResult.id,
-        userId: ctx.user.id,
-      });
+      await ctx.db.insert(usersToArticleDrafts).values([
+        {
+          draftId: insertResult.id,
+          userId: ctx.user.id,
+        },
+        ...input.collaborators.map((userId) => ({
+          draftId: insertResult.id,
+          userId,
+        })),
+      ]);
 
       if (!!insertResult) {
         return { message: "ok" };
