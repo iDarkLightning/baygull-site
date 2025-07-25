@@ -5,6 +5,8 @@ import React from "react";
 import { useStore } from "@tanstack/react-form";
 import { Input } from "./input";
 import { TextArea } from "./textarea";
+import { ImageUpload, ImageUploadProps } from "./file-upload";
+import { formatBytes } from "~/lib/format-bytes";
 
 type TextFieldProps = (React.ComponentProps<typeof AriaTextField> & {
   label: string;
@@ -47,6 +49,28 @@ export const TextField: React.FC<TextFieldProps> = ({
         <FieldError key={message} message={message} />
       ))}
     </AriaTextField>
+  );
+};
+
+export const ImageUploadField: React.FC<ImageUploadProps> = (props) => {
+  const field = useFieldContext<File[]>();
+  const errors = useStore(field.store, (state) => state.meta.errors);
+
+  return (
+    <div>
+      <ImageUpload isInvalid={errors.length > 0} {...props} />
+      {errors.map((err, index) =>
+        err ? (
+          <FieldError
+            key={index}
+            message={`Cover Images cannot be larger than ${formatBytes(
+              props.maxSize,
+              0
+            )}`}
+          />
+        ) : null
+      )}
+    </div>
   );
 };
 
