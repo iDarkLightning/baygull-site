@@ -58,19 +58,19 @@ export const MultiStepFormStep: React.FC<{
           initial={false}
           variants={{
             inactive: {
-              backgroundColor: "white",
+              backgroundColor: "var(--color-white)",
               borderColor: "var(--color-zinc-100)",
               color: "var(--color-zinc-400)",
             },
             active: {
-              backgroundColor: "white",
+              backgroundColor: "var(--color-white)",
               borderColor: "var(--color-sky-600)",
               color: "var(--color-sky-700)",
             },
             complete: {
               backgroundColor: "var(--color-sky-600)",
               borderColor: "transparent",
-              color: "white",
+              color: "var(--color-white)",
             },
           }}
           transition={{ duration: 0.1 }}
