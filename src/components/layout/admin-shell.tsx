@@ -5,7 +5,9 @@ import { cn } from "~/lib/cn";
 import { useTRPC } from "~/lib/trpc/client";
 import { Button } from "../ui/button";
 import {
+  ArchiveBoxIcon,
   DocumentDuplicatesIcon,
+  GlobeIcon,
   MenuIcon,
   PencilSquareIcon,
   PeopleIcon,
@@ -14,34 +16,44 @@ import {
 import { motion } from "framer-motion";
 import { useState } from "react";
 
-const tabs = linkOptions([
+const tabs = [
   {
-    id: "articles-tab",
-    name: "Articles",
-    to: "/manage/articles",
-    icon: DocumentDuplicatesIcon,
+    id: "articles",
+    label: "Articles",
+    tabs: linkOptions([
+      {
+        id: "published-tab",
+        // @ts-ignore
+        name: "Published",
+        to: "/manage/a/$status",
+        params: {
+          status: "published",
+        },
+        icon: GlobeIcon,
+      },
+      {
+        id: "drafts-tab",
+        // @ts-ignore
+        name: "Drafts",
+        to: "/manage/a/$status",
+        params: {
+          status: "drafts",
+        },
+        icon: PencilSquareIcon,
+      },
+      {
+        id: "archived-tab",
+        // @ts-ignore
+        name: "Archived",
+        to: "/manage/a/$status",
+        params: {
+          status: "archived",
+        },
+        icon: ArchiveBoxIcon,
+      },
+    ]),
   },
-  {
-    id: "drafts-tab",
-    //@ts-ignore
-    name: "Drafts",
-    to: "/manage/drafts",
-    search: {
-      statuses: [],
-      authors: [],
-      titleDesc: "",
-      submissionTime: null,
-      preset: "none",
-    },
-    icon: PencilSquareIcon,
-  },
-  {
-    id: "people-tab",
-    name: "People",
-    to: "/manage/people",
-    icon: PeopleIcon,
-  },
-]);
+];
 
 const Nav = () => {
   const trpc = useTRPC();
@@ -58,32 +70,56 @@ const Nav = () => {
           <p className="font-medium text-xs text-sky-700">Admin</p>
         </div>
       </div>
-      <div className="flex flex-col gap-3 flex-10/12 my-2">
+      <div className="flex flex-col gap-4 flex-10/12 my-2">
         {tabs.map((tab) => (
-          <Link
-            to={tab.to}
-            key={tab.id}
-            className={cn(
-              "relative px-1.5 mx-4 py-1.5 font-medium text-sm text-neutral-700/80 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
-              "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800"
-            )}
-          >
-            <MatchRoute to={tab.to} fuzzy>
-              {(match) =>
-                match && (
-                  <motion.span
-                    layoutId="bubble"
-                    className="absolute inset-0 z-10 bg-white mix-bled-difference rounded-md hover:bg-zinc-200/40 transition-colors border-[0.0125rem] border-zinc-400/60 shadow-sm"
-                    transition={{ type: "spring", bounce: 0.4, duration: 0.8 }}
-                  />
-                )
-              }
-            </MatchRoute>
-            <span className="z-20">
-              <tab.icon />
-            </span>
-            <p className="text-neutral-950 font-medium z-20">{tab.name}</p>
-          </Link>
+          <div key={tab.id}>
+            <p className="font-semibold text-neutral-500 text-xs mx-3 px-1.5 mb-2">
+              {tab.label}
+            </p>
+
+            <div className="flex flex-col gap-1">
+              {tab.tabs.map((tab) => (
+                <Link
+                  to={tab.to}
+                  params={tab.params}
+                  search={(prev) => {
+                    return Object.fromEntries(
+                      Object.entries(prev).filter(
+                        ([_, value]) => value !== undefined
+                      )
+                    );
+                  }}
+                  key={`${tab.id}-${tab.id}`}
+                  className={cn(
+                    "relative cursor-default px-1.5 mx-3 py-1.5 font-medium text-xs text-neutral-500 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
+                    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800"
+                  )}
+                >
+                  <MatchRoute to={tab.to} params={tab.params}>
+                    {(match) =>
+                      match && (
+                        <motion.span
+                          layoutId="bubble"
+                          className="absolute inset-0 z-10 bg-white mix-bled-difference rounded-md hover:bg-azinc-200/40 transition-colors border-[0.0125rem] border-zinc-400/60 shadow-sm"
+                          transition={{
+                            type: "spring",
+                            bounce: 0.4,
+                            duration: 0.8,
+                          }}
+                        />
+                      )
+                    }
+                  </MatchRoute>
+                  <span className="z-20">
+                    <tab.icon />
+                  </span>
+                  <p className="text-neutral-700 font-medium z-20">
+                    {tab.name}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </div>
         ))}
       </div>
       <div className="flex-1/12 items-center gap-2 p-3 border-t-[0.0125rem] border-zinc-400/60 lg:flex hidden">

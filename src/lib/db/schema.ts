@@ -22,6 +22,7 @@ export const user = sqliteTable("user", {
    * 1 = Published
    * 2 = Admin
    */
+
   role: integer("role").notNull().default(0),
 });
 
@@ -100,22 +101,54 @@ export const articleDraft = sqliteTable("article_draft", {
     .primaryKey()
     .unique()
     .$defaultFn(() => createId()),
+  /**
+   * 0 = Default
+   * 1 = Headline
+   * 2 = Graphic
+   */
+  type: integer("type").notNull(),
   title: text("title").notNull(),
-  description: text("description").notNull(),
-  coverImg: text("cover_img"),
-  originalUrl: text("original_url").notNull(),
-  editingUrl: text("editing_url").notNull(),
+  description: text("description"),
+  // coverImg: text("cover_img"),
+  // graphic: text("graphic"),
+  originalUrl: text("original_url"),
+  editingUrl: text("editing_url"),
   keyIdeas: text("key_ideas").notNull(),
   message: text("message").notNull(),
   /**
-   * 0 = User
+   * 0 = Active
    * 1 = Published
-   * 2 = Admin
+   * 2 = Archived
    */
   status: integer("status").notNull().default(0),
   submittedAt: integer("submitted_at")
     .notNull()
     .default(sql`(current_timestamp)`),
+});
+
+export const articleMedia = sqliteTable("article_media", {
+  id: text("id")
+    .primaryKey()
+    .unique()
+    .$defaultFn(() => createId()),
+  articleId: text("article_id").references(() => article.id, {
+    onDelete: "cascade",
+  }),
+  draftId: text("draft_id").references(() => articleDraft.id, {
+    onDelete: "cascade",
+  }),
+  /**
+   * 0 = Image
+   */
+  type: integer("type").notNull(),
+  /**
+   * 0 = Cover Image
+   * 1 = Default Content Image
+   * 2 = Graphic Content Image
+   */
+  intent: integer("intent").notNull(),
+  url: text("url").notNull(),
+  size: integer("size").notNull(),
 });
 
 export const usersToArticleDrafts = sqliteTable(

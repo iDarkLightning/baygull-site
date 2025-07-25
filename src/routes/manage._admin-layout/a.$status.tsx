@@ -11,7 +11,7 @@ import { DraftTable } from "~/components/articles/drafts/draft-table";
 import { DraftFilterStoreProvider } from "~/lib/articles/draft-filter-store";
 
 const filterParamDefaultValues = {
-  statuses: [],
+  types: [],
   authors: [],
   titleDesc: "",
   submissionTime: null,
@@ -19,10 +19,10 @@ const filterParamDefaultValues = {
 };
 
 const filterParamSchema = z.object({
-  statuses: fallback(
+  types: fallback(
     z.array(z.union([z.string(), z.number()])),
-    filterParamDefaultValues.statuses
-  ).default(filterParamDefaultValues.statuses),
+    filterParamDefaultValues.types
+  ).default(filterParamDefaultValues.types),
   authors: fallback(
     z.array(z.union([z.string(), z.number()])),
     filterParamDefaultValues.authors
@@ -38,22 +38,29 @@ const filterParamSchema = z.object({
       })
     ),
     filterParamDefaultValues.submissionTime
-  ),
+  ).default(filterParamDefaultValues.submissionTime),
   preset: fallback(
     z.enum([...Object.keys(submissionRangePresets), "none"] as [string]),
     "none"
   ).default(filterParamDefaultValues.preset),
 });
 
-export const Route = createFileRoute("/manage/_admin-layout/drafts/")({
+export const Route = createFileRoute("/manage/_admin-layout/a/$status")({
   validateSearch: zodValidator(filterParamSchema),
   search: {
     middlewares: [stripSearchParams(filterParamDefaultValues)],
   },
+  beforeLoad: ({ params }) => {
+    const statuses = ["drafts", "published", "archived"];
+
+    return { articleStatusCode: statuses.indexOf(params.status) };
+  },
   loaderDeps: ({ search }) => ({ authors: search.authors }),
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureQueryData(
-      context.trpc.article.draft.getAll.queryOptions()
+      context.trpc.article.draft.getAll.queryOptions({
+        status: context.articleStatusCode,
+      })
     );
 
     if (deps.authors.length > 0) {
@@ -66,12 +73,13 @@ export const Route = createFileRoute("/manage/_admin-layout/drafts/")({
 });
 
 function RouteComponent() {
+  const params = Route.useParams();
   const search = Route.useSearch();
 
   return (
     <div>
       <DraftFilterStoreProvider
-        statuses={new Set(search.statuses)}
+        types={new Set(search.types)}
         authors={new Set(search.authors)}
         titleDesc={search.titleDesc}
         submissionTime={
@@ -86,7 +94,9 @@ function RouteComponent() {
       >
         <div className="rounded-lg mx-4 mt-4 mb-1 pt-3 pb-1 px-1 md:px-6">
           <div className="flex items-center justify-between">
-            <h1 className="font-medium text-lg">Drafts</h1>
+            <h1 className="font-medium text-lg">
+              {params.status.charAt(0).toUpperCase() + params.status.slice(1)}
+            </h1>
             <DraftFilterMenu />
           </div>
           <DraftFilterDisplay />

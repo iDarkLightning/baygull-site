@@ -4,8 +4,8 @@ import { createStore, StoreApi, useStore } from "zustand";
 import { TDatePresets } from "~/components/articles/drafts/draft-filter";
 
 type TDraftFilterStore = {
-  statuses: Set<Key>;
-  setStatuses: (statuses: Set<Key>) => void;
+  types: Set<Key>;
+  setTypes: (types: Set<Key>) => void;
   authors: Set<Key>;
   setAuthors: (setAuthors: Set<Key>) => void;
   titleDesc: string;
@@ -18,13 +18,13 @@ type TDraftFilterStore = {
 
 type TDraftFilterInit = Pick<
   TDraftFilterStore,
-  "statuses" | "authors" | "titleDesc" | "submissionTime" | "presetSelected"
+  "types" | "authors" | "titleDesc" | "submissionTime" | "presetSelected"
 >;
 
 export const createDraftFilterStore = (initProps: TDraftFilterInit) => {
   return createStore<TDraftFilterStore>()((set) => ({
     ...initProps,
-    setStatuses: (statuses) => set({ statuses }),
+    setTypes: (types) => set({ types }),
     setAuthors: (authors) => set({ authors }),
     setTitleDesc: (titleDesc) => set({ titleDesc }),
     setSubmissionTime: (submissionTime) => set({ submissionTime }),

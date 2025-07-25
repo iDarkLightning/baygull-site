@@ -1,15 +1,14 @@
+import { CalendarDate } from "@internationalized/date";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
-import { useTRPC } from "~/lib/trpc/client";
+import { getRouteApi } from "@tanstack/react-router";
 import {
   createColumnHelper,
-  getCoreRowModel,
-  useReactTable,
   flexRender,
+  getCoreRowModel,
   getFilteredRowModel,
+  useReactTable,
 } from "@tanstack/react-table";
-import { TDraftList } from "~/lib/trpc/types";
-import { TooltipTrigger, Tooltip } from "~/components/ui/tooltip";
+import { useEffect, useState } from "react";
 import {
   Button as AriaButton,
   DateRange,
@@ -18,23 +17,20 @@ import {
   MenuTrigger,
 } from "react-aria-components";
 import { Button } from "~/components/ui/button";
-import { cn } from "~/lib/cn";
-import {
-  ClockIcon,
-  PublishIcon,
-  ThreeDotsIcon,
-  TrashIcon,
-} from "~/components/ui/icons";
-import { Popover } from "~/components/ui/popover";
+import { ClockIcon, ThreeDotsIcon, TrashIcon } from "~/components/ui/icons";
 import { MenuItem } from "~/components/ui/menu";
-import { Checkbox } from "~/components/ui/checkbox";
-import { CalendarDate } from "@internationalized/date";
-import { useEffect, useState } from "react";
+import { Popover } from "~/components/ui/popover";
+import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
 import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
+import { cn } from "~/lib/cn";
+import { useTRPC } from "~/lib/trpc/client";
+import { TDraftList } from "~/lib/trpc/types";
 
-const mapStatusToLabel = ["Active", "Published", "Archived"];
+const mapTypeToLabel = ["Default", "Headline", "Graphic"];
 
 const columnHelper = createColumnHelper<TDraftList[number]>();
+
+const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
 
 const columns = [
   columnHelper.accessor(
@@ -46,9 +42,11 @@ const columns = [
           <p className="font-medium max-w-[24ch] truncate">
             {info.getValue().title}
           </p>
-          <p className="text-xs text-neutral-600">
-            {info.getValue().desc.slice(0, 20)}...
-          </p>
+          {info.getValue().desc && (
+            <p className="text-xs text-neutral-600">
+              {info.getValue().desc?.slice(0, 20)}...
+            </p>
+          )}
         </div>
       ),
       header: () => <span className="pl-4">Title</span>,
@@ -105,30 +103,30 @@ const columns = [
       return user.some((user) => value.has(user.userId));
     },
   }),
-  columnHelper.accessor("status", {
-    header: () => <span>Status</span>,
+  columnHelper.accessor("type", {
+    header: () => <span>Type</span>,
     cell: (info) => {
-      const status = info.getValue();
+      const type = info.getValue();
 
       return (
         <div
           className={cn(
             "flex items-center gap-2 px-3 py-0.5 rounded-full text-sm w-fit font-medium mr-4",
-            status == 0 && "bg-sky-100 text-sky-800",
-            status == 1 && "bg-green-100 text-green-800",
-            status == 2 && "bg-neutral-100 text-neutral-800"
+            type == 0 && "bg-sky-100 text-sky-800",
+            type == 1 && "bg-green-100 text-green-800",
+            type == 2 && "bg-neutral-100 text-neutral-800"
           )}
         >
-          <p>{mapStatusToLabel[status]}</p>
+          <p>{mapTypeToLabel[type]}</p>
         </div>
       );
     },
     filterFn: (row, columnId, value: Set<Key>) => {
       if (value.size === 0) return true;
 
-      const status = row.getValue<number>(columnId);
+      const type = row.getValue<number>(columnId);
 
-      return value.has(mapStatusToLabel[status].toLowerCase());
+      return value.has(mapTypeToLabel[type].toLowerCase());
     },
   }),
   columnHelper.accessor("submittedAt", {
@@ -175,12 +173,12 @@ const columns = [
         </Button>
         <Popover placement="bottom right">
           <Menu className="focus:outline-none min-w-42">
-            <MenuItem href={`/manage/drafts/publish/${row.row.original.id}`}>
+            {/* <MenuItem href={`/manage/drafts/publish/${row.row.original.id}`}>
               <div className="flex gap-3 items-center">
                 <PublishIcon />
                 Publish
               </div>
-            </MenuItem>
+            </MenuItem> */}
             <MenuItem>
               <div className="flex gap-3 items-center text-rose-600">
                 <TrashIcon />
@@ -196,7 +194,12 @@ const columns = [
 
 export const DraftTable = () => {
   const trpc = useTRPC();
-  const { data } = useSuspenseQuery(trpc.article.draft.getAll.queryOptions());
+  const routeContext = routeApi.useRouteContext();
+  const { data } = useSuspenseQuery(
+    trpc.article.draft.getAll.queryOptions({
+      status: routeContext.articleStatusCode,
+    })
+  );
 
   const state = useDraftFilterStore((s) => s);
   const [filters, setFilters] = useState<
@@ -207,7 +210,7 @@ export const DraftTable = () => {
   >([
     { id: "title-desc", value: state.titleDesc },
     { id: "users", value: state.authors },
-    { id: "status", value: state.statuses },
+    { id: "type", value: state.types },
     { id: "submittedAt", value: state.submissionTime },
   ]);
 
@@ -226,7 +229,7 @@ export const DraftTable = () => {
     table.setColumnFilters([
       { id: "title-desc", value: state.titleDesc },
       { id: "users", value: state.authors },
-      { id: "status", value: state.statuses },
+      { id: "type", value: state.types },
       { id: "submittedAt", value: state.submissionTime },
     ]);
   }, [state]);
@@ -234,7 +237,7 @@ export const DraftTable = () => {
   const isFilterActive =
     state.titleDesc !== "" ||
     state.authors.size > 0 ||
-    state.statuses.size > 0 ||
+    state.types.size > 0 ||
     state.submissionTime !== null;
 
   return (
@@ -262,7 +265,7 @@ export const DraftTable = () => {
           <p className="text-sm text-neutral-500">
             {isFilterActive
               ? "There are no drafts that match the selected filters"
-              : "Article drafts are all submissions made by authors for potential review. Currently there are no article drafts."}
+              : "Article drafts are all submissions made by authors for potential review. There are currently no submissions."}
           </p>
         </div>
       )}

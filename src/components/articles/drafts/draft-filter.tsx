@@ -43,18 +43,18 @@ import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
 import { cn } from "~/lib/cn";
 import { useTRPC } from "~/lib/trpc/client";
 
-const statusDisplay = {
-  active: {
+const typesDisplay = {
+  default: {
     className: "w-2 h-2 bg-sky-400 rounded-full",
-    display: "Active",
+    display: "Default",
   },
-  published: {
+  headline: {
     className: "w-2 h-2 bg-green-400 rounded-full",
-    display: "Published",
+    display: "Headline",
   },
-  archived: {
+  graphic: {
     className: "w-2 h-2 bg-neutral-400 rounded-full",
-    display: "Archived",
+    display: "Graphic",
   },
 };
 
@@ -172,7 +172,7 @@ export const submissionRangePresets = {
 
 export type TDatePresets = keyof typeof submissionRangePresets | "none";
 
-const routeApi = getRouteApi("/manage/_admin-layout/drafts/");
+const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
 
 export const DraftFilterMenu = () => {
   const state = useDraftFilterStore((s) => s);
@@ -182,7 +182,7 @@ export const DraftFilterMenu = () => {
     navigate({
       replace: true,
       search: {
-        statuses: [...state.statuses],
+        types: [...state.types],
         authors: [...state.authors],
         titleDesc: state.titleDesc,
         submissionTime:
@@ -210,8 +210,8 @@ export const DraftFilterMenu = () => {
             <SubmenuItem icon={<TextIcon />} label="Title & Description">
               <TitleDescFilterPopover />
             </SubmenuItem>
-            <SubmenuItem icon={<StatusIcon />} label="Status">
-              <StatusMultiSelect />
+            <SubmenuItem icon={<StatusIcon />} label="Types">
+              <TypesMultiSelect />
             </SubmenuItem>
             <SubmenuItem icon={<PeopleIcon />} label="Author">
               <AuthorMultiSelect />
@@ -234,28 +234,28 @@ export const DraftFilterDisplay = () => {
 
   return (
     <div className="flex gap-2 mt-2 items-center flex-wrap">
-      <FilterDisplay isActive={state.statuses.size > 0}>
-        <FilterAttribute icon={<StatusIcon />}>Status</FilterAttribute>
+      <FilterDisplay isActive={state.types.size > 0}>
+        <FilterAttribute icon={<StatusIcon />}>Types</FilterAttribute>
         <FilterDescription>
-          {state.statuses.size === 1 ? "is" : "is any of"}
+          {state.types.size === 1 ? "is" : "is any of"}
         </FilterDescription>
         <FilterMenu>
           <FilterMenuButton>
-            {[...state.statuses].map((status) => (
+            {[...state.types].map((type) => (
               <div
-                key={status}
-                className={cn(statusDisplay[status].className, "-ml-0.5")}
+                key={type}
+                className={cn(typesDisplay[type].className, "-ml-0.5")}
               />
             ))}
             <p className="ml-1">
-              {state.statuses.size === 1
-                ? statusDisplay[[...state.statuses][0]].display
-                : `${state.statuses.size} statuses`}
+              {state.types.size === 1
+                ? typesDisplay[[...state.types][0]].display
+                : `${state.types.size} types`}
             </p>
           </FilterMenuButton>
-          <StatusMultiSelect />
+          <TypesMultiSelect />
         </FilterMenu>
-        <FilterClear onPress={() => state.setStatuses(new Set())} />
+        <FilterClear onPress={() => state.setTypes(new Set())} />
       </FilterDisplay>
       <FilterDisplay isActive={state.authors.size > 0}>
         <FilterAttribute icon={<PeopleIcon />}>Author</FilterAttribute>
@@ -364,15 +364,15 @@ function TitleDescFilterPopover() {
   );
 }
 
-function StatusMultiSelect() {
+function TypesMultiSelect() {
   const [keys, setKeys] = useDraftFilterStore(
-    useShallow((s) => [s.statuses, s.setStatuses])
+    useShallow((s) => [s.types, s.setTypes])
   );
 
   return (
     <MultiSelect selectedKeys={keys} setSelectedKeys={setKeys}>
       <MultiSelectBody>
-        {Object.entries(statusDisplay).map(([key, value]) => (
+        {Object.entries(typesDisplay).map(([key, value]) => (
           <MultiSelectItem
             key={key}
             id={key}

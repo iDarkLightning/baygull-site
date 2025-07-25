@@ -19,8 +19,7 @@ import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 import { Route as ManageAdminLayoutRouteRouteImport } from './routes/manage._admin-layout/route'
 import { Route as ManageAdminLayoutPeopleRouteImport } from './routes/manage._admin-layout/people'
 import { Route as ManageAdminLayoutArticlesRouteImport } from './routes/manage._admin-layout/articles'
-import { Route as ManageAdminLayoutDraftsIndexRouteImport } from './routes/manage._admin-layout/drafts/index'
-import { Route as ManageAdminLayoutDraftsPublishIdRouteImport } from './routes/manage._admin-layout/drafts/publish.$id'
+import { Route as ManageAdminLayoutAStatusRouteImport } from './routes/manage._admin-layout/a.$status'
 import { ServerRoute as ApiUploadthingServerRouteImport } from './routes/api/uploadthing'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api/trpc.$'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
@@ -68,16 +67,10 @@ const ManageAdminLayoutArticlesRoute =
     path: '/articles',
     getParentRoute: () => ManageAdminLayoutRouteRoute,
   } as any)
-const ManageAdminLayoutDraftsIndexRoute =
-  ManageAdminLayoutDraftsIndexRouteImport.update({
-    id: '/drafts/',
-    path: '/drafts/',
-    getParentRoute: () => ManageAdminLayoutRouteRoute,
-  } as any)
-const ManageAdminLayoutDraftsPublishIdRoute =
-  ManageAdminLayoutDraftsPublishIdRouteImport.update({
-    id: '/drafts/publish/$id',
-    path: '/drafts/publish/$id',
+const ManageAdminLayoutAStatusRoute =
+  ManageAdminLayoutAStatusRouteImport.update({
+    id: '/a/$status',
+    path: '/a/$status',
     getParentRoute: () => ManageAdminLayoutRouteRoute,
   } as any)
 const ApiUploadthingServerRoute = ApiUploadthingServerRouteImport.update({
@@ -104,8 +97,7 @@ export interface FileRoutesByFullPath {
   '/articles': typeof ArticlesIndexRoute
   '/manage/articles': typeof ManageAdminLayoutArticlesRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
-  '/manage/drafts': typeof ManageAdminLayoutDraftsIndexRoute
-  '/manage/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
+  '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -115,8 +107,7 @@ export interface FileRoutesByTo {
   '/articles': typeof ArticlesIndexRoute
   '/manage/articles': typeof ManageAdminLayoutArticlesRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
-  '/manage/drafts': typeof ManageAdminLayoutDraftsIndexRoute
-  '/manage/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
+  '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -128,8 +119,7 @@ export interface FileRoutesById {
   '/articles/': typeof ArticlesIndexRoute
   '/manage/_admin-layout/articles': typeof ManageAdminLayoutArticlesRoute
   '/manage/_admin-layout/people': typeof ManageAdminLayoutPeopleRoute
-  '/manage/_admin-layout/drafts/': typeof ManageAdminLayoutDraftsIndexRoute
-  '/manage/_admin-layout/drafts/publish/$id': typeof ManageAdminLayoutDraftsPublishIdRoute
+  '/manage/_admin-layout/a/$status': typeof ManageAdminLayoutAStatusRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -141,8 +131,7 @@ export interface FileRouteTypes {
     | '/articles'
     | '/manage/articles'
     | '/manage/people'
-    | '/manage/drafts'
-    | '/manage/drafts/publish/$id'
+    | '/manage/a/$status'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,8 +141,7 @@ export interface FileRouteTypes {
     | '/articles'
     | '/manage/articles'
     | '/manage/people'
-    | '/manage/drafts'
-    | '/manage/drafts/publish/$id'
+    | '/manage/a/$status'
   id:
     | '__root__'
     | '/'
@@ -164,8 +152,7 @@ export interface FileRouteTypes {
     | '/articles/'
     | '/manage/_admin-layout/articles'
     | '/manage/_admin-layout/people'
-    | '/manage/_admin-layout/drafts/'
-    | '/manage/_admin-layout/drafts/publish/$id'
+    | '/manage/_admin-layout/a/$status'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -263,18 +250,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageAdminLayoutArticlesRouteImport
       parentRoute: typeof ManageAdminLayoutRouteRoute
     }
-    '/manage/_admin-layout/drafts/': {
-      id: '/manage/_admin-layout/drafts/'
-      path: '/drafts'
-      fullPath: '/manage/drafts'
-      preLoaderRoute: typeof ManageAdminLayoutDraftsIndexRouteImport
-      parentRoute: typeof ManageAdminLayoutRouteRoute
-    }
-    '/manage/_admin-layout/drafts/publish/$id': {
-      id: '/manage/_admin-layout/drafts/publish/$id'
-      path: '/drafts/publish/$id'
-      fullPath: '/manage/drafts/publish/$id'
-      preLoaderRoute: typeof ManageAdminLayoutDraftsPublishIdRouteImport
+    '/manage/_admin-layout/a/$status': {
+      id: '/manage/_admin-layout/a/$status'
+      path: '/a/$status'
+      fullPath: '/manage/a/$status'
+      preLoaderRoute: typeof ManageAdminLayoutAStatusRouteImport
       parentRoute: typeof ManageAdminLayoutRouteRoute
     }
   }
@@ -308,17 +288,14 @@ declare module '@tanstack/react-start/server' {
 interface ManageAdminLayoutRouteRouteChildren {
   ManageAdminLayoutArticlesRoute: typeof ManageAdminLayoutArticlesRoute
   ManageAdminLayoutPeopleRoute: typeof ManageAdminLayoutPeopleRoute
-  ManageAdminLayoutDraftsIndexRoute: typeof ManageAdminLayoutDraftsIndexRoute
-  ManageAdminLayoutDraftsPublishIdRoute: typeof ManageAdminLayoutDraftsPublishIdRoute
+  ManageAdminLayoutAStatusRoute: typeof ManageAdminLayoutAStatusRoute
 }
 
 const ManageAdminLayoutRouteRouteChildren: ManageAdminLayoutRouteRouteChildren =
   {
     ManageAdminLayoutArticlesRoute: ManageAdminLayoutArticlesRoute,
     ManageAdminLayoutPeopleRoute: ManageAdminLayoutPeopleRoute,
-    ManageAdminLayoutDraftsIndexRoute: ManageAdminLayoutDraftsIndexRoute,
-    ManageAdminLayoutDraftsPublishIdRoute:
-      ManageAdminLayoutDraftsPublishIdRoute,
+    ManageAdminLayoutAStatusRoute: ManageAdminLayoutAStatusRoute,
   }
 
 const ManageAdminLayoutRouteRouteWithChildren =

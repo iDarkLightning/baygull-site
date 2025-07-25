@@ -8,6 +8,7 @@ import {
   usersToArticleDrafts,
   articleDraft,
   session,
+  articleMedia,
 } from "./schema";
 
 export const userRelations = relations(user, ({ many }) => ({
@@ -53,11 +54,13 @@ export const usersToArticleDraftsRelations = relations(
 
 export const articleDraftsRelations = relations(articleDraft, ({ many }) => ({
   users: many(usersToArticleDrafts),
+  media: many(articleMedia),
 }));
 
 export const articleRelations = relations(article, ({ many }) => ({
   users: many(usersToArticles),
   topics: many(articlesToTopics),
+  media: many(articleMedia),
 }));
 
 export const topicRelations = relations(topic, ({ many }) => ({
@@ -77,3 +80,14 @@ export const articlesToTopicsRelations = relations(
     }),
   })
 );
+
+export const articleMediaRelations = relations(articleMedia, ({ one }) => ({
+  article: one(article, {
+    fields: [articleMedia.articleId],
+    references: [article.id],
+  }),
+  articleDraft: one(articleDraft, {
+    fields: [articleMedia.draftId],
+    references: [articleDraft.id],
+  }),
+}));
