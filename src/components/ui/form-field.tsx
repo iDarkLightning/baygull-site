@@ -59,7 +59,10 @@ export const ImageUploadField: React.FC<ImageUploadProps> = (props) => {
   return (
     <div>
       <ImageUpload isInvalid={errors.length > 0} {...props} />
-      {errors.map((err, index) =>
+      {errors.map(({ message }: { message: string }) => (
+        <FieldError key={message} message={message} />
+      ))}
+      {/* {errors.map((err, index) =>
         err ? (
           <FieldError
             key={index}
@@ -69,7 +72,7 @@ export const ImageUploadField: React.FC<ImageUploadProps> = (props) => {
             )}`}
           />
         ) : null
-      )}
+      )} */}
     </div>
   );
 };

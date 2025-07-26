@@ -24,7 +24,6 @@ import { FieldError } from "../ui/form-field";
 import {
   AnimatedCheckIcon,
   AnimatedXMarkIcon,
-  CheckCircleIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   GoogleDocsIcon,
@@ -201,27 +200,25 @@ const SplashScreen = () => {
   const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
   return (
-    <div className="flex justify-between items-center">
-      <div>
-        <h1 className="text-2xl font-bold text-neutral-500 my-1">
-          {getGreeting()}, {userQuery.data?.name}!
-        </h1>
-        <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
-          Let's submit an article!
-        </h2>
-        <div className="flex flex-col gap-2 my-2">
-          <p className="text-neutral-700">
-            Submitted articles will be reviewed and edited by the editing team
-            1PM on Wednesdays. You will receive your edited work via email in
-            3-5 days after the editing meeting, and we'll talk then about
-            changes as needed.
-          </p>
-          <p className="text-neutral-700">
-            Interested in joining the editing team? Fill out the form to request
-            to join in our LinkTree, or reach out to an executive member through
-            Discord.
-          </p>
-        </div>
+    <div>
+      <h1 className="text-2xl font-bold text-neutral-500 my-1">
+        {getGreeting()}, {userQuery.data?.name}!
+      </h1>
+      <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
+        Let's submit an article!
+      </h2>
+      <div className="flex flex-col gap-2 my-2">
+        <p className="text-neutral-700">
+          Submitted articles will be reviewed and edited by the editing team 1PM
+          on Wednesdays. You will receive your edited work via email in 3-5 days
+          after the editing meeting, and we'll talk then about changes as
+          needed.
+        </p>
+        <p className="text-neutral-700">
+          Interested in joining the editing team? Fill out the form to request
+          to join in our LinkTree, or reach out to an executive member through
+          Discord.
+        </p>
       </div>
     </div>
   );
@@ -262,7 +259,7 @@ const Type = withForm({
       <div className="flex flex-col gap-2">
         <FormSectionHeading
           title="Let's start with the type of article..."
-          description="Lorem ipsum dolor sit amet I need a description here to make it make sense"
+          description="Setting the type of the article dictates how people will see it when published!"
         />
         <form.AppField
           name="type.type"
@@ -288,7 +285,7 @@ const Type = withForm({
                       transition={{
                         type: "spring",
                         bounce: 0.4,
-                        duration: 0.4,
+                        duration: 0.45,
                       }}
                     />
                   )}
@@ -325,7 +322,7 @@ const InitialInfo = withForm({
       if (usersQuery.status !== "success") return undefined;
 
       const map = new Map<string, string>();
-      usersQuery.data.map((user) => map.set(user.id, user.name));
+      usersQuery.data.forEach((user) => map.set(user.id, user.name));
 
       return map;
     }, [usersQuery.status]);
@@ -336,7 +333,7 @@ const InitialInfo = withForm({
       <div className="flex flex-col gap-2">
         <FormSectionHeading
           title="Now let's get the basics..."
-          description="Give us your vision for a title and a description, and most importantly, a link to your article! Please note that all of this will be worked on during the editing process."
+          description="Submit your first draft of your content here! Don't worry if this first draft is rough, feedback will be given during the editing process."
         />
         <RenderIfNotExcluded type={type} name="initial.name">
           <form.AppField
@@ -346,11 +343,11 @@ const InitialInfo = withForm({
                 .string()
                 .min(
                   5,
-                  "Please make sure the name is at least 5 characters long!"
+                  "Please make sure the title is at least 5 characters long!"
                 ),
             }}
             children={(field) => (
-              <field.TextField label="Name" isTextArea={false} />
+              <field.TextField label="Title" isTextArea={false} />
             )}
           />
         </RenderIfNotExcluded>
@@ -401,7 +398,7 @@ const InitialInfo = withForm({
                     },
                     {
                       message:
-                        "We can't find the Google Doc you provided! Please make sure you're using a valid Google Doc link with link sharing enabled!",
+                        "We can't find the Google Doc you provided! Please make sure you're using a valid Google Doc link with link sharing enabled.",
                     }
                   )
                 );
@@ -478,9 +475,7 @@ const InitialInfo = withForm({
                               >
                                 {field.state.meta.isValidating ||
                                 docInfoQuery.status !== "success" ? (
-                                  <>
-                                    <BarLoading />
-                                  </>
+                                  <BarLoading />
                                 ) : docInfoQuery.isSuccess ? (
                                   <>
                                     {!isInputDisplayed ? (
@@ -579,16 +574,18 @@ const CoverImage = withForm({
           <form.AppField
             name="imgs.media"
             validators={{
-              onChange: ({ value }) => {
-                if (value.length === 0) return false;
-                if (value.length > 1) return false;
-
-                const [image] = value;
-                return image.size > 1024 * 1000 * 4;
-              },
+              onChange: z
+                .array(z.instanceof(File))
+                .max(1, {
+                  message: "Articles can only have one cover image!",
+                })
+                .refine(([file]) => file.size <= 1024 * 1000 * 4, {
+                  message: "Cover image size cannot exceed 4MB.",
+                }),
             }}
             children={(field) => (
               <field.ImageUploadField
+                allowMultiple
                 maxSize={1_024 * 4 * 1_000}
                 files={field.state.value}
                 setFiles={field.setValue}
@@ -617,15 +614,20 @@ const GraphicImages = withForm({
           <form.AppField
             name="imgs.media"
             validators={{
-              onChange: ({ value }) => {
-                if (value.length === 0) return true;
-
-                const totalSize = value.reduce(
-                  (acc, curr) => acc + curr.size,
-                  0
-                );
-                return totalSize > 1024 * 1000 * 20;
-              },
+              onChange: z
+                .array(z.instanceof(File))
+                .nonempty({
+                  message: "Graphic articles must have at least one graphic!",
+                })
+                .refine(
+                  (files) =>
+                    files.reduce((acc, curr) => acc + curr.size, 0) <=
+                    1024 * 1000 * 20,
+                  {
+                    message:
+                      "Articles are limited to a maximum 20MB of graphics!",
+                  }
+                ),
             }}
             children={(field) => (
               <field.ImageUploadField
@@ -651,7 +653,7 @@ const AdditionalInfoForm = withForm({
       <div className="flex flex-col gap-3">
         <FormSectionHeading
           title="One last step..."
-          description="Please tell us a little bit about the message that   you wanted to portray with your article. These are the ideas that our editing team will try to ensure your article conveys well so we'd appreciate it if you took your time with this section!"
+          description="Please tell us a little bit about the message that you wanted to portray with your article. These are the ideas that our editing team will try to ensure your article conveys well so we'd appreciate it if you took your time with this section!"
         />
         <RenderIfNotExcluded type={type} name="additionalInfo.keyIdeas">
           <form.AppField
@@ -664,7 +666,7 @@ const AdditionalInfoForm = withForm({
             children={(field) => (
               <field.TextField
                 label="What ideas in your article are most important to preserve during editing?"
-                isTextArea={true}
+                isTextArea
               />
             )}
           />
@@ -681,7 +683,7 @@ const AdditionalInfoForm = withForm({
             children={(field) => (
               <field.TextField
                 label="What message is your article meant to convey?"
-                isTextArea={true}
+                isTextArea
               />
             )}
           />
@@ -721,7 +723,7 @@ const PreviewForm = withForm({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col gap-3 rounded-sm">
             <RenderIfNotExcluded type={type} name="initial.name">
-              <FieldPreview label="Name" icon={<TextIcon />}>
+              <FieldPreview label="Title" icon={<TextIcon />}>
                 <p className="text-zinc-700 text-sm px-3 my-1 wrap-break-word">
                   {data.initial.name}
                 </p>
@@ -787,7 +789,10 @@ const PreviewForm = withForm({
             </RenderIfNotExcluded>
             <RenderIfNotExcluded type={type} name="imgs.media">
               {data.imgs.media.length > 0 && (
-                <FieldPreview label="Cover Image" icon={<PhotoIcon />}>
+                <FieldPreview
+                  label={type !== "graphic" ? "Cover Image" : "Graphics"}
+                  icon={<PhotoIcon />}
+                >
                   {data.imgs.media.map((img) => (
                     <div className="flex items-center gap-2 px-3 py-4">
                       <img
