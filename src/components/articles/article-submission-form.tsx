@@ -284,8 +284,8 @@ const Type = withForm({
                       className="absolute inset-0 z-10 bg-sky-600 rounded-md transition-colors"
                       transition={{
                         type: "spring",
-                        bounce: 0.4,
-                        duration: 0.45,
+                        bounce: 0.3,
+                        duration: 0.3,
                       }}
                     />
                   )}
@@ -474,7 +474,8 @@ const InitialInfo = withForm({
                                 className="flex items-center gap-2 text-neutral-700"
                               >
                                 {field.state.meta.isValidating ||
-                                docInfoQuery.status !== "success" ? (
+                                (docInfoQuery.isPending &&
+                                  field.state.meta.isValid) ? (
                                   <BarLoading />
                                 ) : docInfoQuery.isSuccess ? (
                                   <>
