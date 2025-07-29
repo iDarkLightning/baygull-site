@@ -210,7 +210,7 @@ export const DraftFilterMenu = () => {
             <SubmenuItem icon={<TextIcon />} label="Title & Description">
               <TitleDescFilterPopover />
             </SubmenuItem>
-            <SubmenuItem icon={<StatusIcon />} label="Type¡">
+            <SubmenuItem icon={<StatusIcon />} label="Type">
               <TypesMultiSelect />
             </SubmenuItem>
             <SubmenuItem icon={<PeopleIcon />} label="Author">
