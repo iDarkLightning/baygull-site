@@ -1,4 +1,5 @@
 // app/routes/__root.tsx
+/// <reference types="vite/client" />
 import {
   HeadContent,
   Outlet,
