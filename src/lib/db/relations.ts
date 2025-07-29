@@ -5,16 +5,19 @@ import {
   articlesToTopics,
   user,
   topic,
-  usersToArticleDrafts,
-  articleDraft,
   session,
   articleMedia,
+  publishMeta,
+  draftMeta,
+  archiveMeta,
+  publishDefaultContent,
+  draftDefaultContent,
+  graphicContent,
 } from "./schema";
 
 export const userRelations = relations(user, ({ many }) => ({
   sessions: many(session),
   articles: many(usersToArticles),
-  drafts: many(usersToArticleDrafts),
 }));
 
 export const sessionRelations = relations(session, ({ one }) => ({
@@ -38,29 +41,92 @@ export const usersToArticlesRelations = relations(
   })
 );
 
-export const usersToArticleDraftsRelations = relations(
-  usersToArticleDrafts,
+export const articleRelations = relations(article, ({ many, one }) => ({
+  users: many(usersToArticles),
+  topics: many(articlesToTopics),
+  media: many(articleMedia),
+
+  publishMeta: one(publishMeta, {
+    fields: [article.id],
+    references: [publishMeta.articleId],
+  }),
+  draftMeta: one(draftMeta, {
+    fields: [article.id],
+    references: [draftMeta.articleId],
+  }),
+  archiveMeta: one(archiveMeta, {
+    fields: [article.id],
+    references: [archiveMeta.articleId],
+  }),
+
+  publishDefaultContent: one(publishDefaultContent, {
+    fields: [article.id],
+    references: [publishDefaultContent.articleId],
+  }),
+  draftDefaultContent: one(draftDefaultContent, {
+    fields: [article.id],
+    references: [draftDefaultContent.articleId],
+  }),
+
+  graphicContent: one(graphicContent, {
+    fields: [article.id],
+    references: [graphicContent.articleId],
+  }),
+}));
+
+export const publishMetaRelations = relations(publishMeta, ({ one }) => ({
+  article: one(article, {
+    fields: [publishMeta.articleId],
+    references: [article.id],
+  }),
+}));
+
+export const draftMetaRelations = relations(draftMeta, ({ one }) => ({
+  article: one(article, {
+    fields: [draftMeta.articleId],
+    references: [article.id],
+  }),
+}));
+
+export const archiveMetaRelations = relations(archiveMeta, ({ one }) => ({
+  article: one(article, {
+    fields: [archiveMeta.articleId],
+    references: [article.id],
+  }),
+}));
+
+export const publishDefaultContentRelations = relations(
+  publishDefaultContent,
   ({ one }) => ({
-    user: one(user, {
-      fields: [usersToArticleDrafts.userId],
-      references: [user.id],
-    }),
-    article: one(articleDraft, {
-      fields: [usersToArticleDrafts.draftId],
-      references: [articleDraft.id],
+    article: one(article, {
+      fields: [publishDefaultContent.articleId],
+      references: [article.id],
     }),
   })
 );
 
-export const articleDraftsRelations = relations(articleDraft, ({ many }) => ({
-  users: many(usersToArticleDrafts),
-  media: many(articleMedia),
+export const draftDefaultContentRelations = relations(
+  draftDefaultContent,
+  ({ one }) => ({
+    article: one(article, {
+      fields: [draftDefaultContent.articleId],
+      references: [article.id],
+    }),
+  })
+);
+
+export const graphicContentRelations = relations(graphicContent, ({ one }) => ({
+  article: one(article, {
+    fields: [graphicContent.articleId],
+    references: [article.id],
+  }),
 }));
 
-export const articleRelations = relations(article, ({ many }) => ({
-  users: many(usersToArticles),
-  topics: many(articlesToTopics),
-  media: many(articleMedia),
+export const articleMedaRelations = relations(articleMedia, ({ one }) => ({
+  article: one(article, {
+    fields: [articleMedia.articleId],
+    references: [article.id],
+  }),
 }));
 
 export const topicRelations = relations(topic, ({ many }) => ({
@@ -80,14 +146,3 @@ export const articlesToTopicsRelations = relations(
     }),
   })
 );
-
-export const articleMediaRelations = relations(articleMedia, ({ one }) => ({
-  article: one(article, {
-    fields: [articleMedia.articleId],
-    references: [article.id],
-  }),
-  articleDraft: one(articleDraft, {
-    fields: [articleMedia.draftId],
-    references: [articleDraft.id],
-  }),
-}));

@@ -1,5 +1,9 @@
 import { parseDate } from "@internationalized/date";
-import { createFileRoute, stripSearchParams } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  notFound,
+  stripSearchParams,
+} from "@tanstack/react-router";
 import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import {
@@ -9,6 +13,13 @@ import {
 } from "~/components/articles/drafts/draft-filter";
 import { DraftTable } from "~/components/articles/drafts/draft-table";
 import { DraftFilterStoreProvider } from "~/lib/articles/draft-filter-store";
+
+const statusSchema = z
+  .enum(["published", "drafts", "archived"])
+  .transform((val) => {
+    if (val === "drafts") return "draft" as const;
+    return val;
+  });
 
 const filterParamDefaultValues = {
   types: [],
@@ -50,16 +61,18 @@ export const Route = createFileRoute("/manage/_admin-layout/a/$status")({
   search: {
     middlewares: [stripSearchParams(filterParamDefaultValues)],
   },
-  beforeLoad: ({ params }) => {
-    const statuses = ["drafts", "published", "archived"];
-
-    return { articleStatusCode: statuses.indexOf(params.status) };
-  },
   loaderDeps: ({ search }) => ({ authors: search.authors }),
+  beforeLoad: ({ params }) => {
+    console.log("BEFORELOAD!");
+    const validated = statusSchema.safeParse(params.status);
+    if (!validated.success) throw notFound();
+
+    return { status: validated.data };
+  },
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureQueryData(
       context.trpc.article.draft.getAll.queryOptions({
-        status: context.articleStatusCode,
+        status: context.status,
       })
     );
 

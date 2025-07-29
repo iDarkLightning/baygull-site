@@ -1,10 +1,13 @@
-import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { z } from "zod";
+import { parseArticle } from "~/lib/db/article-parser";
 import {
-  articleDraft,
+  article,
   articleMedia,
-  usersToArticleDrafts,
+  draftDefaultContent,
+  draftMeta,
+  graphicContent,
+  usersToArticles,
 } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
@@ -35,62 +38,100 @@ export const draftRouter = {
   getAll: adminProcedure
     .input(
       z.object({
-        status: z.number(),
+        status: z.enum(["draft", "published", "archived"]),
       })
     )
     .query(async ({ ctx, input }) => {
-      const result = await ctx.db.query.articleDraft.findMany({
-        where: eq(articleDraft.status, input.status),
+      const articles = await ctx.db.query.article.findMany({
+        where: and(eq(article.status, input.status)),
         with: {
+          publishMeta: true,
+          draftMeta: true,
+          archiveMeta: true,
+          publishDefaultContent: true,
+          draftDefaultContent: true,
+          graphicContent: true,
           users: {
             with: {
               user: true,
             },
           },
         },
-        orderBy: (draft, { asc, desc }) => [
-          asc(draft.status),
-          desc(draft.submittedAt),
-        ],
       });
 
-      return result;
-    }),
+      return articles.map((article) => {
+        const statusMeta =
+          article.status === "published"
+            ? article.publishMeta
+            : article.status === "draft"
+            ? article.draftMeta
+            : article.archiveMeta;
 
-  getById: authedProcedure
-    .input(z.object({ draftId: z.string() }))
-    .query(async ({ input, ctx }) => {
-      const draft = await ctx.db.query.articleDraft.findFirst({
-        where: eq(articleDraft.id, input.draftId),
-        with: {
-          users: {
-            columns: {},
-            with: {
-              user: true,
+        const content =
+          article.type === "graphic"
+            ? { ...article.graphicContent }
+            : article.type === "default"
+            ? article.status === "draft"
+              ? article.draftDefaultContent
+              : article.status === "published"
+              ? article.publishDefaultContent
+              : ({} as Record<string, never>)
+            : ({} as Record<string, never>);
+
+        return {
+          ...parseArticle(
+            {
+              id: article.id,
+              type: article.type,
+              status: article.status,
+              title: article.title,
+              createdAt: article.createdAt,
+              ...statusMeta,
+              ...content,
             },
-          },
-        },
+            article.type,
+            article.status
+          ),
+          users: article.users,
+        };
       });
-
-      if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const drive = createDriveClient();
-
-      const fileId = new URL(draft.editingUrl!).pathname.split("/").at(3);
-
-      const response = await drive.files.export({
-        mimeType: "text/html",
-        fileId,
-      });
-
-      if (response.status !== 200)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "Error occured while exporting to markdown!",
-        });
-
-      return { ...draft, content: response.data as string };
     }),
+
+  // getById: authedProcedure
+  //   .input(z.object({ draftId: z.string() }))
+  //   .query(async ({ input, ctx }) => {
+  //     const draft = await ctx.db.query.article.findFirst({
+  //       where: and(eq(article.id, input.draftId), eq(article.status, 0)),
+  //       with: {
+  //         users: {
+  //           columns: {},
+  //           with: {
+  //             user: true,
+  //           },
+  //         },
+  //         content: true,
+  //       },
+  //     });
+
+  //     if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
+
+  //     const drive = createDriveClient();
+
+  //     const fileId = new URL(draft.content!.docUrl!).pathname.split("/").at(3);
+
+  //     const response = await drive.files.export({
+  //       mimeType: "text/html",
+  //       fileId,
+  //     });
+
+  //     if (response.status !== 200)
+  //       throw new TRPCError({
+  //         code: "INTERNAL_SERVER_ERROR",
+  //         message: "Error occured while exporting to markdown!",
+  //       });
+
+  //     return { ...draft, content: response.data as string };
+  //   }),
 
   create: authedProcedure
     .input(
@@ -100,6 +141,7 @@ export const draftRouter = {
         description: z.string().optional(),
         media: z.array(
           z.object({
+            mimeType: z.string(),
             url: z.string().url(),
             size: z.number(),
           })
@@ -111,43 +153,62 @@ export const draftRouter = {
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const draftInput: typeof articleDraft.$inferInsert = {
-        title: input.title,
-        type: ["default", "headline", "graphic"].indexOf(input.type),
-        description: input.description,
-        keyIdeas: input.keyIdeas,
-        message: input.message,
-      };
+      // let contentInput: typeof articleContent.$inferInsert | null = null;
+      // if (input.type === "default") {
+      //   if (!input.docId)
+      //     throw new TRPCError({
+      //       code: "BAD_REQUEST",
+      //       message: "docId must be provided for type = default",
+      //     });
 
-      if (input.type === "default") {
-        if (!input.docId)
-          throw new TRPCError({
-            code: "BAD_REQUEST",
-            message: "docId must be provided for type = default",
-          });
+      //   contentInput = {
+      //     articleId: "",
 
-        const copyResult = await createArticleEditingCopy({
-          articleName: input.title,
-          fileId: input.docId,
+      //   };
+      // }
+
+      const resultId = await ctx.db.transaction(async (tx) => {
+        const [{ articleId }] = await tx
+          .insert(article)
+          .values({
+            title: input.title,
+            status: "draft",
+            type: input.type,
+          })
+          .returning({ articleId: article.id });
+
+        await tx.insert(draftMeta).values({
+          articleId,
+          message: input.message,
+          keyIdeas: input.keyIdeas,
         });
 
-        draftInput.originalUrl = `https://docs.google.com/document/d/${input.docId}`;
-        draftInput.editingUrl = `https://docs.google.com/document/d/${copyResult.id}`;
-      }
+        if (input.type === "default") {
+          const copyResult = await createArticleEditingCopy({
+            articleName: input.title,
+            fileId: input.docId!,
+          });
 
-      const draftId = await ctx.db.transaction(async (tx) => {
-        const [{ draftId }] = await tx
-          .insert(articleDraft)
-          .values(draftInput)
-          .returning({ draftId: articleDraft.id });
+          await tx.insert(draftDefaultContent).values({
+            articleId,
+            description: input.description!,
+            originalUrl: `https://docs.google.com/document/d/${input.docId}`,
+            editingUrl: `https://docs.google.com/document/d/${copyResult.id}`,
+          });
+        } else if (input.type === "graphic") {
+          await tx.insert(graphicContent).values({
+            articleId,
+            description: input.description!,
+          });
+        }
 
-        await tx.insert(usersToArticleDrafts).values([
+        await tx.insert(usersToArticles).values([
           {
-            draftId,
+            articleId,
             userId: ctx.user.id,
           },
           ...input.collaborators.map((userId) => ({
-            draftId,
+            articleId,
             userId,
           })),
         ]);
@@ -155,21 +216,24 @@ export const draftRouter = {
         if (input.media.length > 0) {
           await tx.insert(articleMedia).values(
             input.media.map((media) => ({
-              draftId,
-              type: 0,
-              intent: input.type === "graphic" ? 2 : 0,
+              articleId,
+              mimeType: media.mimeType,
+              intent:
+                input.type === "graphic"
+                  ? ("content_img" as const)
+                  : ("cover_img" as const),
               url: media.url,
               size: media.size,
             }))
           );
         }
 
-        return draftId;
+        return articleId;
       });
 
       return {
         message: "ok",
-        draftId,
+        draftId: resultId,
       };
 
       // const copyResult = await createArticleEditingCopy({
@@ -213,7 +277,7 @@ export const draftRouter = {
     }),
 
   getAuthorList: adminProcedure.query(async ({ input, ctx }) => {
-    const queryResult = await ctx.db.query.usersToArticleDrafts.findMany({
+    const queryResult = await ctx.db.query.usersToArticles.findMany({
       with: {
         user: true,
       },

@@ -34,7 +34,13 @@ const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
 
 const columns = [
   columnHelper.accessor(
-    (row) => ({ title: row.title, desc: row.description }),
+    (row) => {
+      if (row.type !== "headline" && row.status !== "archived") {
+        return { title: row.title, desc: row.description };
+      }
+
+      return { title: row.title };
+    },
     {
       id: "title-desc",
       cell: (info) => (
@@ -68,7 +74,7 @@ const columns = [
     cell: (info) => {
       const users = info.getValue();
 
-      const { user: firstUser } = users[0];
+      const [{ user: firstUser }] = users;
 
       return (
         <div>
@@ -112,12 +118,12 @@ const columns = [
         <div
           className={cn(
             "flex items-center gap-2 px-3 py-0.5 rounded-full text-sm w-fit font-medium mr-4",
-            type == 0 && "bg-sky-100 text-sky-800",
-            type == 1 && "bg-green-100 text-green-800",
-            type == 2 && "bg-neutral-100 text-neutral-800"
+            type == "default" && "bg-sky-100 text-sky-800",
+            type == "graphic" && "bg-green-100 text-green-800",
+            type == "headline" && "bg-neutral-100 text-neutral-800"
           )}
         >
-          <p>{mapTypeToLabel[type]}</p>
+          <p>{type.charAt(0).toUpperCase() + type.slice(1)}</p>
         </div>
       );
     },
@@ -129,7 +135,7 @@ const columns = [
       return value.has(mapTypeToLabel[type].toLowerCase());
     },
   }),
-  columnHelper.accessor("submittedAt", {
+  columnHelper.accessor("createdAt", {
     header: () => <span>Submitted</span>,
     cell: (info) => {
       const date = new Date(info.getValue());
@@ -197,7 +203,7 @@ export const DraftTable = () => {
   const routeContext = routeApi.useRouteContext();
   const { data } = useSuspenseQuery(
     trpc.article.draft.getAll.queryOptions({
-      status: routeContext.articleStatusCode,
+      status: routeContext.status,
     })
   );
 

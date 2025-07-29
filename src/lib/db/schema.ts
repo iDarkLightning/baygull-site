@@ -83,86 +83,102 @@ export const article = sqliteTable("article", {
     .primaryKey()
     .unique()
     .$defaultFn(() => createId()),
-  slug: text("slug").notNull().unique(),
+
+  type: text("type", { enum: ["default", "headline", "graphic"] }).notNull(),
+  status: text("status", {
+    enum: ["draft", "published", "archived"],
+  }).notNull(),
+
   title: text("title").notNull(),
-  description: text("description").notNull(),
-  coverImg: text("cover_img"),
-  content: text("content").notNull(),
-  isHighlighted: integer("is_highlighted", { mode: "boolean" })
+
+  createdAt: integer("created_at")
     .notNull()
-    .default(false),
+    .default(sql`(current_timestamp)`),
+});
+
+export const publishMeta = sqliteTable("publish_meta", {
+  articleId: text("article_id")
+    .primaryKey()
+    .references(() => article.id),
+  slug: text("slug").notNull().unique(),
+
+  isHighlighted: integer("is_highlighted", { mode: "boolean" }),
+
   publishedAt: integer("published_at")
     .notNull()
     .default(sql`(current_timestamp)`),
 });
 
-export const articleDraft = sqliteTable("article_draft", {
-  id: text("id")
+export const publishDefaultContent = sqliteTable("publish_default_content", {
+  articleId: text("article_id")
     .primaryKey()
-    .unique()
-    .$defaultFn(() => createId()),
-  /**
-   * 0 = Default
-   * 1 = Headline
-   * 2 = Graphic
-   */
-  type: integer("type").notNull(),
-  title: text("title").notNull(),
-  description: text("description"),
-  // coverImg: text("cover_img"),
-  // graphic: text("graphic"),
-  originalUrl: text("original_url"),
-  editingUrl: text("editing_url"),
+    .references(() => article.id),
+
+  description: text("description").notNull(),
+
+  content: text("content").notNull(),
+});
+
+export const draftMeta = sqliteTable("draft_meta", {
+  articleId: text("article_id")
+    .primaryKey()
+    .references(() => article.id),
+
   keyIdeas: text("key_ideas").notNull(),
   message: text("message").notNull(),
-  /**
-   * 0 = Active
-   * 1 = Published
-   * 2 = Archived
-   */
-  status: integer("status").notNull().default(0),
+
   submittedAt: integer("submitted_at")
+    .notNull()
+    .default(sql`(current_timestamp)`),
+
+  updatedAt: integer("updated_at")
+    .notNull()
+    .default(sql`(current_timestamp)`)
+    .$onUpdate(() => sql`(current_timestamp)`),
+});
+
+export const draftDefaultContent = sqliteTable("draft_default_content", {
+  articleId: text("article_id")
+    .primaryKey()
+    .references(() => article.id),
+
+  description: text("description").notNull(),
+
+  editingUrl: text("editingUrl").notNull(),
+  originalUrl: text("originalUrl").notNull(),
+});
+
+export const archiveMeta = sqliteTable("archive_meta", {
+  articleId: text("article_id")
+    .primaryKey()
+    .references(() => article.id),
+
+  archivedAt: integer("archived_at")
     .notNull()
     .default(sql`(current_timestamp)`),
 });
 
-export const articleMedia = sqliteTable("article_media", {
-  id: text("id")
+export const graphicContent = sqliteTable("graphic_default_content", {
+  articleId: text("article_id")
     .primaryKey()
-    .unique()
-    .$defaultFn(() => createId()),
-  articleId: text("article_id").references(() => article.id, {
-    onDelete: "cascade",
-  }),
-  draftId: text("draft_id").references(() => articleDraft.id, {
-    onDelete: "cascade",
-  }),
-  /**
-   * 0 = Image
-   */
-  type: integer("type").notNull(),
-  /**
-   * 0 = Cover Image
-   * 1 = Default Content Image
-   * 2 = Graphic Content Image
-   */
-  intent: integer("intent").notNull(),
+    .references(() => article.id),
+
+  description: text("description").notNull(),
+});
+
+export const articleMedia = sqliteTable("article_media", {
+  articleId: text("article_id")
+    .primaryKey()
+    .references(() => article.id),
+
+  intent: text("intent", {
+    enum: ["cover_img", "content_img"],
+  }).notNull(),
+
+  mimeType: text("mime_type").notNull(),
   url: text("url").notNull(),
   size: integer("size").notNull(),
 });
-
-export const usersToArticleDrafts = sqliteTable(
-  "users_to_article_drafts",
-  {
-    userId: text("userId")
-      .notNull()
-      .references(() => user.id),
-    draftId: text("draftId")
-      .notNull()
-      .references(() => articleDraft.id),
-  },
-  (table) => [primaryKey({ columns: [table.userId, table.draftId] })]
-);
 
 export const usersToArticles = sqliteTable(
   "users_to_articles",

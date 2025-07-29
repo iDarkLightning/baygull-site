@@ -29,7 +29,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
             </p>
             {article.coverImg && (
               <img
-                src={article.coverImg}
+                src={article.coverImg.url}
                 alt=""
                 width="128"
                 height="128"

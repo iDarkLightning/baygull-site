@@ -24,7 +24,7 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
             <div>
               {article.coverImg && (
                 <img
-                  src={article.coverImg}
+                  src={article.coverImg.url}
                   alt=""
                   width="512"
                   height=""

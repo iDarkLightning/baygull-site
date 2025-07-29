@@ -53,7 +53,7 @@ function RouteComponent() {
         </div>
         {article.coverImg && (
           <img
-            src={article.coverImg}
+            src={article.coverImg.url}
             width="1600"
             height="768"
             className="my-4"

@@ -14,7 +14,7 @@ export const ArticleSpotlight: React.FC<ArticleSpotlightProps> = (props) => (
     {props.article.coverImg && (
       <div className="bg-neutral-50 rounded-t-xl">
         <img
-          src={props.article.coverImg}
+          src={props.article.coverImg.url}
           alt={`${props.article.title}-Cover Image`}
           width="128"
           className="w-full aspect-[16/10] object-scale-down rounded-sm"

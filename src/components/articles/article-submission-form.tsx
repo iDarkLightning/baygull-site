@@ -57,9 +57,9 @@ const articleTypes = [
     label: "Default",
     graphic: (
       <div className="flex flex-col w-full gap-2">
-        <div className="w-full bg-zinc-200 h-2 rounded-xs" />
+        <div className="w-full bg-zinc-100 h-2 rounded-xs" />
         <div className="flex gap-2">
-          <div className="w-full bg-zinc-200 h-[32] rounded-xs flex items-center justify-center">
+          <div className="w-full bg-zinc-100 h-[32] rounded-xs flex items-center justify-center">
             <svg
               xmlns="http://www.w3.org/2000/svg"
               viewBox="0 0 24 24"
@@ -74,12 +74,12 @@ const articleTypes = [
             </svg>
           </div>
           <div className="flex flex-col gap-2 w-full">
-            <div className="w-full bg-zinc-200 h-2 rounded-xs" />
-            <div className="w-full bg-zinc-200 h-2 rounded-xs" />
-            <div className="w-full bg-zinc-200 h-2 rounded-xs" />
+            <div className="w-full bg-zinc-100 h-2 rounded-xs" />
+            <div className="w-full bg-zinc-100 h-2 rounded-xs" />
+            <div className="w-full bg-zinc-100 h-2 rounded-xs" />
           </div>
         </div>
-        <div className="w-full bg-zinc-200 h-2 rounded-xs" />
+        <div className="w-full bg-zinc-100 h-2 rounded-xs" />
       </div>
     ),
     description:
@@ -91,7 +91,7 @@ const articleTypes = [
     graphic: (
       <>
         <div className="flex flex-col w-full gap-2">
-          <div className="w-full bg-zinc-200 h-2 rounded-xs" />
+          <div className="w-full bg-zinc-100 h-2 rounded-xs" />
         </div>
       </>
     ),
@@ -103,8 +103,8 @@ const articleTypes = [
     label: "Graphic",
     graphic: (
       <div className="flex flex-col w-full gap-2">
-        <div className="w-full bg-zinc-200 h-2 rounded-xs" />
-        <div className="w-full bg-zinc-200 h-18 rounded-xs flex items-center justify-center">
+        <div className="w-full bg-zinc-100 h-2 rounded-xs" />
+        <div className="w-full bg-zinc-100 h-18 rounded-xs flex items-center justify-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -121,7 +121,7 @@ const articleTypes = [
       </div>
     ),
     description:
-      "Created a piece of art? Have a funny drawing, comic, or meme? We can publish your art ",
+      "Created a piece of art? Have a funny drawing, comic, or meme? We can publish your art as it's own standalone article.",
   },
 ];
 
@@ -586,7 +586,6 @@ const CoverImage = withForm({
             }}
             children={(field) => (
               <field.ImageUploadField
-                allowMultiple
                 maxSize={1_024 * 4 * 1_000}
                 files={field.state.value}
                 setFiles={field.setValue}
@@ -865,6 +864,7 @@ export const ArticleSubmissionForm = () => {
         docId: value.initial.docId,
         collaborators: [...(value.initial.collaborators as Set<string>)],
         media: media.map((m) => ({
+          mimeType: m.type,
           size: m.size,
           url: m.ufsUrl,
         })),

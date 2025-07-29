@@ -1,14 +1,24 @@
 import { TRPCError } from "@trpc/server";
-import { eq } from "drizzle-orm";
+import { and, eq, getTableColumns } from "drizzle-orm";
 import DOMPurify from "isomorphic-dompurify";
 import parse from "node-html-parser";
 import { UTApi } from "uploadthing/server";
 import { z } from "zod";
-import { article, usersToArticles } from "~/lib/db/schema";
+import { parseArticle } from "~/lib/db/article-parser";
+import {
+  article,
+  articleMedia,
+  articlesToTopics,
+  publishDefaultContent,
+  publishMeta,
+  topic,
+  user,
+  usersToArticles,
+} from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { type TRPCContext } from "../context";
 import { publicProcedure } from "../init";
-import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
+import { authedProcedure } from "../middleware/auth-middleware";
 import { draftRouter } from "./draft-router";
 
 const processArticleContent = async (htmlContent: string) => {
@@ -33,9 +43,15 @@ const processArticleContent = async (htmlContent: string) => {
   return DOMPurify.sanitize(parsed.toString());
 };
 
-const getAllArticles = async (ctx: TRPCContext) =>
-  ctx.db.query.article.findMany({
+const getAllArticles = async (ctx: TRPCContext) => {
+  const articles = await ctx.db.query.article.findMany({
+    where: and(eq(article.type, "default"), eq(article.status, "published")),
     with: {
+      publishMeta: true,
+      publishDefaultContent: true,
+      media: {
+        where: eq(articleMedia.intent, "cover_img"),
+      },
       users: {
         with: {
           user: true,
@@ -47,8 +63,23 @@ const getAllArticles = async (ctx: TRPCContext) =>
         },
       },
     },
-    orderBy: (articles, { desc }) => desc(articles.publishedAt),
   });
+
+  return articles.map(({ users, topics, media: [coverImg], ...article }) => {
+    const parsedArticle = parseArticle(
+      { ...article, ...article.publishMeta, ...article.publishDefaultContent },
+      "default",
+      "published"
+    );
+
+    return {
+      ...parsedArticle,
+      coverImg,
+      users,
+      topics,
+    };
+  });
+};
 
 export const articleRouter = {
   draft: draftRouter,
@@ -56,25 +87,58 @@ export const articleRouter = {
   getBySlug: publicProcedure
     .input(z.object({ slug: z.string() }))
     .query(async ({ input, ctx }) => {
-      const queryResult = await ctx.db.query.article.findFirst({
-        where: eq(article.slug, input.slug),
-        with: {
-          users: {
-            with: {
-              user: true,
-            },
-          },
-          topics: {
-            with: {
-              topic: true,
-            },
-          },
-        },
-      });
+      const [articleQuery] = await ctx.db
+        .select({
+          ...getTableColumns(article),
+          ...getTableColumns(publishMeta),
+          ...getTableColumns(publishDefaultContent),
+        })
+        .from(article)
+        .leftJoin(publishMeta, eq(article.id, publishMeta.articleId))
+        .leftJoin(
+          publishDefaultContent,
+          eq(article.id, publishDefaultContent.articleId)
+        )
+        .where(eq(publishMeta.slug, input.slug))
+        .limit(1);
 
-      if (!queryResult) throw new TRPCError({ code: "NOT_FOUND" });
+      const parsedArticle = parseArticle(articleQuery, "default", "published");
 
-      return queryResult;
+      const [[coverImg], users, topics] = await Promise.all([
+        ctx.db
+          .select()
+          .from(articleMedia)
+          .where(
+            and(
+              eq(articleMedia.articleId, parsedArticle.id),
+              eq(articleMedia.intent, "cover_img")
+            )
+          )
+          .limit(1),
+        ctx.db
+          .select({
+            user: user,
+          })
+          .from(usersToArticles)
+          .innerJoin(user, eq(usersToArticles.userId, user.id))
+          .where(eq(usersToArticles.articleId, parsedArticle.id)),
+        ctx.db
+          .select({
+            topic: topic,
+          })
+          .from(articlesToTopics)
+          .innerJoin(topic, eq(articlesToTopics.articleId, topic.id))
+          .where(eq(articlesToTopics.topicId, parsedArticle.id)),
+      ]);
+
+      if (!articleQuery) throw new TRPCError({ code: "NOT_FOUND" });
+
+      return {
+        ...parsedArticle,
+        users: users,
+        topics,
+        coverImg,
+      };
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {
@@ -130,43 +194,43 @@ export const articleRouter = {
       };
     }),
 
-  publish: adminProcedure
-    .input(
-      z.object({
-        title: z.string(),
-        description: z.string(),
-        slug: z.string(),
-        coverImg: z.string().optional(),
-        content: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      if (!ctx.user) {
-        throw new TRPCError({ code: "UNAUTHORIZED" });
-      }
+  // publish: adminProcedure
+  //   .input(
+  //     z.object({
+  //       title: z.string(),
+  //       description: z.string(),
+  //       slug: z.string(),
+  //       coverImg: z.string().optional(),
+  //       content: z.string(),
+  //     })
+  //   )
+  //   .mutation(async ({ ctx, input }) => {
+  //     if (!ctx.user) {
+  //       throw new TRPCError({ code: "UNAUTHORIZED" });
+  //     }
 
-      const content = await processArticleContent(input.content);
+  //     const content = await processArticleContent(input.content);
 
-      const [insertResult] = await ctx.db
-        .insert(article)
-        .values({
-          title: input.title,
-          slug: input.slug,
-          description: input.description,
-          coverImg: input.coverImg,
-          content,
-        })
-        .returning();
+  //     const [insertResult] = await ctx.db
+  //       .insert(article)
+  //       .values({
+  //         title: input.title,
+  //         slug: input.slug,
+  //         description: input.description,
+  //         coverImg: input.coverImg,
+  //         content,
+  //       })
+  //       .returning();
 
-      await ctx.db.insert(usersToArticles).values({
-        articleId: insertResult.id,
-        userId: ctx.user.id,
-      });
+  //     await ctx.db.insert(usersToArticles).values({
+  //       articleId: insertResult.id,
+  //       userId: ctx.user.id,
+  //     });
 
-      if (!!insertResult) {
-        return { message: "ok" };
-      }
+  //     if (!!insertResult) {
+  //       return { message: "ok" };
+  //     }
 
-      throw new Error("Error occured while creating draft!");
-    }),
+  //     throw new Error("Error occured while creating draft!");
+  //   }),
 };
