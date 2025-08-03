@@ -49,7 +49,7 @@ export const SelectItem: React.FC<SelectItemProps> = (props) => {
         cn(
           "mx-1.5 my-1 flex cursor-default flex-col rounded-md px-2 py-1.5 text-sm text-neutral-600 font-medium outline-none transition-[background-color]",
           {
-            "bg-neutral-200": isFocusVisible,
+            "bg-neutral-100": isFocusVisible,
             "bg-neutral-100 text-neutral-800 outline-none":
               isHovered && !isDisabled,
             // "bg-sky-800/80 text-white": isSelected,
