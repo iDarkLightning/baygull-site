@@ -21,7 +21,7 @@ const input = cva(inputBase(), {
       false: "w-auto",
     },
     visual: {
-      leading: "pl-8",
+      leading: "pl-[var(--input-padding-left)]",
       trailing: "pr-[var(--input-padding-right)]",
       "leading-trailing": "pl-8 pr-[var(--input-padding-right)]",
     },
@@ -51,7 +51,8 @@ export const Input: React.FC<InputProps> = ({
   isDisabled,
   ...props
 }) => {
-  const [trailingVisualRef, bounds] = useMeasure();
+  const [leadingVisualRef, leadingBounds] = useMeasure();
+  const [trailingVisualRef, trailingBounds] = useMeasure();
   const visual = (() => {
     if (leadingVisual && trailingVisual) {
       return "leading-trailing";
@@ -69,12 +70,16 @@ export const Input: React.FC<InputProps> = ({
       className={cn("relative select-none", fullWidth ? "w-full" : "w-max")}
       style={
         {
-          "--input-padding-right": `max(${bounds.width}px, 2rem)`,
+          "--input-padding-left": `max(${leadingBounds.width}px, 2rem)`,
+          "--input-padding-right": `max(${trailingBounds.width}px, 2rem)`,
         } as CSSProperties
       }
     >
       {leadingVisual && (
-        <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2 pt-0.5">
+        <div
+          className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-2 pt-0.5"
+          ref={leadingVisualRef}
+        >
           {leadingVisual}
         </div>
       )}
