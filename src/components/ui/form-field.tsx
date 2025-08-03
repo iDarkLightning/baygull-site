@@ -52,27 +52,21 @@ export const TextField: React.FC<TextFieldProps> = ({
   );
 };
 
-export const ImageUploadField: React.FC<ImageUploadProps> = (props) => {
+export const ImageUploadField: React.FC<
+  ImageUploadProps & {
+    label?: string;
+  }
+> = (props) => {
   const field = useFieldContext<File[]>();
   const errors = useStore(field.store, (state) => state.meta.errors);
 
   return (
     <div>
+      {props.label && <Label>{props.label}</Label>}
       <ImageUpload isInvalid={errors.length > 0} {...props} />
       {errors.map(({ message }: { message: string }) => (
         <FieldError key={message} message={message} />
       ))}
-      {/* {errors.map((err, index) =>
-        err ? (
-          <FieldError
-            key={index}
-            message={`Cover Images cannot be larger than ${formatBytes(
-              props.maxSize,
-              0
-            )}`}
-          />
-        ) : null
-      )} */}
     </div>
   );
 };
@@ -83,6 +77,6 @@ type FieldErrorProps = {
 
 export const FieldError: React.FC<FieldErrorProps> = (props) => (
   <div className="flex items-center gap-2 my-2 text-red-700">
-    <p className="font-medium text-sm">{props.message}</p>
+    <p className="font-medium text-xs">{props.message}</p>
   </div>
 );
