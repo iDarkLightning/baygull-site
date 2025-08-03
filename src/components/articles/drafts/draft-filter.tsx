@@ -49,11 +49,11 @@ const typesDisplay = {
     display: "Default",
   },
   headline: {
-    className: "w-2 h-2 bg-green-400 rounded-full",
+    className: "w-2 h-2 bg-purple-400 rounded-full",
     display: "Headline",
   },
   graphic: {
-    className: "w-2 h-2 bg-neutral-400 rounded-full",
+    className: "w-2 h-2 bg-green-400 rounded-full",
     display: "Graphic",
   },
 };
@@ -207,16 +207,24 @@ export const DraftFilterMenu = () => {
           }}
         >
           <Menu className="focus:outline-none min-w-42">
-            <SubmenuItem icon={<TextIcon />} label="Title & Description">
+            <SubmenuItem
+              delay={10}
+              icon={<TextIcon />}
+              label="Title & Description"
+            >
               <TitleDescFilterPopover />
             </SubmenuItem>
-            <SubmenuItem icon={<StatusIcon />} label="Type">
+            <SubmenuItem delay={10} icon={<StatusIcon />} label="Type">
               <TypesMultiSelect />
             </SubmenuItem>
-            <SubmenuItem icon={<PeopleIcon />} label="Author">
+            <SubmenuItem delay={10} icon={<PeopleIcon />} label="Author">
               <AuthorMultiSelect />
             </SubmenuItem>
-            <SubmenuItem icon={<ClockIcon />} label="Submission Time">
+            <SubmenuItem
+              delay={10}
+              icon={<ClockIcon />}
+              label="Submission Time"
+            >
               <SubmissionTimeFilterPopover />
             </SubmenuItem>
           </Menu>
