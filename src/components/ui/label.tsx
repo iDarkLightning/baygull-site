@@ -10,7 +10,7 @@ type LabelProps = AriaLabelProps & {
 export const Label: React.FC<LabelProps> = (props) => {
   return (
     <AriaLabel
-      className="block text-sm font-bold text-neutral-800"
+      className="block text-sm font-semibold text-neutral-800 mb-1"
       {...props}
       ref={props.ref}
     />
