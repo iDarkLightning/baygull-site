@@ -27,7 +27,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
         <DropZone
           className={({ isDropTarget }) =>
             cn(
-              "gap-2 border-[0.125rem] border-dotted border-neutral-300/80 rounded-md p-8 flex flex-col items-center justify-center transition-colors",
+              "gap-2 border-[0.0125rem] shadow-xs border-zinc-300/70 rounded-md p-8 flex flex-col items-center justify-center transition-colors",
               props.isInvalid && "border-red-700",
               isDropTarget && "bg-sky-300/40 border-sky-500"
             )
@@ -87,7 +87,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
         <div
           key={index}
           className={cn(
-            "flex items-center justify-between gap-2 p-4 bg-zinc-5 border-zinc-300/70 border-[0.0125rem] rounded-sm my-4",
+            "flex items-center justify-between gap-2 p-4 bg-zinc-5 border-zinc-300/70 border-[0.0125rem] rounded-md shadow-xs text-sm",
             props.isInvalid && "border-red-700"
           )}
         >
