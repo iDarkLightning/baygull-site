@@ -33,7 +33,7 @@ type TMultiSelectContext = {
 
 const MultiSelectContext = createContext<TMultiSelectContext | null>(null);
 
-const useMultiSelect = () => {
+export const useMultiSelect = () => {
   const contextValue = useContext(MultiSelectContext);
 
   if (!contextValue)
@@ -66,6 +66,7 @@ export const MultiSelect: React.FC<
 type MultiSelectTriggerProps = ComponentProps<typeof DialogTrigger> & {
   btnProps?: Omit<ComponentPropsWithoutRef<typeof Button>, "className"> & {
     placeholder?: string;
+    isInvalid?: boolean;
   };
   keyDisplayMap?: Map<Key, string>;
 };
@@ -94,7 +95,8 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
         {...btnProps}
         className={cn(
           inputBase(),
-          "w-full flex items-center justify-between focus-visible:ring-sky-800"
+          "w-full flex items-center justify-between focus-visible:ring-sky-800",
+          btnProps?.isInvalid && "!border-red-700 focus-visible:ring-red-700"
         )}
         ref={triggerControl[0]}
       >
@@ -131,16 +133,18 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
 
 type MultiSelectBodyProps = Omit<
   ComponentProps<typeof Menu>,
-  "className" | "selectionMode" | "selectedKeys" | "onSelectionChange"
+  "className" | "selectionMode"
 > & {
   popoverProps?: Omit<
     ComponentProps<typeof Popover>,
     "className" | "triggerWidth"
   >;
+  autoCompleteProps?: Omit<ComponentProps<typeof AutoComplete>, "children">;
 };
 
 export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
   popoverProps,
+  autoCompleteProps,
   children,
   ...props
 }) => {
@@ -153,7 +157,10 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
 
   return (
     <ModalPopover popoverProps={{ ...popoverProps, triggerWidth: width }}>
-      <AutoComplete filter={contains}>
+      <AutoComplete
+        filter={(textVal, input) => contains(textVal, input.trim())}
+        {...autoCompleteProps}
+      >
         <SearchField
           className="px-2"
           aria-label="Search multi select"
