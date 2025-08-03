@@ -95,12 +95,12 @@ const Nav = () => {
                     "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800"
                   )}
                 >
-                  <MatchRoute to={tab.to} params={tab.params}>
+                  <MatchRoute to={tab.to} params={tab.params} fuzzy>
                     {(match) =>
                       match && (
                         <motion.span
                           layoutId="bubble"
-                          className="absolute inset-0 z-10 bg-white mix-bled-difference rounded-md hover:bg-azinc-200/40 transition-colors border-[0.0125rem] border-zinc-400/60 shadow-sm"
+                          className="absolute inset-0 z-10 bg-zinc-200/40 shadow-inner mix-bled-difference rounded-md hover:bg-azinc-200/40 transition-colors border-[0.0125rem] border-zinc-400/60 shaadow-sm"
                           transition={{
                             type: "spring",
                             bounce: 0.4,
@@ -147,9 +147,9 @@ const MobileNavDrawer: React.FC<React.PropsWithChildren> = (props) => {
         <MenuIcon />
       </Button>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-zinc-300/50 backdrop-blur-xs" />
+        <Drawer.Overlay className="fixed inset-0 z-50 bg-zinc-300/50 backdrop-blur-xs" />
         <Drawer.Content
-          className="left-0 top-0 bottom-0 fixed z-10 outline-none w-64 flex bg-[#F6F6F6] rounded-e-lg"
+          className="left-0 top-0 bottom-0 fixed z-50 outline-none w-64 flex bg-[#F6F6F6] rounded-e-lg"
           // The gap between the edge of the screen and the drawer is 8px in this case.
           style={
             {
@@ -171,11 +171,11 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   if (!userQuery.data) throw new Error("Impossible state!");
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row lg:h-screen w-screen bg-[#F6F6F6] overflow-auto">
+    <div className="font-sans flex flex-col lg:flex-row lg:h-screen w-screen bg-zinc-50 overflow-auto">
       <div className="min-w-64 max-w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed">
         <Nav />
       </div>
-      <div className="p-3 flex items-center justify-between lg:hidden bg-[#F6F6F6] ">
+      <div className="p-3 flex items-center justify-between lg:hidden bg-zinc-50 ">
         <MobileNavDrawer>
           <div className="w-full h-screen flex flex-col gap-4 rounded-r-lg shadow-sm">
             <Nav />
@@ -188,7 +188,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
           referrerPolicy="no-referrer"
         />
       </div>
-      <div className="bg-white m-2 grow lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100vh-20px)] h-fit pb-2 lg:w-full border-[0.0125rem] border-zinc-400/60 shadow-sm flex flex-col">
+      <div className="bg-white m-2 grow lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-20px)] h-fit pb-2 lg:w-full border-[0.0125rem] border-zinc-400/60 shadow-sm flex flex-col">
         {props.children}
       </div>
     </div>
