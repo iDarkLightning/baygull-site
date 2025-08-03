@@ -1,6 +1,6 @@
 import { CalendarDate } from "@internationalized/date";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import { getRouteApi } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import {
   createColumnHelper,
   flexRender,
@@ -17,8 +17,13 @@ import {
   MenuTrigger,
 } from "react-aria-components";
 import { Button } from "~/components/ui/button";
-import { ClockIcon, ThreeDotsIcon, TrashIcon } from "~/components/ui/icons";
-import { MenuItem } from "~/components/ui/menu";
+import {
+  ClockIcon,
+  PublishIcon,
+  ThreeDotsIcon,
+  TrashIcon,
+} from "~/components/ui/icons";
+import { MenuItem, MenuItemLink } from "~/components/ui/menu";
 import { Popover } from "~/components/ui/popover";
 import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
 import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
@@ -117,10 +122,10 @@ const columns = [
       return (
         <div
           className={cn(
-            "flex items-center gap-2 px-3 py-0.5 rounded-full text-sm w-fit font-medium mr-4",
+            "flex items-center px-3 py-0.5 rounded-full text-sm w-fit font-medium mr-4 shadow-sam",
             type == "default" && "bg-sky-100 text-sky-800",
             type == "graphic" && "bg-green-100 text-green-800",
-            type == "headline" && "bg-neutral-100 text-neutral-800"
+            type == "headline" && "bg-purple-100 text-purple-800"
           )}
         >
           <p>{type.charAt(0).toUpperCase() + type.slice(1)}</p>
@@ -130,9 +135,9 @@ const columns = [
     filterFn: (row, columnId, value: Set<Key>) => {
       if (value.size === 0) return true;
 
-      const type = row.getValue<number>(columnId);
+      const type = row.getValue<string>(columnId);
 
-      return value.has(mapTypeToLabel[type].toLowerCase());
+      return value.has(type);
     },
   }),
   columnHelper.accessor("createdAt", {
@@ -179,12 +184,17 @@ const columns = [
         </Button>
         <Popover placement="bottom right">
           <Menu className="focus:outline-none min-w-42">
-            {/* <MenuItem href={`/manage/drafts/publish/${row.row.original.id}`}>
+            <MenuItemLink
+              to="/manage/a/drafts/publish/$id"
+              params={{ id: row.row.original.id }}
+              activeProps={{}}
+              inactiveProps={{}}
+            >
               <div className="flex gap-3 items-center">
                 <PublishIcon />
                 Publish
               </div>
-            </MenuItem> */}
+            </MenuItemLink>
             <MenuItem>
               <div className="flex gap-3 items-center text-rose-600">
                 <TrashIcon />
@@ -217,7 +227,7 @@ export const DraftTable = () => {
     { id: "title-desc", value: state.titleDesc },
     { id: "users", value: state.authors },
     { id: "type", value: state.types },
-    { id: "submittedAt", value: state.submissionTime },
+    { id: "createdAt", value: state.submissionTime },
   ]);
 
   const table = useReactTable({
@@ -236,7 +246,7 @@ export const DraftTable = () => {
       { id: "title-desc", value: state.titleDesc },
       { id: "users", value: state.authors },
       { id: "type", value: state.types },
-      { id: "submittedAt", value: state.submissionTime },
+      { id: "createdAt", value: state.submissionTime },
     ]);
   }, [state]);
 
