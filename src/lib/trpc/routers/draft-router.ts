@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { z } from "zod";
 import { parseArticle } from "~/lib/db/article-parser";
 import {
@@ -7,10 +7,15 @@ import {
   draftDefaultContent,
   draftMeta,
   graphicContent,
+  publishMeta,
+  user,
   usersToArticles,
 } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
+import { TRPCError } from "@trpc/server";
+import slugify from "slugify";
+import { publicProcedure } from "../init";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
@@ -35,6 +40,37 @@ const createArticleEditingCopy = async (data: {
 };
 
 export const draftRouter = {
+  // test: publicProcedure.query(async ({ ctx }) => {
+  //   const result = await ctx.db.all(sql`
+  //       SELECT ${article.id}, ${article.title}, json_group_array(
+  //         json_object('name', ${user.name}, 'id', ${user.id})) AS 'users' FROM ${article}
+  //       INNER JOIN ${publishMeta} ON ${article.id} = ${publishMeta.articleId}
+  //       INNER JOIN ${usersToArticles} ON ${usersToArticles.articleId} = ${article.id}
+  //       INNER JOIN ${user} on ${user.id} = ${usersToArticles.userId}
+  //       GROUP BY ${article.id}
+  //     `);
+
+  //   const ormResult = await ctx.db
+  //     .select({
+  //       id: article.id,
+  //       title: article.title,
+  //       users:
+  //         sql`json_group_array(json_object('id', ${user.id}, 'name', ${user.name}))`.as(
+  //           "users"
+  //         ),
+  //     })
+  //     .from(article)
+  //     .innerJoin(publishMeta, eq(article.id, publishMeta.articleId))
+  //     .innerJoin(usersToArticles, eq(article.id, usersToArticles.articleId))
+  //     .innerJoin(user, eq(user.id, usersToArticles.userId))
+  //     .groupBy(article.id);
+
+  //   return {
+  //     result,
+  //     ormResult,
+  //   };
+  // }),
+
   getAll: adminProcedure
     .input(
       z.object({
@@ -64,7 +100,7 @@ export const draftRouter = {
           article.status === "published"
             ? article.publishMeta
             : article.status === "draft"
-            ? article.draftMeta
+            ? { ...article.draftMeta, publishMeta: article.publishMeta }
             : article.archiveMeta;
 
         const content =
@@ -97,41 +133,58 @@ export const draftRouter = {
       });
     }),
 
-  // getById: authedProcedure
-  //   .input(z.object({ draftId: z.string() }))
-  //   .query(async ({ input, ctx }) => {
-  //     const draft = await ctx.db.query.article.findFirst({
-  //       where: and(eq(article.id, input.draftId), eq(article.status, 0)),
-  //       with: {
-  //         users: {
-  //           columns: {},
-  //           with: {
-  //             user: true,
-  //           },
-  //         },
-  //         content: true,
-  //       },
-  //     });
+  getById: authedProcedure
+    .input(z.object({ draftId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const draft = await ctx.db.query.article.findFirst({
+        where: and(eq(article.id, input.draftId), eq(article.status, "draft")),
+        with: {
+          draftMeta: true,
+          publishMeta: true,
+          draftDefaultContent: true,
+          graphicContent: true,
+          users: {
+            columns: {},
+            with: {
+              user: true,
+            },
+          },
+        },
+      });
 
-  //     if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
+      if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
 
-  //     const drive = createDriveClient();
+      return {
+        ...parseArticle(
+          {
+            ...draft,
+            ...draft.draftMeta,
+            ...draft.draftDefaultContent,
+            ...draft.graphicContent,
+          },
+          draft.type,
+          "draft"
+        ),
+        users: draft.users,
+      };
 
-  //     const fileId = new URL(draft.content!.docUrl!).pathname.split("/").at(3);
+      // const drive = createDriveClient();
 
-  //     const response = await drive.files.export({
-  //       mimeType: "text/html",
-  //       fileId,
-  //     });
+      // const fileId = new URL(draft.content!.docUrl!).pathname.split("/").at(3);
 
-  //     if (response.status !== 200)
-  //       throw new TRPCError({
-  //         code: "INTERNAL_SERVER_ERROR",
-  //         message: "Error occured while exporting to markdown!",
-  //       });
+      // const response = await drive.files.export({
+      //   mimeType: "text/html",
+      //   fileId,
+      // });
 
-  //     return { ...draft, content: response.data as string };
-  //   }),
+      // if (response.status !== 200)
+      //   throw new TRPCError({
+      //     code: "INTERNAL_SERVER_ERROR",
+      //     message: "Error occured while exporting to markdown!",
+      //   });
+
+      // return { ...draft, content: response.data as string };
+    }),
 
   create: authedProcedure
     .input(
@@ -181,6 +234,15 @@ export const draftRouter = {
           articleId,
           message: input.message,
           keyIdeas: input.keyIdeas,
+        });
+
+        await tx.insert(publishMeta).values({
+          articleId,
+          slug: slugify(input.title, {
+            lower: true,
+            trim: true,
+            strict: true,
+          }),
         });
 
         if (input.type === "default") {

@@ -61,6 +61,8 @@ const draftMetaSchema = z.object({
   status: z.literal("draft"),
   articleId: z.string(),
 
+  publishMeta: publishMetaSchema.omit({ status: true }),
+
   keyIdeas: z.string(),
   message: z.string(),
   submittedAt: z.string(),
@@ -115,7 +117,7 @@ export const parseArticle = <T extends Type, S extends Status>(
 ) => {
   const parsed = articleSchema.safeParse(article);
   if (parsed.error || !isStrictArticle(parsed.data, type, status))
-    throw new Error("parseArticle failed");
+    throw new Error(parsed?.error?.message);
 
   return parsed.data;
 };
