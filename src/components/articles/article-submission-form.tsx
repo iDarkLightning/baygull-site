@@ -2,8 +2,8 @@ import { formOptions, useStore } from "@tanstack/react-form";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import React, { useEffect, useMemo } from "react";
-import { Key, Radio, RadioGroup, TextField } from "react-aria-components";
+import React, { useEffect } from "react";
+import { Key, RadioGroup, TextField } from "react-aria-components";
 import Confetti from "react-confetti";
 import useMeasure from "react-use-measure";
 import { z } from "zod";
@@ -35,12 +35,9 @@ import {
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Modal } from "../ui/modal";
-import {
-  MultiSelect,
-  MultiSelectBody,
-  MultiSelectItem,
-  MultiSelectTrigger,
-} from "../ui/multi-select";
+import { MultiSelect } from "../ui/multi-select";
+import { ArticleTypeRadio, TArticleType } from "./article-type-radio";
+import { CollaboratorMultiSelect } from "./collaborator-multi-select";
 
 const steps = [
   "splash",
@@ -50,82 +47,6 @@ const steps = [
   "additionalInfo",
   "preview",
 ] as const;
-
-const articleTypes = [
-  {
-    value: "default" as const,
-    label: "Default",
-    graphic: (
-      <div className="flex flex-col w-full gap-2">
-        <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-        <div className="flex gap-2">
-          <div className="w-full bg-zinc-100 h-[32] rounded-xs flex items-center justify-center">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="size-6 text-neutral-300"
-            >
-              <path
-                fillRule="evenodd"
-                d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z"
-                clipRule="evenodd"
-              />
-            </svg>
-          </div>
-          <div className="flex flex-col gap-2 w-full">
-            <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-            <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-            <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-          </div>
-        </div>
-        <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-      </div>
-    ),
-    description:
-      "A standard article with primarily text content with some multimedia content thrown in the mix. If you're uncertain, start with a default article.",
-  },
-  {
-    value: "headline" as const,
-    label: "Headline",
-    graphic: (
-      <>
-        <div className="flex flex-col w-full gap-2">
-          <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-        </div>
-      </>
-    ),
-    description:
-      "Have a funny pitch but not quite enough to write a full article? We can publish just a headline without any content.",
-  },
-  {
-    value: "graphic" as const,
-    label: "Graphic",
-    graphic: (
-      <div className="flex flex-col w-full gap-2">
-        <div className="w-full bg-zinc-100 h-2 rounded-xs" />
-        <div className="w-full bg-zinc-100 h-18 rounded-xs flex items-center justify-center">
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            className="size-8 text-neutral-300"
-          >
-            <path
-              fillRule="evenodd"
-              d="M1.5 6a2.25 2.25 0 0 1 2.25-2.25h16.5A2.25 2.25 0 0 1 22.5 6v12a2.25 2.25 0 0 1-2.25 2.25H3.75A2.25 2.25 0 0 1 1.5 18V6ZM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0 0 21 18v-1.94l-2.69-2.689a1.5 1.5 0 0 0-2.12 0l-.88.879.97.97a.75.75 0 1 1-1.06 1.06l-5.16-5.159a1.5 1.5 0 0 0-2.12 0L3 16.061Zm10.125-7.81a1.125 1.125 0 1 1 2.25 0 1.125 1.125 0 0 1-2.25 0Z"
-              clipRule="evenodd"
-            />
-          </svg>
-        </div>
-      </div>
-    ),
-    description:
-      "Created a piece of art? Have a funny drawing, comic, or meme? We can publish your art as it's own standalone article.",
-  },
-];
-
-type ArticleType = (typeof articleTypes)[number]["value"];
 
 const excludedFieldsByType = {
   default: [] as string[],
@@ -141,11 +62,11 @@ const excludedFieldsByType = {
     "initial.docName",
     // "imgs.coverImg.coverImg",
   ],
-} satisfies Record<ArticleType, string[]>;
+} satisfies Record<TArticleType, string[]>;
 
 const defaultValues = {
   type: {
-    type: "default" as ArticleType,
+    type: "default" as TArticleType,
   },
   initial: {
     name: "",
@@ -172,7 +93,7 @@ type FormFields =
 
 const RenderIfNotExcluded: React.FC<
   React.PropsWithChildren<{
-    type: ArticleType;
+    type: TArticleType;
     name: FormFields;
   }>
 > = (props) => {
@@ -224,34 +145,6 @@ const SplashScreen = () => {
   );
 };
 
-const TypeRadio: React.FC<
-  React.PropsWithChildren<{
-    value: string;
-    graphic: React.ReactNode;
-    label: string;
-    description: string;
-  }>
-> = (props) => (
-  <Radio
-    value={props.value}
-    className={({ isSelected }) =>
-      cn(
-        "relative flex items-center gap-4 px-4 py-3 rounded-md border-[0.0125rem] border-zinc-300/70 transition-colors shadow-xs",
-        isSelected && "border-transparent text-white"
-      )
-    }
-  >
-    <div className="flex-1 z-20 flex items-center justify-center">
-      {props.graphic}
-    </div>
-    <div className="flex-[3]">
-      <p className="font-semibold z-20 relative">{props.label}</p>
-      <p className="text-sm z-20 relative">{props.description}</p>
-    </div>
-    {props.children}
-  </Radio>
-);
-
 const Type = withForm({
   ...formOpts,
   render: ({ form }) => {
@@ -272,25 +165,14 @@ const Type = withForm({
             <RadioGroup
               aria-label="Article Type Radio"
               className="flex flex-col gap-2"
-              onChange={(value) => field.handleChange(value as ArticleType)}
+              onChange={(value) => field.handleChange(value as TArticleType)}
               onBlur={field.handleBlur}
               value={field.state.value}
             >
-              {articleTypes.map((type) => (
-                <TypeRadio key={type.value} {...type}>
-                  {field.state.value === type.value && (
-                    <motion.span
-                      layoutId="bubble"
-                      className="absolute inset-0 z-10 bg-sky-600 rounded-md transition-colors"
-                      transition={{
-                        type: "spring",
-                        bounce: 0.3,
-                        duration: 0.3,
-                      }}
-                    />
-                  )}
-                </TypeRadio>
-              ))}
+              <ArticleTypeRadio
+                isSelected={(value) => field.state.value === value}
+                isCollpased={false}
+              />
               <FieldError message={field.state.meta.errors[0]?.message} />
             </RadioGroup>
           )}
@@ -315,17 +197,6 @@ const InitialInfo = withForm({
       enabled: false,
       retry: false,
     });
-
-    const usersQuery = useQuery(trpc.user.getUsers.queryOptions());
-
-    const displayMap = useMemo(() => {
-      if (usersQuery.status !== "success") return undefined;
-
-      const map = new Map<string, string>();
-      usersQuery.data.forEach((user) => map.set(user.id, user.name));
-
-      return map;
-    }, [usersQuery.status]);
 
     const [ref, { width }] = useMeasure();
 
@@ -525,32 +396,7 @@ const InitialInfo = withForm({
                   them here. If you do not see them in this list, they have not
                   yet registered with The Bay Gull.
                 </p>
-                <MultiSelectTrigger
-                  keyDisplayMap={displayMap}
-                  btnProps={{
-                    placeholder: "Add Collaborators...",
-                  }}
-                >
-                  <MultiSelectBody>
-                    {usersQuery.data?.map((user) => (
-                      <MultiSelectItem
-                        value={user.id}
-                        textValue={user.name}
-                        id={user.id}
-                        key={user.id}
-                      >
-                        {user.image && (
-                          <img
-                            src={user.image}
-                            className="size-4 rounded-full"
-                            referrerPolicy="no-referrer"
-                          />
-                        )}
-                        <p className="text-xs font-medium">{user.name}</p>
-                      </MultiSelectItem>
-                    ))}
-                  </MultiSelectBody>
-                </MultiSelectTrigger>
+                <CollaboratorMultiSelect />
               </MultiSelect>
             )}
           />
@@ -712,7 +558,11 @@ const PreviewForm = withForm({
     const type = useStore(form.store, (s) => s.values.type.type);
 
     const trpc = useTRPC();
-    const usersQuery = useQuery(trpc.user.getUsers.queryOptions());
+    const usersQuery = useQuery(
+      trpc.user.getUsers.queryOptions({
+        includeMe: false,
+      })
+    );
 
     return (
       <div>
@@ -867,6 +717,7 @@ export const ArticleSubmissionForm = () => {
           mimeType: m.type,
           size: m.size,
           url: m.ufsUrl,
+          fileName: m.name,
         })),
       });
     },

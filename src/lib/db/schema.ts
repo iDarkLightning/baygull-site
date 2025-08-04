@@ -175,6 +175,7 @@ export const articleMedia = sqliteTable("article_media", {
     enum: ["cover_img", "content_img"],
   }).notNull(),
 
+  fileName: text("file_name").notNull(),
   mimeType: text("mime_type").notNull(),
   url: text("url").notNull(),
   size: integer("size").notNull(),
