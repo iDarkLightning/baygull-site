@@ -63,7 +63,6 @@ export const Route = createFileRoute("/manage/_admin-layout/a/$status")({
   },
   loaderDeps: ({ search }) => ({ authors: search.authors }),
   beforeLoad: ({ params }) => {
-    console.log("BEFORELOAD!");
     const validated = statusSchema.safeParse(params.status);
     if (!validated.success) throw notFound();
 

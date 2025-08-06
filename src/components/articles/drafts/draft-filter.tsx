@@ -4,6 +4,7 @@ import {
   endOfWeek,
   endOfYear,
   getLocalTimeZone,
+  parseDate,
   startOfMonth,
   startOfWeek,
   startOfYear,
@@ -175,10 +176,54 @@ export type TDatePresets = keyof typeof submissionRangePresets | "none";
 const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
 
 export const DraftFilterMenu = () => {
-  const state = useDraftFilterStore((s) => s);
+  const state = useDraftFilterStore(
+    useShallow((s) => ({
+      types: s.types,
+      authors: s.authors,
+      titleDesc: s.titleDesc,
+      submissionTime: s.submissionTime,
+      presetSelected: s.presetSelected,
+    }))
+  );
   const navigate = routeApi.useNavigate();
+  const search = routeApi.useSearch();
 
   useEffect(() => {
+    const typesChanged =
+      state.types.size !== search.types.length ||
+      [...state.types].some((type) => !search.types.includes(type));
+    const authorsChanged =
+      state.authors.size !== search.authors.length ||
+      [...state.authors].some((author) => !search.authors.includes(author));
+    const titleDescChanged = state.titleDesc !== search.titleDesc;
+    const submissionTimeChanged = (() => {
+      if (state.submissionTime === null) return search.submissionTime !== null;
+      if (search.submissionTime === null) return state.submissionTime !== null;
+
+      const startEqual =
+        state.submissionTime.start.compare(
+          parseDate(search.submissionTime.start)
+        ) === 0;
+      const endEqual =
+        state.submissionTime.end.compare(
+          parseDate(search.submissionTime.end)
+        ) === 0;
+
+      return !startEqual || !endEqual;
+    })();
+    const presetChanged = state.presetSelected !== search.preset;
+
+    if (
+      ![
+        typesChanged,
+        authorsChanged,
+        titleDescChanged,
+        submissionTimeChanged,
+        presetChanged,
+      ].includes(true)
+    )
+      return;
+
     navigate({
       replace: true,
       search: {
@@ -282,6 +327,7 @@ export const DraftFilterDisplay = () => {
                     className="size-3 rounded-full -ml-0.5"
                     src={a.image!}
                     alt={a.name}
+                    referrerPolicy="no-referrer"
                   />
                 ))}
             <p className="ml-1">

@@ -31,8 +31,6 @@ import { cn } from "~/lib/cn";
 import { useTRPC } from "~/lib/trpc/client";
 import { TDraftList } from "~/lib/trpc/types";
 
-const mapTypeToLabel = ["Default", "Headline", "Graphic"];
-
 const columnHelper = createColumnHelper<TDraftList[number]>();
 
 const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
@@ -68,10 +66,13 @@ const columns = [
           columnId
         );
 
-        return (
-          title.toLowerCase().includes(value.toLowerCase()) ||
-          desc.toLowerCase().includes(value.toLowerCase())
-        );
+        if (desc)
+          return (
+            title.toLowerCase().includes(value.toLowerCase()) ||
+            desc.toLowerCase().includes(value.toLowerCase())
+          );
+
+        return title.toLowerCase().includes(value.toLowerCase());
       },
     }
   ),
