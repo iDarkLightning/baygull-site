@@ -76,6 +76,21 @@ export const TrashIcon = () => (
   </svg>
 );
 
+export const RefreshIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 16 16"
+    fill="currentColor"
+    className="size-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M13.836 2.477a.75.75 0 0 1 .75.75v3.182a.75.75 0 0 1-.75.75h-3.182a.75.75 0 0 1 0-1.5h1.37l-.84-.841a4.5 4.5 0 0 0-7.08.932.75.75 0 0 1-1.3-.75 6 6 0 0 1 9.44-1.242l.842.84V3.227a.75.75 0 0 1 .75-.75Zm-.911 7.5A.75.75 0 0 1 13.199 11a6 6 0 0 1-9.44 1.241l-.84-.84v1.371a.75.75 0 0 1-1.5 0V9.591a.75.75 0 0 1 .75-.75H5.35a.75.75 0 0 1 0 1.5H3.98l.841.841a4.5 4.5 0 0 0 7.08-.932.75.75 0 0 1 1.025-.273Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
 export const GoogleDocsIcon = () => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
@@ -389,6 +404,36 @@ export const PhotoIcon = () => (
 
 export const StatusIcon = () => (
   <div className="size-4 border-[0.125rem] border-dashed rounded-full" />
+);
+
+export const BackIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 16 16"
+    fill="currentColor"
+    className="size-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M12.5 9.75A2.75 2.75 0 0 0 9.75 7H4.56l2.22 2.22a.75.75 0 1 1-1.06 1.06l-3.5-3.5a.75.75 0 0 1 0-1.06l3.5-3.5a.75.75 0 0 1 1.06 1.06L4.56 5.5h5.19a4.25 4.25 0 0 1 0 8.5h-1a.75.75 0 0 1 0-1.5h1a2.75 2.75 0 0 0 2.75-2.75Z"
+      clipRule="evenodd"
+    />
+  </svg>
+);
+
+export const InfoIcon = () => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 16 16"
+    fill="currentColor"
+    className="size-4"
+  >
+    <path
+      fillRule="evenodd"
+      d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6.75 8a.75.75 0 0 0 0 1.5h.75v1.75a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z"
+      clipRule="evenodd"
+    />
+  </svg>
 );
 
 export const AnimatedCheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (

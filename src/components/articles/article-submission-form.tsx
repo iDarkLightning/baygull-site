@@ -38,6 +38,7 @@ import { Modal } from "../ui/modal";
 import { MultiSelect } from "../ui/multi-select";
 import { ArticleTypeRadio, TArticleType } from "./article-type-radio";
 import { CollaboratorMultiSelect } from "./collaborator-multi-select";
+import { Media, mediaSchema } from "../ui/file-upload";
 
 const steps = [
   "splash",
@@ -77,7 +78,7 @@ const defaultValues = {
     collaborators: new Set<Key>(),
   },
   imgs: {
-    media: [] as File[],
+    media: [] as Media[],
   },
   additionalInfo: {
     keyIdeas: "",
@@ -356,9 +357,13 @@ const InitialInfo = withForm({
                                       <AnimatedCheckIcon className="size-4 text-sky-600" />
                                     )}
                                     {!isInputDisplayed && (
-                                      <p className="text-xs">
+                                      <motion.p
+                                        initial={{ x: "15%", opacity: 0 }}
+                                        animate={{ x: "0%", opacity: 1 }}
+                                        className="text-xs"
+                                      >
                                         {docInfoQuery.data?.name}
-                                      </p>
+                                      </motion.p>
                                     )}
                                   </>
                                 ) : (
@@ -422,13 +427,19 @@ const CoverImage = withForm({
             name="imgs.media"
             validators={{
               onChange: z
-                .array(z.instanceof(File))
+                .array(mediaSchema)
                 .max(1, {
                   message: "Articles can only have one cover image!",
                 })
-                .refine(([file]) => file.size <= 1024 * 1000 * 4, {
-                  message: "Cover image size cannot exceed 4MB.",
-                }),
+                .refine(
+                  ([file]) => {
+                    if (!file) return true;
+                    return file.file.size <= 1024 * 1000 * 4;
+                  },
+                  {
+                    message: "Cover image size cannot exceed 4MB.",
+                  }
+                ),
             }}
             children={(field) => (
               <field.ImageUploadField
@@ -461,13 +472,13 @@ const GraphicImages = withForm({
             name="imgs.media"
             validators={{
               onChange: z
-                .array(z.instanceof(File))
+                .array(mediaSchema)
                 .nonempty({
                   message: "Graphic articles must have at least one graphic!",
                 })
                 .refine(
                   (files) =>
-                    files.reduce((acc, curr) => acc + curr.size, 0) <=
+                    files.reduce((acc, curr) => acc + curr.file.size, 0) <=
                     1024 * 1000 * 20,
                   {
                     message:
@@ -643,23 +654,26 @@ const PreviewForm = withForm({
                   label={type !== "graphic" ? "Cover Image" : "Graphics"}
                   icon={<PhotoIcon />}
                 >
-                  {data.imgs.media.map((img) => (
-                    <div className="flex items-center gap-2 px-3 py-4">
-                      <img
-                        src={URL.createObjectURL(img)}
-                        alt="Cover Image"
-                        className="h-16 aspect-video rounded-md object-scale-down"
-                      />
-                      <div className="flex flex-col gap-0">
-                        <p className="font-medium text-neutral-800 text-sm">
-                          {img.name}
-                        </p>
-                        <p className="text-neutral-600 text-xs">
-                          {formatBytes(img.size, 0)}
-                        </p>
+                  {data.imgs.media
+                    .filter((img) => img.__type === "file")
+                    .map((img) => img.file)
+                    .map((img) => (
+                      <div className="flex items-center gap-2 px-3 py-4">
+                        <img
+                          src={URL.createObjectURL(img)}
+                          alt="Cover Image"
+                          className="h-16 aspect-video rounded-md object-scale-down"
+                        />
+                        <div className="flex flex-col gap-0">
+                          <p className="font-medium text-neutral-800 text-sm">
+                            {img.name}
+                          </p>
+                          <p className="text-neutral-600 text-xs">
+                            {formatBytes(img.size, 0)}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </FieldPreview>
               )}
             </RenderIfNotExcluded>
@@ -702,7 +716,9 @@ export const ArticleSubmissionForm = () => {
   const form = useAppForm({
     defaultValues,
     onSubmit: async ({ value }) => {
-      const media = await startUpload(value.imgs.media);
+      const media = await startUpload(
+        value.imgs.media.filter((m) => m.__type === "file").map((m) => m.file)
+      );
       if (!media) throw new Error("Image Upload Failed!");
 
       await submit.mutateAsync({
@@ -718,6 +734,7 @@ export const ArticleSubmissionForm = () => {
           size: m.size,
           url: m.ufsUrl,
           fileName: m.name,
+          ufsId: m.key,
         })),
       });
     },

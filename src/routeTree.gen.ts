@@ -19,6 +19,11 @@ import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 import { Route as ManageAdminLayoutRouteRouteImport } from './routes/manage._admin-layout/route'
 import { Route as ManageAdminLayoutPeopleRouteImport } from './routes/manage._admin-layout/people'
 import { Route as ManageAdminLayoutAStatusRouteImport } from './routes/manage._admin-layout/a.$status'
+import { Route as ManageAdminLayoutADraftsPublishIdRouteRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/route'
+import { Route as ManageAdminLayoutADraftsPublishIdIndexRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/index'
+import { Route as ManageAdminLayoutADraftsPublishIdSeoRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/seo'
+import { Route as ManageAdminLayoutADraftsPublishIdLayoutRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/layout'
+import { Route as ManageAdminLayoutADraftsPublishIdContentRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/content'
 import { ServerRoute as ApiUploadthingServerRouteImport } from './routes/api/uploadthing'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api/trpc.$'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
@@ -66,6 +71,36 @@ const ManageAdminLayoutAStatusRoute =
     path: '/a/$status',
     getParentRoute: () => ManageAdminLayoutRouteRoute,
   } as any)
+const ManageAdminLayoutADraftsPublishIdRouteRoute =
+  ManageAdminLayoutADraftsPublishIdRouteRouteImport.update({
+    id: '/a/drafts/publish/$id',
+    path: '/a/drafts/publish/$id',
+    getParentRoute: () => ManageAdminLayoutRouteRoute,
+  } as any)
+const ManageAdminLayoutADraftsPublishIdIndexRoute =
+  ManageAdminLayoutADraftsPublishIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+  } as any)
+const ManageAdminLayoutADraftsPublishIdSeoRoute =
+  ManageAdminLayoutADraftsPublishIdSeoRouteImport.update({
+    id: '/seo',
+    path: '/seo',
+    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+  } as any)
+const ManageAdminLayoutADraftsPublishIdLayoutRoute =
+  ManageAdminLayoutADraftsPublishIdLayoutRouteImport.update({
+    id: '/layout',
+    path: '/layout',
+    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+  } as any)
+const ManageAdminLayoutADraftsPublishIdContentRoute =
+  ManageAdminLayoutADraftsPublishIdContentRouteImport.update({
+    id: '/content',
+    path: '/content',
+    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+  } as any)
 const ApiUploadthingServerRoute = ApiUploadthingServerRouteImport.update({
   id: '/api/uploadthing',
   path: '/api/uploadthing',
@@ -90,6 +125,11 @@ export interface FileRoutesByFullPath {
   '/articles': typeof ArticlesIndexRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
+  '/manage/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
+  '/manage/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
+  '/manage/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  '/manage/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
+  '/manage/a/drafts/publish/$id/': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -99,6 +139,10 @@ export interface FileRoutesByTo {
   '/articles': typeof ArticlesIndexRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
+  '/manage/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
+  '/manage/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  '/manage/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
+  '/manage/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -110,6 +154,11 @@ export interface FileRoutesById {
   '/articles/': typeof ArticlesIndexRoute
   '/manage/_admin-layout/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/_admin-layout/a/$status': typeof ManageAdminLayoutAStatusRoute
+  '/manage/_admin-layout/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
+  '/manage/_admin-layout/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
+  '/manage/_admin-layout/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  '/manage/_admin-layout/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
+  '/manage/_admin-layout/a/drafts/publish/$id/': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -121,6 +170,11 @@ export interface FileRouteTypes {
     | '/articles'
     | '/manage/people'
     | '/manage/a/$status'
+    | '/manage/a/drafts/publish/$id'
+    | '/manage/a/drafts/publish/$id/content'
+    | '/manage/a/drafts/publish/$id/layout'
+    | '/manage/a/drafts/publish/$id/seo'
+    | '/manage/a/drafts/publish/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -130,6 +184,10 @@ export interface FileRouteTypes {
     | '/articles'
     | '/manage/people'
     | '/manage/a/$status'
+    | '/manage/a/drafts/publish/$id/content'
+    | '/manage/a/drafts/publish/$id/layout'
+    | '/manage/a/drafts/publish/$id/seo'
+    | '/manage/a/drafts/publish/$id'
   id:
     | '__root__'
     | '/'
@@ -140,6 +198,11 @@ export interface FileRouteTypes {
     | '/articles/'
     | '/manage/_admin-layout/people'
     | '/manage/_admin-layout/a/$status'
+    | '/manage/_admin-layout/a/drafts/publish/$id'
+    | '/manage/_admin-layout/a/drafts/publish/$id/content'
+    | '/manage/_admin-layout/a/drafts/publish/$id/layout'
+    | '/manage/_admin-layout/a/drafts/publish/$id/seo'
+    | '/manage/_admin-layout/a/drafts/publish/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -237,6 +300,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageAdminLayoutAStatusRouteImport
       parentRoute: typeof ManageAdminLayoutRouteRoute
     }
+    '/manage/_admin-layout/a/drafts/publish/$id': {
+      id: '/manage/_admin-layout/a/drafts/publish/$id'
+      path: '/a/drafts/publish/$id'
+      fullPath: '/manage/a/drafts/publish/$id'
+      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRouteImport
+      parentRoute: typeof ManageAdminLayoutRouteRoute
+    }
+    '/manage/_admin-layout/a/drafts/publish/$id/': {
+      id: '/manage/_admin-layout/a/drafts/publish/$id/'
+      path: '/'
+      fullPath: '/manage/a/drafts/publish/$id/'
+      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdIndexRouteImport
+      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+    }
+    '/manage/_admin-layout/a/drafts/publish/$id/seo': {
+      id: '/manage/_admin-layout/a/drafts/publish/$id/seo'
+      path: '/seo'
+      fullPath: '/manage/a/drafts/publish/$id/seo'
+      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdSeoRouteImport
+      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+    }
+    '/manage/_admin-layout/a/drafts/publish/$id/layout': {
+      id: '/manage/_admin-layout/a/drafts/publish/$id/layout'
+      path: '/layout'
+      fullPath: '/manage/a/drafts/publish/$id/layout'
+      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdLayoutRouteImport
+      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+    }
+    '/manage/_admin-layout/a/drafts/publish/$id/content': {
+      id: '/manage/_admin-layout/a/drafts/publish/$id/content'
+      path: '/content'
+      fullPath: '/manage/a/drafts/publish/$id/content'
+      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdContentRouteImport
+      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+    }
   }
 }
 declare module '@tanstack/react-start/server' {
@@ -265,15 +363,42 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
+interface ManageAdminLayoutADraftsPublishIdRouteRouteChildren {
+  ManageAdminLayoutADraftsPublishIdContentRoute: typeof ManageAdminLayoutADraftsPublishIdContentRoute
+  ManageAdminLayoutADraftsPublishIdLayoutRoute: typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  ManageAdminLayoutADraftsPublishIdSeoRoute: typeof ManageAdminLayoutADraftsPublishIdSeoRoute
+  ManageAdminLayoutADraftsPublishIdIndexRoute: typeof ManageAdminLayoutADraftsPublishIdIndexRoute
+}
+
+const ManageAdminLayoutADraftsPublishIdRouteRouteChildren: ManageAdminLayoutADraftsPublishIdRouteRouteChildren =
+  {
+    ManageAdminLayoutADraftsPublishIdContentRoute:
+      ManageAdminLayoutADraftsPublishIdContentRoute,
+    ManageAdminLayoutADraftsPublishIdLayoutRoute:
+      ManageAdminLayoutADraftsPublishIdLayoutRoute,
+    ManageAdminLayoutADraftsPublishIdSeoRoute:
+      ManageAdminLayoutADraftsPublishIdSeoRoute,
+    ManageAdminLayoutADraftsPublishIdIndexRoute:
+      ManageAdminLayoutADraftsPublishIdIndexRoute,
+  }
+
+const ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren =
+  ManageAdminLayoutADraftsPublishIdRouteRoute._addFileChildren(
+    ManageAdminLayoutADraftsPublishIdRouteRouteChildren,
+  )
+
 interface ManageAdminLayoutRouteRouteChildren {
   ManageAdminLayoutPeopleRoute: typeof ManageAdminLayoutPeopleRoute
   ManageAdminLayoutAStatusRoute: typeof ManageAdminLayoutAStatusRoute
+  ManageAdminLayoutADraftsPublishIdRouteRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
 }
 
 const ManageAdminLayoutRouteRouteChildren: ManageAdminLayoutRouteRouteChildren =
   {
     ManageAdminLayoutPeopleRoute: ManageAdminLayoutPeopleRoute,
     ManageAdminLayoutAStatusRoute: ManageAdminLayoutAStatusRoute,
+    ManageAdminLayoutADraftsPublishIdRouteRoute:
+      ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren,
   }
 
 const ManageAdminLayoutRouteRouteWithChildren =

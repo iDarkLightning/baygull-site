@@ -1,13 +1,15 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, count, eq, ilike, inArray, like, not, sql } from "drizzle-orm";
 import { z } from "zod";
 import { parseArticle } from "~/lib/db/article-parser";
 import {
   article,
   articleMedia,
+  articlesToTopics,
   draftDefaultContent,
   draftMeta,
   graphicContent,
   publishMeta,
+  topic,
   user,
   usersToArticles,
 } from "~/lib/db/schema";
@@ -16,6 +18,10 @@ import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
 import { TRPCError } from "@trpc/server";
 import slugify from "slugify";
 import { publicProcedure } from "../init";
+import { isCuid } from "@paralleldrive/cuid2";
+import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
+import { db } from "~/lib/db";
+import { UTApi } from "uploadthing/server";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
@@ -37,6 +43,17 @@ const createArticleEditingCopy = async (data: {
     throw new Error("Error occured during creating copy!");
 
   return { id: response.data.id as string };
+};
+
+type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+const setUpdatedTime = async (tx: Transaction, id: string) => {
+  await tx
+    .update(draftMeta)
+    .set({
+      updatedAt: sql`current_timestamp`,
+    })
+    .where(eq(draftMeta.articleId, id));
 };
 
 export const draftRouter = {
@@ -143,10 +160,20 @@ export const draftRouter = {
           publishMeta: true,
           draftDefaultContent: true,
           graphicContent: true,
+          media: {
+            limit: 1,
+            where: eq(articleMedia.intent, "cover_img"),
+          },
           users: {
             columns: {},
             with: {
               user: true,
+            },
+          },
+          topics: {
+            columns: {},
+            with: {
+              topic: true,
             },
           },
         },
@@ -154,36 +181,24 @@ export const draftRouter = {
 
       if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
 
+      const articleParse = parseArticle(
+        {
+          ...draft,
+          ...draft.draftMeta,
+          ...(draft.type === "default"
+            ? draft.draftDefaultContent
+            : draft.graphicContent),
+        },
+        draft.type,
+        "draft"
+      );
+
       return {
-        ...parseArticle(
-          {
-            ...draft,
-            ...draft.draftMeta,
-            ...draft.draftDefaultContent,
-            ...draft.graphicContent,
-          },
-          draft.type,
-          "draft"
-        ),
+        ...articleParse,
         users: draft.users,
+        topics: draft.topics,
+        coverImg: draft.media[0],
       };
-
-      // const drive = createDriveClient();
-
-      // const fileId = new URL(draft.content!.docUrl!).pathname.split("/").at(3);
-
-      // const response = await drive.files.export({
-      //   mimeType: "text/html",
-      //   fileId,
-      // });
-
-      // if (response.status !== 200)
-      //   throw new TRPCError({
-      //     code: "INTERNAL_SERVER_ERROR",
-      //     message: "Error occured while exporting to markdown!",
-      //   });
-
-      // return { ...draft, content: response.data as string };
     }),
 
   create: authedProcedure
@@ -197,6 +212,8 @@ export const draftRouter = {
             mimeType: z.string(),
             url: z.string().url(),
             size: z.number(),
+            fileName: z.string(),
+            ufsId: z.string(),
           })
         ),
         docId: z.string().optional(),
@@ -206,22 +223,8 @@ export const draftRouter = {
       })
     )
     .mutation(async ({ ctx, input }) => {
-      // let contentInput: typeof articleContent.$inferInsert | null = null;
-      // if (input.type === "default") {
-      //   if (!input.docId)
-      //     throw new TRPCError({
-      //       code: "BAD_REQUEST",
-      //       message: "docId must be provided for type = default",
-      //     });
-
-      //   contentInput = {
-      //     articleId: "",
-
-      //   };
-      // }
-
       const resultId = await ctx.db.transaction(async (tx) => {
-        const [{ articleId }] = await tx
+        const [result] = await tx
           .insert(article)
           .values({
             title: input.title,
@@ -229,6 +232,8 @@ export const draftRouter = {
             type: input.type,
           })
           .returning({ articleId: article.id });
+
+        const { articleId } = result!;
 
         await tx.insert(draftMeta).values({
           articleId,
@@ -286,6 +291,8 @@ export const draftRouter = {
                   : ("cover_img" as const),
               url: media.url,
               size: media.size,
+              fileName: media.fileName,
+              ufsId: media.ufsId,
             }))
           );
         }
@@ -297,48 +304,362 @@ export const draftRouter = {
         message: "ok",
         draftId: resultId,
       };
-
-      // const copyResult = await createArticleEditingCopy({
-      //   articleName: input.title,
-      //   fileId: input.docId,
-      // });
-
-      // const [insertResult] = await ctx.db
-      //   .insert(articleDraft)
-      //   .values({
-      //     title: input.title,
-      //     type: input.type,
-      //     description: input.description,
-      //     coverImg: input.coverImg,
-      //     originalUrl: `https://docs.google.com/document/d/${input.docId}`,
-      //     editingUrl: `https://docs.google.com/document/d/${copyResult.id}`,
-      //     keyIdeas: input.keyIdeas,
-      //     message: input.message,
-      //   })
-      //   .returning();
-
-      // await ctx.db.insert(usersToArticleDrafts).values([
-      //   {
-      //     draftId: insertResult.id,
-      //     userId: ctx.user.id,
-      //   },
-      //   ...input.collaborators.map((userId) => ({
-      //     draftId: insertResult.id,
-      //     userId,
-      //   })),
-      // ]);
-
-      // if (!!insertResult) {
-      //   return { message: "ok" };
-      // }
-
-      // throw new TRPCError({
-      //   code: "INTERNAL_SERVER_ERROR",
-      //   message: "Error occured while creating draft!",
-      // });
     }),
 
-  getAuthorList: adminProcedure.query(async ({ input, ctx }) => {
+  updateTitle: adminProcedure
+    .input(
+      z.object({
+        id: z.string().refine(isCuid),
+        title: z.string().nonempty(),
+        deriveSlug: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const id = await ctx.db.transaction(async (tx) => {
+        const [{ id }] = await tx
+          .update(article)
+          .set({
+            title: input.title,
+          })
+          .where(eq(article.id, input.id))
+          .returning({ id: article.id });
+
+        if (input.deriveSlug) {
+          const derivedSlug = slugify(input.title, {
+            lower: true,
+            strict: true,
+            trim: true,
+          });
+
+          const [{ count: slugCount }] = await tx
+            .select({ count: count() })
+            .from(publishMeta)
+            .where(like(publishMeta.slug, `${derivedSlug}%`));
+
+          await tx
+            .update(publishMeta)
+            .set({
+              slug:
+                slugCount === 0
+                  ? derivedSlug
+                  : `${derivedSlug}-${slugCount + 1}`,
+            })
+            .where(eq(publishMeta.articleId, input.id));
+        }
+
+        await setUpdatedTime(tx, input.id);
+        return id;
+      });
+
+      return id;
+    }),
+
+  validateSlug: adminProcedure
+    .input(z.object({ id: z.string().refine(isCuid), slug: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const [{ count: rows }] = await ctx.db
+        .select({ count: count() })
+        .from(publishMeta)
+        .where(
+          and(
+            eq(publishMeta.slug, input.slug),
+            not(eq(publishMeta.articleId, input.id))
+          )
+        );
+
+      if (rows > 0)
+        throw new TRPCError({
+          code: "CONFLICT",
+          message: "That slug is taken!",
+        });
+      return rows;
+    }),
+
+  updateType: adminProcedure
+    .input(
+      z.object({
+        id: z.string().refine(isCuid),
+        type: z.enum(["default", "headline", "graphic"]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const id = await ctx.db.transaction(async (tx) => {
+        const [{ id }] = await tx
+          .update(article)
+          .set({
+            type: input.type,
+          })
+          .where(eq(article.id, input.id))
+          .returning({
+            id: article.id,
+          });
+
+        if (input.type === "default") {
+          const [graphicDesc] = await tx
+            .select({
+              description: graphicContent.description,
+            })
+            .from(graphicContent)
+            .where(eq(graphicContent.articleId, input.id))
+            .limit(1);
+
+          await tx
+            .insert(draftDefaultContent)
+            .values({
+              articleId: input.id,
+              description: !!graphicDesc ? graphicDesc.description : "",
+              editingUrl: "",
+              originalUrl: "",
+            })
+            .onConflictDoUpdate({
+              target: draftDefaultContent.articleId,
+              set: !!graphicDesc
+                ? { description: graphicDesc.description }
+                : {},
+            });
+        } else if (input.type === "graphic") {
+          const [defaultDesc] = await tx
+            .select({ description: draftDefaultContent.description })
+            .from(draftDefaultContent)
+            .where(eq(draftDefaultContent.articleId, input.id))
+            .limit(1);
+
+          await tx
+            .insert(graphicContent)
+            .values({
+              articleId: input.id,
+              description: !!defaultDesc ? defaultDesc.description : "",
+            })
+            .onConflictDoUpdate({
+              target: graphicContent.articleId,
+              set: !!defaultDesc
+                ? { description: defaultDesc.description }
+                : {},
+            });
+        }
+
+        await setUpdatedTime(tx, input.id);
+        return id;
+      });
+
+      return id;
+    }),
+
+  updateSlug: adminProcedure
+    .input(
+      z.object({
+        id: z.string().refine(isCuid),
+        data: z.discriminatedUnion("deriveFromTitle", [
+          z.object({
+            deriveFromTitle: z.literal(true),
+          }),
+          z.object({
+            deriveFromTitle: z.literal(false),
+            slug: z.string().nonempty().optional(),
+          }),
+        ]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (input.data.deriveFromTitle) {
+        await ctx.db.transaction(async (tx) => {
+          const [{ title }] = await tx
+            .select({ title: article.title })
+            .from(article)
+            .where(eq(article.id, input.id));
+
+          const derivedSlug = slugify(title, {
+            lower: true,
+            strict: true,
+            trim: true,
+          });
+
+          const [{ count: slugCount }] = await tx
+            .select({ count: count() })
+            .from(publishMeta)
+            .where(
+              and(
+                like(publishMeta.slug, `${derivedSlug}%`),
+                not(eq(publishMeta.articleId, input.id))
+              )
+            );
+
+          await tx
+            .update(publishMeta)
+            .set({
+              deriveSlugFromTitle: true,
+              slug:
+                slugCount === 0
+                  ? derivedSlug
+                  : `${derivedSlug}-${slugCount + 1}`,
+            })
+            .where(eq(publishMeta.articleId, input.id));
+
+          await setUpdatedTime(tx, input.id);
+        });
+      } else {
+        await ctx.db.transaction(async (tx) => {
+          if (input.data.deriveFromTitle) return;
+
+          await tx
+            .update(publishMeta)
+            .set({
+              deriveSlugFromTitle: false,
+              ...(input.data.slug ? { slug: input.data.slug } : {}),
+            })
+            .where(eq(publishMeta.articleId, input.id));
+
+          await setUpdatedTime(tx, input.id);
+        });
+      }
+    }),
+
+  updateDescription: adminProcedure
+    .input(
+      z.object({
+        id: z.string().refine(isCuid),
+        type: z.enum(["default", "graphic"]),
+        description: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.transaction(async (tx) => {
+        const table =
+          input.type === "default" ? draftDefaultContent : graphicContent;
+
+        await tx
+          .update(table)
+          .set({
+            description: input.description,
+          })
+          .where(eq(table.articleId, input.id));
+
+        await setUpdatedTime(tx, input.id);
+      });
+    }),
+
+  updateAuthors: adminProcedure
+    .input(
+      z.object({
+        id: z.string().refine(isCuid),
+        authors: z.array(z.string()).nonempty(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .delete(usersToArticles)
+          .where(and(eq(usersToArticles.articleId, input.id)));
+
+        await tx.insert(usersToArticles).values(
+          input.authors.map((a) => ({
+            userId: a,
+            articleId: input.id,
+          }))
+        );
+
+        await setUpdatedTime(tx, input.id);
+      });
+    }),
+
+  updateTopics: adminProcedure
+    .input(
+      z.object({
+        id: z.string().refine(isCuid),
+        topics: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+          })
+        ),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.transaction(async (tx) => {
+        await tx.insert(topic).values(input.topics).onConflictDoNothing();
+
+        await tx
+          .delete(articlesToTopics)
+          .where(and(eq(articlesToTopics.articleId, input.id)));
+
+        await tx.insert(articlesToTopics).values(
+          input.topics.map((t) => ({
+            topicId: t.id,
+            articleId: input.id,
+          }))
+        );
+
+        await setUpdatedTime(tx, input.id);
+      });
+    }),
+
+  updateCoverImage: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        data: z.discriminatedUnion("action", [
+          z.object({
+            action: z.literal("delete"),
+          }),
+          z.object({
+            action: z.literal("add"),
+            fileName: z.string(),
+            ufsId: z.string(),
+            mimeType: z.string(),
+            url: z.string(),
+            size: z.number(),
+          }),
+        ]),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      if (input.data.action === "delete") {
+        const ids = await ctx.db.transaction(async (tx) => {
+          const ids = await tx
+            .delete(articleMedia)
+            .where(eq(articleMedia.articleId, input.id))
+            .returning({
+              ufsId: articleMedia.ufsId,
+            });
+
+          await setUpdatedTime(tx, input.id);
+
+          return ids;
+        });
+
+        const utapi = new UTApi();
+        return utapi.deleteFiles(ids.map((i) => i.ufsId));
+      } else {
+        await ctx.db.transaction(async (tx) => {
+          if (input.data.action === "delete") return;
+
+          await tx
+            .insert(articleMedia)
+            .values({
+              intent: "cover_img",
+              articleId: input.id,
+              fileName: input.data.fileName,
+              mimeType: input.data.mimeType,
+              url: input.data.url,
+              size: input.data.size,
+              ufsId: input.data.ufsId,
+            })
+            .onConflictDoUpdate({
+              target: articleMedia.articleId,
+              set: {
+                fileName: input.data.fileName,
+                mimeType: input.data.mimeType,
+                url: input.data.url,
+                size: input.data.size,
+              },
+            });
+
+          await setUpdatedTime(tx, input.id);
+        });
+      }
+    }),
+
+  getAuthorList: adminProcedure.query(async ({ ctx }) => {
     const queryResult = await ctx.db.query.usersToArticles.findMany({
       with: {
         user: true,

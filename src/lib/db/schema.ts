@@ -91,7 +91,7 @@ export const article = sqliteTable("article", {
 
   title: text("title").notNull(),
 
-  createdAt: integer("created_at")
+  createdAt: text("created_at")
     .notNull()
     .default(sql`(current_timestamp)`),
 });
@@ -101,10 +101,13 @@ export const publishMeta = sqliteTable("publish_meta", {
     .primaryKey()
     .references(() => article.id),
   slug: text("slug").notNull().unique(),
+  deriveSlugFromTitle: integer("derive_slug_from_title", { mode: "boolean" })
+    .notNull()
+    .default(true),
 
   isHighlighted: integer("is_highlighted", { mode: "boolean" }),
 
-  publishedAt: integer("published_at")
+  publishedAt: text("published_at")
     .notNull()
     .default(sql`(current_timestamp)`),
 });
@@ -127,11 +130,11 @@ export const draftMeta = sqliteTable("draft_meta", {
   keyIdeas: text("key_ideas").notNull(),
   message: text("message").notNull(),
 
-  submittedAt: integer("submitted_at")
+  submittedAt: text("submitted_at")
     .notNull()
     .default(sql`(current_timestamp)`),
 
-  updatedAt: integer("updated_at")
+  updatedAt: text("updated_at")
     .notNull()
     .default(sql`(current_timestamp)`)
     .$onUpdate(() => sql`(current_timestamp)`),
@@ -153,7 +156,7 @@ export const archiveMeta = sqliteTable("archive_meta", {
     .primaryKey()
     .references(() => article.id),
 
-  archivedAt: integer("archived_at")
+  archivedAt: text("archived_at")
     .notNull()
     .default(sql`(current_timestamp)`),
 });
@@ -179,7 +182,11 @@ export const articleMedia = sqliteTable("article_media", {
   mimeType: text("mime_type").notNull(),
   url: text("url").notNull(),
   size: integer("size").notNull(),
+
+  ufsId: text("ufs_id").notNull().unique(),
 });
+
+export type ArticleMedia = typeof articleMedia.$inferSelect;
 
 export const usersToArticles = sqliteTable(
   "users_to_articles",

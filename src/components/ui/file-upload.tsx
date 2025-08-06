@@ -1,16 +1,33 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import { DropZone, FileTrigger, Text } from "react-aria-components";
+import { z } from "zod";
 import { cn } from "~/lib/cn";
+import type { ArticleMedia } from "~/lib/db/schema";
 import { formatBytes } from "~/lib/format-bytes";
 import { Button } from "./button";
 import { TrashIcon } from "./icons";
 
 const mimeTypes = ["image/png", "image/jpeg"];
 
+export type Media =
+  | {
+      __type: "uploaded-media";
+      file: ArticleMedia;
+    }
+  | {
+      __type: "file";
+      file: File;
+    };
+
+export const mediaSchema = z.object({
+  __type: z.literal("file"),
+  file: z.instanceof(File),
+});
+
 export type ImageUploadProps = {
   maxSize: number;
-  files: File[];
-  setFiles: React.Dispatch<React.SetStateAction<File[]>>;
+  files: Media[];
+  setFiles: React.Dispatch<React.SetStateAction<Media[]>>;
   allowMultiple?: boolean;
   isInvalid?: boolean;
 };
@@ -18,7 +35,11 @@ export type ImageUploadProps = {
 export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
   // ignore that this basically has no effect atm
   const imageUrls = useMemo(() => {
-    return props.files.map((file) => URL.createObjectURL(file));
+    return props.files.map((file) => {
+      if (file.__type === "uploaded-media") return file.file.url;
+
+      return URL.createObjectURL(file.file);
+    });
   }, [props.files]);
 
   return (
@@ -41,6 +62,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
                 .filter((file) => file.kind === "file")
                 .filter((file) => mimeTypes.includes(file.type))
                 .map((file) => file.getFile())
+            ).then((files) =>
+              files.map((f) => ({ file: f, __type: "file" as const }))
             );
 
             props.setFiles((oldFiles) => [...oldFiles, ...files]);
@@ -75,7 +98,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
             allowsMultiple={props.allowMultiple}
             onSelect={(e) => {
               if (e === null || e.length === 0) return;
-              props.setFiles((files) => [...files, ...e]);
+              props.setFiles((files) => [
+                ...files,
+                ...[...e].map((f) => ({ file: f, __type: "file" as const })),
+              ]);
             }}
           >
             <Button>Browse Files</Button>
@@ -99,10 +125,10 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
             />
             <div className="flex flex-col gap-0">
               <p className="font-medium text-neutral-800 wrap-anywhere">
-                {file.name}
+                {file.__type === "file" ? file.file.name : file.file.fileName}
               </p>
               <p className="text-neutral-600 text-sm">
-                {formatBytes(file.size, 0)}
+                {formatBytes(file.file.size, 0)}
               </p>
             </div>
           </div>

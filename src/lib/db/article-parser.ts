@@ -42,6 +42,7 @@ const publishMetaSchema = z.object({
 
   slug: z.string(),
   isHighlighted: z.boolean(),
+  deriveSlugFromTitle: z.boolean(),
   publishedAt: z.string(),
 });
 
@@ -73,8 +74,8 @@ const draftDefaultContentSchema = defaultContentSchema.extend({
   type: z.literal("default"),
 
   description: z.string(),
-  editingUrl: z.string().url(),
-  originalUrl: z.string().url(),
+  editingUrl: z.string().url().or(z.literal("")),
+  originalUrl: z.string().url().or(z.literal("")),
 });
 
 const draftVariantSchema = z.discriminatedUnion("type", [

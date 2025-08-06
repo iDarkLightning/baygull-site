@@ -3,7 +3,7 @@ import { AdminShell } from "~/components/layout/admin-shell";
 
 export const Route = createFileRoute("/manage/_admin-layout")({
   beforeLoad: async ({ context }) => {
-    if (context.user && context.user.role != 2) {
+    if (!context.user) {
       throw notFound();
     }
   },
