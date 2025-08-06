@@ -243,6 +243,14 @@ const InfoForm: React.FC = () => {
       topics: new Set<Key>(data.topics.map(({ topic }) => topic.id)),
       description: data.type !== "headline" ? data.description : undefined,
     },
+    listeners: {
+      onChangeDebounceMs: 1_000,
+      onChange: async () => {
+        await queryClient.invalidateQueries({
+          queryKey: trpc.article.draft.getAll.queryKey({ status: "draft" }),
+        });
+      },
+    },
   });
 
   const updateType = useMutation(

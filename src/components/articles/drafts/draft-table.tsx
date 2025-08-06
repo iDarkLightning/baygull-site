@@ -212,10 +212,15 @@ const columns = [
 export const DraftTable = () => {
   const trpc = useTRPC();
   const routeContext = routeApi.useRouteContext();
-  const { data } = useSuspenseQuery(
-    trpc.article.draft.getAll.queryOptions({
-      status: routeContext.status,
-    })
+  const { data, isStale, refetch } = useSuspenseQuery(
+    trpc.article.draft.getAll.queryOptions(
+      {
+        status: routeContext.status,
+      },
+      {
+        staleTime: Infinity,
+      }
+    )
   );
 
   const state = useDraftFilterStore((s) => s);
@@ -240,7 +245,12 @@ export const DraftTable = () => {
     onColumnFiltersChange: setFilters,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getRowId: (row) => row.id,
   });
+
+  useEffect(() => {
+    if (isStale) refetch();
+  }, []);
 
   useEffect(() => {
     table.setColumnFilters([
