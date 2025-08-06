@@ -14,13 +14,25 @@ const status = z.union([
   z.literal("archived"),
 ]);
 
+export const date = z
+  .string()
+  .refine((val) => {
+    try {
+      new Date(val);
+      return true;
+    } catch {
+      return false;
+    }
+  })
+  .transform((date) => date + "Z");
+
 type Status = z.infer<typeof status>;
 
 const baseArticleSchema = z.object({
   id: z.string(),
 
   title: z.string(),
-  createdAt: z.string(),
+  createdAt: date,
 });
 
 const defaultContentSchema = z.object({
@@ -43,7 +55,7 @@ const publishMetaSchema = z.object({
   slug: z.string(),
   isHighlighted: z.boolean(),
   deriveSlugFromTitle: z.boolean(),
-  publishedAt: z.string(),
+  publishedAt: date,
 });
 
 const publishDefaultContentSchema = defaultContentSchema.extend({
@@ -66,8 +78,8 @@ const draftMetaSchema = z.object({
 
   keyIdeas: z.string(),
   message: z.string(),
-  submittedAt: z.string(),
-  updatedAt: z.string(),
+  submittedAt: date,
+  updatedAt: date,
 });
 
 const draftDefaultContentSchema = defaultContentSchema.extend({
@@ -86,7 +98,7 @@ const draftVariantSchema = z.discriminatedUnion("type", [
 
 const archiveMetaSchema = z.object({
   status: z.literal("archived"),
-  archivedAt: z.string(),
+  archivedAt: date,
 });
 
 const archiveVariantSchema = z.discriminatedUnion("type", [

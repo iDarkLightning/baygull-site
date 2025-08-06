@@ -1,5 +1,10 @@
-import { and, count, eq, ilike, inArray, like, not, sql } from "drizzle-orm";
+import { isCuid } from "@paralleldrive/cuid2";
+import { TRPCError } from "@trpc/server";
+import { and, count, eq, like, not, sql } from "drizzle-orm";
+import slugify from "slugify";
+import { UTApi } from "uploadthing/server";
 import { z } from "zod";
+import { db } from "~/lib/db";
 import { parseArticle } from "~/lib/db/article-parser";
 import {
   article,
@@ -10,18 +15,10 @@ import {
   graphicContent,
   publishMeta,
   topic,
-  user,
   usersToArticles,
 } from "~/lib/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
-import { TRPCError } from "@trpc/server";
-import slugify from "slugify";
-import { publicProcedure } from "../init";
-import { isCuid } from "@paralleldrive/cuid2";
-import { SQLiteTransaction } from "drizzle-orm/sqlite-core";
-import { db } from "~/lib/db";
-import { UTApi } from "uploadthing/server";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
