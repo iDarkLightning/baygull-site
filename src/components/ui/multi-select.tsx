@@ -133,18 +133,23 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
 
 type MultiSelectBodyProps = Omit<
   ComponentProps<typeof Menu>,
-  "className" | "selectionMode"
+  "className" | "selectionMode" | "onSelectionChange"
 > & {
   popoverProps?: Omit<
     ComponentProps<typeof Popover>,
     "className" | "triggerWidth"
   >;
+  onSelectionChange?: (args: {
+    keys: Set<Key>;
+    setSelectedKeys: React.Dispatch<React.SetStateAction<Set<Key>>>;
+  }) => void;
   autoCompleteProps?: Omit<ComponentProps<typeof AutoComplete>, "children">;
 };
 
 export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
   popoverProps,
   autoCompleteProps,
+  onSelectionChange,
   children,
   ...props
 }) => {
@@ -179,7 +184,13 @@ export const MultiSelectBody: React.FC<MultiSelectBodyProps> = ({
           shouldFocusWrap
           selectedKeys={selectedKeys}
           onSelectionChange={(keys) => {
-            typeof keys !== "string" && setSelectedKeys(keys);
+            if (typeof keys === "string") return;
+
+            if (onSelectionChange) {
+              onSelectionChange({ keys, setSelectedKeys });
+            } else {
+              setSelectedKeys(keys);
+            }
           }}
           className="max-h-52 overflow-auto min-w-max border-t-[0.0125rem] border-zinc-300/70"
           {...props}
