@@ -9,7 +9,7 @@ import { ImageUpload, ImageUploadProps } from "./file-upload";
 import { formatBytes } from "~/lib/format-bytes";
 
 type TextFieldProps = (React.ComponentProps<typeof AriaTextField> & {
-  label: string;
+  label?: string;
 }) &
   (
     | {
@@ -39,7 +39,7 @@ export const TextField: React.FC<TextFieldProps> = ({
       onBlur={field.handleBlur}
       {...props}
     >
-      <Label>{label}</Label>
+      {label && <Label>{label}</Label>}
       {isTextArea ? (
         <TextArea fullWidth {...inputProps} />
       ) : (
