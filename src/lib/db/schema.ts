@@ -175,9 +175,7 @@ export const graphicContent = sqliteTable("graphic_default_content", {
 export const articleMedia = sqliteTable("article_media", {
   id: text("id").primaryKey().notNull().$defaultFn(createId),
 
-  articleId: text("article_id")
-    .references(() => article.id)
-    .unique(),
+  articleId: text("article_id").references(() => article.id),
 
   intent: text("intent", {
     enum: ["cover_img", "content_img"],
