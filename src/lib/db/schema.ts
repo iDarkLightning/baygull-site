@@ -173,9 +173,11 @@ export const graphicContent = sqliteTable("graphic_default_content", {
 });
 
 export const articleMedia = sqliteTable("article_media", {
+  id: text("id").primaryKey().notNull().$defaultFn(createId),
+
   articleId: text("article_id")
-    .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id)
+    .unique(),
 
   intent: text("intent", {
     enum: ["cover_img", "content_img"],
@@ -183,7 +185,7 @@ export const articleMedia = sqliteTable("article_media", {
 
   fileName: text("file_name").notNull(),
   mimeType: text("mime_type").notNull(),
-  url: text("url").notNull(),
+  url: text("url").notNull().unique(),
   size: integer("size").notNull(),
 
   ufsId: text("ufs_id").notNull().unique(),

@@ -9,22 +9,15 @@ import type { TElement, TImageElement, TText } from "platejs";
 import type { PlateElementProps } from "platejs/react";
 
 import { Image, useMediaState } from "@platejs/media/react";
-import {
-  PlateElement,
-  useEditorPlugin,
-  useElement,
-  withHOC,
-} from "platejs/react";
+import { PlateElement, useEditorPlugin, withHOC } from "platejs/react";
 import { cn } from "~/lib/cn";
 
 import { PlaceholderProvider, updateUploadHistory } from "@platejs/media/react";
 import type { TPlaceholderElement } from "platejs";
 import { KEYS, nanoid } from "platejs";
-import { useRef } from "react";
-import { useDraft } from "~/lib/articles/use-draft";
-import { createTRPCClient, useTRPC } from "~/lib/trpc/client";
+import { createTRPCClient } from "~/lib/trpc/client";
+import { DraftStorePlugin } from "./draft-store";
 import { useUploadFile } from "./use-upload-file";
-import { useLoaderData } from "@tanstack/react-router";
 
 const isImageNode = (
   node: TElement | TText,
@@ -32,7 +25,8 @@ const isImageNode = (
 ): node is TImageElement => node && "type" in node && node.type === imgType;
 
 type TCustomImage = {
-  ufsKey: string;
+  mediaId: string;
+  ufsId: string;
 } & TImageElement;
 
 const ImagePlugin = PlateImagePlugin.extend<{
@@ -54,7 +48,7 @@ const ImagePlugin = PlateImagePlugin.extend<{
 
           const trpcClient = createTRPCClient();
           trpcClient.article.draft.deleteContentImage.mutate({
-            ufsKey: node.ufsKey,
+            mediaId: node.mediaId,
           });
 
           removeNodes(options);
@@ -78,6 +72,8 @@ const ImagePlugin = PlateImagePlugin.extend<{
 
           insertNodes(taggedNodes, options);
 
+          const draftId = editor.getOption(DraftStorePlugin, "draftId");
+
           taggedNodes
             .flatMap(
               (node) =>
@@ -94,6 +90,7 @@ const ImagePlugin = PlateImagePlugin.extend<{
 
               trpcClient.article.draft.uploadExternalContentImage
                 .mutate({
+                  id: draftId,
                   url: node.url,
                 })
                 .then((data) => {
@@ -112,8 +109,9 @@ const ImagePlugin = PlateImagePlugin.extend<{
                   setNodes(
                     {
                       ...matchedNode,
-                      url: data.ufsUrl,
-                      ufsKey: data.key,
+                      mediaId: data.id,
+                      url: data.url,
+                      ufsId: data.ufsId,
                     },
                     {
                       at: api.findPath(matchedNode),
@@ -141,6 +139,7 @@ const CONTENT: Record<
     // icon: <ImageIcon />,
   },
 };
+
 export const PlaceholderElement = withHOC(
   PlaceholderProvider,
   function PlaceholderElement(props: PlateElementProps<TPlaceholderElement>) {
@@ -248,7 +247,7 @@ export const ImageElement = (props: PlateElementProps<TImageElement>) => {
             "block cursor-pointer object-cover left-0",
             focused && selected && "ring-2 ring-sky-600 ring-offset-0"
           )}
-          // alt={props.attributes.alt as string | undefined}
+          alt={props.attributes.alt as string | undefined}
         />
       </figure>
 
@@ -263,8 +262,8 @@ export const MediaKit = [
       node: ImageElement,
     },
   }),
-  PlaceholderPlugin.configure({
-    options: { disableEmptyPlaceholder: true },
-    render: { node: PlaceholderElement },
-  }),
+  // PlaceholderPlugin.configure({
+  //   options: { disableEmptyPlaceholder: true },
+  //   render: { node: PlaceholderElement },
+  // }),
 ];

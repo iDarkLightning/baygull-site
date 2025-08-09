@@ -1,6 +1,11 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Value } from "platejs";
-import { Plate, PlateContent, usePlateEditor } from "platejs/react";
+import {
+  createPlatePlugin,
+  Plate,
+  PlateContent,
+  usePlateEditor,
+} from "platejs/react";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "~/components/ui/button";
 import { useDraft } from "~/lib/articles/use-draft";
@@ -14,6 +19,7 @@ import { MarksKit } from "./marks-kit";
 import { MediaKit } from "./media-kit";
 import { ParagraphKit } from "./paragraph-kit";
 import { StructureKit } from "./structure-kit";
+import { DraftStorePlugin } from "./draft-store";
 
 /**
  *
@@ -27,6 +33,7 @@ export default function DraftContentEditor() {
 
   const editor = usePlateEditor({
     plugins: [
+      DraftStorePlugin,
       ...HeadingKit,
       ...ParagraphKit,
       ...MarksKit,
@@ -38,6 +45,9 @@ export default function DraftContentEditor() {
       ...MediaKit,
     ],
     value: data.type === "default" ? JSON.parse(data.content ?? "") : [],
+    onReady: ({ editor }) => {
+      editor.setOption(DraftStorePlugin, "draftId", data.id);
+    },
   });
 
   const trpc = useTRPC();

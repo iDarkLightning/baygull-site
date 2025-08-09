@@ -1,4 +1,4 @@
-import { isCuid } from "@paralleldrive/cuid2";
+import { createId, isCuid } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
 import { and, count, eq, like, not, sql } from "drizzle-orm";
 import slugify from "slugify";
@@ -128,15 +128,6 @@ export const draftRouter = {
               : ({} as Record<string, never>)
             : ({} as Record<string, never>);
 
-        console.log({
-          id: article.id,
-          type: article.type,
-          status: article.status,
-          title: article.title,
-          createdAt: article.createdAt,
-          ...statusMeta,
-          ...content,
-        });
         return {
           ...parseArticle(
             {
@@ -713,38 +704,82 @@ export const draftRouter = {
   uploadExternalContentImage: adminProcedure
     .input(
       z.object({
-        id: z.string().optional(),
+        id: z.string(),
         url: z.string().url(),
       })
     )
-    .mutation(async ({ input }) => {
-      if (new URL(input.url).host.endsWith("ufs.sh"))
-        return { ufsUrl: input.url, key: "TEST_UFS_KEY" };
+    .mutation(async ({ ctx, input }) => {
+      const media = await ctx.db
+        .select()
+        .from(articleMedia)
+        .where(eq(articleMedia.url, input.url))
+        .limit(1);
 
-      // const imgBlob = await
-      const utapi = new UTApi();
-      const uploadResult = await utapi.uploadFilesFromUrl(input.url);
+      if (media.length > 0) {
+        return media[0];
+      } else {
+        const utapi = new UTApi();
 
-      if (uploadResult.error)
-        throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          cause: uploadResult.error.code,
-          message: uploadResult.error.message,
-        });
+        const uploadResult = await (async () => {
+          if (!input.url.startsWith("data:")) {
+            return utapi.uploadFilesFromUrl(input.url);
+          } else {
+            const [header, data] = input.url.split(",");
 
-      return uploadResult.data;
+            const mime =
+              header.match(/:(.*?);/)?.[1] || "application/octet-stream";
+            const buffer = Buffer.from(data, "base64");
+
+            const file = new File([buffer], `${input.id}-${createId()}`, {
+              type: mime,
+            });
+            return (await utapi.uploadFiles([file]))[0];
+          }
+        })();
+
+        if (uploadResult.error)
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            cause: uploadResult.error.code,
+            message: uploadResult.error.message,
+          });
+
+        const [media] = await ctx.db
+          .insert(articleMedia)
+          .values({
+            articleId: input.id,
+            intent: "content_img",
+            fileName: uploadResult.data.name,
+            mimeType: uploadResult.data.type,
+            size: uploadResult.data.size,
+            ufsId: uploadResult.data.key,
+            url: uploadResult.data.ufsUrl,
+          })
+          .returning();
+
+        return media;
+      }
     }),
 
   deleteContentImage: adminProcedure
     .input(
       z.object({
-        // id: z.string().optional(),
-        ufsKey: z.string(),
+        mediaId: z.string(),
       })
     )
-    .mutation(async ({ input }) => {
+    .mutation(async ({ ctx, input }) => {
+      const [media] = await ctx.db
+        .select()
+        .from(articleMedia)
+        .where(eq(articleMedia.id, input.mediaId))
+        .limit(1);
+
+      if (!media) throw new TRPCError({ code: "NOT_FOUND" });
+
+      await ctx.db.delete(articleMedia).where(eq(articleMedia.id, media.id));
+
       const utapi = new UTApi();
-      return utapi.deleteFiles([input.ufsKey]);
+      return utapi.deleteFiles([media.ufsId]);
     }),
 
   getAuthorList: adminProcedure.query(async ({ ctx }) => {
