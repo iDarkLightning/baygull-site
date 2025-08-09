@@ -720,9 +720,23 @@ export const draftRouter = {
       } else {
         const utapi = new UTApi();
 
-        const uploadResult = await (async () => {
+        const [mime, buffer, fileName] = await (async () => {
           if (!input.url.startsWith("data:")) {
-            return utapi.uploadFilesFromUrl(input.url);
+            // UTApi has a uploadFilesFromUrl but it doesn't preserve the file mime type so
+            // we're doing it manually
+
+            const fileResponse = await fetch(input.url);
+            const mime =
+              fileResponse.headers.get("Content-Type") ||
+              "application/octet-stream";
+            const buffer = await fileResponse.blob();
+
+            return [
+              mime,
+              buffer,
+              new URL(input.url).pathname.split("/").pop() ||
+                `${input.id}-${createId()}`,
+            ] as const;
           } else {
             const [header, data] = input.url.split(",");
 
@@ -730,12 +744,15 @@ export const draftRouter = {
               header.match(/:(.*?);/)?.[1] || "application/octet-stream";
             const buffer = Buffer.from(data, "base64");
 
-            const file = new File([buffer], `${input.id}-${createId()}`, {
-              type: mime,
-            });
-            return (await utapi.uploadFiles([file]))[0];
+            return [mime, buffer, `${input.id}-${createId()}`] as const;
           }
         })();
+
+        const file = new File([buffer], fileName, {
+          type: mime,
+        });
+
+        const uploadResult = (await utapi.uploadFiles([file]))[0];
 
         if (uploadResult.error)
           throw new TRPCError({
