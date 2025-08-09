@@ -324,6 +324,7 @@ const LinkFloatingToolbar = () => {
           block: true,
         })
       : api.node({
+          at: editor.selection?.focus.path,
           match: { type: editor.getType(KEYS.link) },
         });
 
