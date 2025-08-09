@@ -7,7 +7,7 @@ import { BASE_RULES } from "./editor-utils";
 
 const BASE_SHORTCUT_KEYS = [Key.Mod, Key.Alt];
 
-const plateHeading = cva("relative text-zinc-800", {
+const plateHeading = cva("relative text-zinc-800 font-serif", {
   variants: {
     variant: {
       h1: "font-semibold text-2xl my-1",
