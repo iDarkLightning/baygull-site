@@ -8,6 +8,7 @@ export const StructureKit = [
       targetPlugins: [...KEYS.heading, KEYS.p, KEYS.img],
     },
   }),
+  TrailingBlockPlugin,
   TextAlignPlugin.configure({
     inject: {
       nodeProps: {

@@ -1,16 +1,13 @@
 // app/router.tsx
-import { createRouter as createTanStackRouter } from "@tanstack/react-router";
-import { routeTree } from "./routeTree.gen";
-import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { QueryClient } from "@tanstack/react-query";
-import superjson from "superjson";
+import { createRouter as createTanStackRouter } from "@tanstack/react-router";
+import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
-import type { TRPCRouter } from "./lib/trpc/routers/root-router";
-import {
-  createTRPCOptionsProxy,
-  type TRPCOptionsProxy,
-} from "@trpc/tanstack-react-query";
+import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
+import superjson from "superjson";
 import { TRPCProvider } from "./lib/trpc/client";
+import type { TRPCRouter } from "./lib/trpc/routers/root-router";
+import { routeTree } from "./routeTree.gen";
 
 export function createRouter() {
   const queryClient = new QueryClient({

@@ -8,4 +8,5 @@ import type { UploadRouter } from ".";
 
 export const UploadButton = generateUploadButton<UploadRouter>();
 export const UploadDropzone = generateUploadDropzone<UploadRouter>();
-export const { useUploadThing } = generateReactHelpers<UploadRouter>();
+export const { useUploadThing, uploadFiles } =
+  generateReactHelpers<UploadRouter>();

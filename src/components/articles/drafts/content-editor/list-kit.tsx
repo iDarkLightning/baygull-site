@@ -12,7 +12,11 @@ const List: React.FC<PlateElementProps> = (props: PlateElementProps) => {
   const List = isOrderedList(props.element) ? "ol" : "ul";
 
   return (
-    <List className="relative" style={{ listStyleType }} start={listStart}>
+    <List
+      className="relative"
+      style={{ listStyleType: listStyleType || "disc" }}
+      start={listStart}
+    >
       <li>{props.children}</li>
     </List>
   );
@@ -35,6 +39,47 @@ export const ListKit = [
       },
       break: {
         empty: "default",
+      },
+    },
+    parsers: {
+      html: {
+        deserializer: {
+          parse: ({ editor, element, getOptions }) => {
+            const resolveIndent = () => {
+              // copy pasting from google docs uses aria-level
+              const ariaLevel = element.getAttribute("aria-level");
+              if (ariaLevel) return Number(ariaLevel);
+
+              const classList = element.parentElement?.classList;
+              if (!classList) return 0;
+
+              return Number(classList[0].charAt(classList[0].length - 1)) + 1;
+            };
+
+            const resolveListStyleType = () => {
+              const listStyleType = getOptions().getListStyleType?.(element);
+              if (listStyleType) return listStyleType;
+
+              if (element.parentElement?.tagName === "OL") {
+                const styleTypes = ["decimal", "lower-alpha", "lower-roman"];
+                const indent = resolveIndent();
+
+                return styleTypes[(indent - 1) % 3];
+              } else {
+                const styleTypes = ["disc", "circle", "square"];
+                const indent = resolveIndent();
+
+                return styleTypes[(indent - 1) % 3];
+              }
+            };
+
+            return {
+              indent: resolveIndent(),
+              listStyleType: resolveListStyleType(),
+              type: editor.getType(KEYS.p),
+            };
+          },
+        },
       },
     },
     render: {

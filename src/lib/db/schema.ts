@@ -5,6 +5,7 @@ import {
   text,
   integer,
   primaryKey,
+  blob,
 } from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable("user", {
@@ -146,6 +147,8 @@ export const draftDefaultContent = sqliteTable("draft_default_content", {
     .references(() => article.id),
 
   description: text("description").notNull(),
+
+  content: text("content", { mode: "json" }),
 
   editingUrl: text("editingUrl").notNull(),
   originalUrl: text("originalUrl").notNull(),

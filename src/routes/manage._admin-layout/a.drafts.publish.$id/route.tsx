@@ -1,4 +1,3 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
   Link,
@@ -7,7 +6,6 @@ import {
   useMatchRoute,
 } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { Button as AriaButton, Menu, MenuTrigger } from "react-aria-components";
 import {
   ChevronDownIcon,
@@ -17,7 +15,6 @@ import {
 import { MenuItemLink } from "~/components/ui/menu";
 import { ModalPopover } from "~/components/ui/modal-popover";
 import { useDraft } from "~/lib/articles/use-draft";
-import { useTRPC } from "~/lib/trpc/client";
 
 const tabs = [
   {
@@ -68,7 +65,7 @@ function RouteComponent() {
             <div>
               <div className="flex items-center gap-3">
                 <h1 className="text-lg font-medium">{data.title}</h1>
-                {isUpdating() && (
+                {isUpdating && (
                   <div className="flex items-center gap-0.5 text-zinc-300 mt-0.5">
                     <RefreshIcon />
                     <p className="text-xs leading-4  fade-in fade-out">

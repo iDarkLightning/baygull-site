@@ -11,6 +11,5 @@ export const ParagraphKit = [
         className: plateParagraph(),
       },
     },
-    rules: BASE_RULES,
   }),
 ];

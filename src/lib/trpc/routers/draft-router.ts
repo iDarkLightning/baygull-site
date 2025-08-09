@@ -128,6 +128,15 @@ export const draftRouter = {
               : ({} as Record<string, never>)
             : ({} as Record<string, never>);
 
+        console.log({
+          id: article.id,
+          type: article.type,
+          status: article.status,
+          title: article.title,
+          createdAt: article.createdAt,
+          ...statusMeta,
+          ...content,
+        });
         return {
           ...parseArticle(
             {
@@ -654,6 +663,88 @@ export const draftRouter = {
           await setUpdatedTime(tx, input.id);
         });
       }
+    }),
+
+  updateDraftDefaultContent: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        content: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(draftDefaultContent)
+          .set({
+            content: input.content,
+          })
+          .where(eq(draftDefaultContent.articleId, input.id));
+
+        await setUpdatedTime(tx, input.id);
+      });
+    }),
+
+  getDraftDefaultContentHTML: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const draftContent = await ctx.db.query.draftDefaultContent.findFirst({
+        where: eq(draftDefaultContent.articleId, input.id),
+      });
+
+      if (!draftContent) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const drive = createDriveClient();
+
+      const fileId = new URL(draftContent.editingUrl).pathname.split("/").at(3);
+
+      const response = await drive.files.export({
+        mimeType: "text/html",
+        fileId,
+      });
+
+      return response.data as string;
+    }),
+
+  uploadExternalContentImage: adminProcedure
+    .input(
+      z.object({
+        id: z.string().optional(),
+        url: z.string().url(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      if (new URL(input.url).host.endsWith("ufs.sh"))
+        return { ufsUrl: input.url, key: "TEST_UFS_KEY" };
+
+      // const imgBlob = await
+      const utapi = new UTApi();
+      const uploadResult = await utapi.uploadFilesFromUrl(input.url);
+
+      if (uploadResult.error)
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          cause: uploadResult.error.code,
+          message: uploadResult.error.message,
+        });
+
+      return uploadResult.data;
+    }),
+
+  deleteContentImage: adminProcedure
+    .input(
+      z.object({
+        // id: z.string().optional(),
+        ufsKey: z.string(),
+      })
+    )
+    .mutation(async ({ input }) => {
+      const utapi = new UTApi();
+      return utapi.deleteFiles([input.ufsKey]);
     }),
 
   getAuthorList: adminProcedure.query(async ({ ctx }) => {

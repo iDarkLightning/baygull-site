@@ -1,4 +1,8 @@
-import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useIsMutating,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { useBlocker, useParams } from "@tanstack/react-router";
 import { useCallback, useMemo } from "react";
 import { useTRPC } from "../trpc/client";
@@ -25,25 +29,31 @@ export const useDraft = () => {
     })
   );
 
-  const isUpdating = useCallback(
-    () =>
-      queryClient.isMutating({
-        predicate: (mut) =>
-          (mut.state.variables as { id: string }).id === data.id,
-      }) > 0,
-    [queryClient, data.id]
-  );
+  // const isUpdating = useCallback(
+  //   () =>
+  //     queryClient.isMutating({
+  //       predicate: (mut) =>
+  //         (mut.state.variables as { id: string }).id === data.id,
+  //     }) > 0,
+  //   [queryClient, data.id]
+  // );
+
+  const isMutating = useIsMutating({
+    predicate: (mut) => (mut.state.variables as { id: string }).id === data.id,
+  });
+
+  const isUpdating = isMutating > 0;
 
   useBlocker({
     shouldBlockFn: () => {
-      if (!isUpdating()) return false;
+      if (!isUpdating) return false;
 
       const shouldLeave = confirm(
         "Are you sure you want to leave? Changes you have made might not have been saved!"
       );
       return !shouldLeave;
     },
-    enableBeforeUnload: isUpdating(),
+    enableBeforeUnload: isUpdating,
   });
 
   const cancelQueries = useCallback(async () => {

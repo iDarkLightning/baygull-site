@@ -11,4 +11,3 @@ export const ServerRoute = createServerFileRoute("/api/uploadthing").methods({
   GET: handlers,
   POST: handlers,
 });
- 

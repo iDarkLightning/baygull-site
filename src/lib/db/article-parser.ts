@@ -85,6 +85,7 @@ const draftMetaSchema = z.object({
 const draftDefaultContentSchema = defaultContentSchema.extend({
   type: z.literal("default"),
 
+  content: z.string().nullable(),
   description: z.string(),
   editingUrl: z.string().url().or(z.literal("")),
   originalUrl: z.string().url().or(z.literal("")),
