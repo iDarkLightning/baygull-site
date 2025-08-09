@@ -1,6 +1,6 @@
+import { TextAlignPlugin } from "@platejs/basic-styles/react";
 import { IndentPlugin } from "@platejs/indent/react";
-import { LineHeightPlugin, TextAlignPlugin } from "@platejs/basic-styles/react";
-import { KEYS, TrailingBlockPlugin } from "platejs";
+import { ExitBreakPlugin, KEYS, TrailingBlockPlugin } from "platejs";
 
 export const StructureKit = [
   IndentPlugin.configure({
@@ -9,6 +9,12 @@ export const StructureKit = [
     },
   }),
   TrailingBlockPlugin,
+  ExitBreakPlugin.configure({
+    shortcuts: {
+      insert: { keys: "mod+enter" },
+      insertBefore: { keys: "mod+shift+enter" },
+    },
+  }),
   TextAlignPlugin.configure({
     inject: {
       nodeProps: {
