@@ -44,7 +44,7 @@ export function createRouter() {
   const router = routerWithQueryClient(
     createTanStackRouter({
       routeTree,
-      context: { queryClient, trpc: serverHelpers },
+      context: { queryClient, trpc: serverHelpers, trpcClient },
       defaultPreload: "intent",
       Wrap: (props) => (
         <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>

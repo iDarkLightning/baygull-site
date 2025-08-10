@@ -14,10 +14,12 @@ import { type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import { type TRPCRouter } from "~/lib/trpc/routers/root-router";
 import globalCss from "~/styles/global.css?url";
 import { RouterProvider } from "react-aria-components";
+import type { TRPCClient } from "@trpc/client";
 
 export const Route = createRootRouteWithContext<{
   queryClient: QueryClient;
   trpc: TRPCOptionsProxy<TRPCRouter>;
+  trpcClient: TRPCClient<TRPCRouter>;
 }>()({
   head: () => ({
     meta: [
