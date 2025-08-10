@@ -1,6 +1,8 @@
 import {
-  PlaceholderPlugin,
+  FloatingMediaStore,
   ImagePlugin as PlateImagePlugin,
+  useFloatingMediaValue,
+  useImagePreviewValue,
 } from "@platejs/media/react";
 
 import * as React from "react";
@@ -9,15 +11,81 @@ import type { TElement, TImageElement, TText } from "platejs";
 import type { PlateElementProps } from "platejs/react";
 
 import { Image, useMediaState } from "@platejs/media/react";
-import { PlateElement, useEditorPlugin, withHOC } from "platejs/react";
+import {
+  PlateElement,
+  useEditorRef,
+  useEditorSelector,
+  useElement,
+  useFocusedLast,
+  useReadOnly,
+  useRemoveNodeButton,
+} from "platejs/react";
 import { cn } from "~/lib/cn";
 
-import { PlaceholderProvider, updateUploadHistory } from "@platejs/media/react";
-import type { TPlaceholderElement } from "platejs";
+import {
+  CaptionPlugin,
+  useCaptionTextarea,
+  useCaptionTextareaState,
+} from "@platejs/caption/react";
 import { KEYS, nanoid } from "platejs";
-import { createTRPCClient } from "~/lib/trpc/client";
+import { createTRPCClient, useTRPC } from "~/lib/trpc/client";
 import { DraftStorePlugin } from "./draft-store";
-import { useUploadFile } from "./use-upload-file";
+
+import {
+  Caption as CaptionPrimitive,
+  CaptionTextarea as CaptionTextareaPrimitive,
+  useCaptionButton,
+  useCaptionButtonState,
+} from "@platejs/caption/react";
+import { TextArea } from "react-aria-components";
+import { Button } from "~/components/ui/button";
+import { TextIcon, TrashIcon } from "~/components/ui/icons";
+import { useMutation } from "@tanstack/react-query";
+import { useDebouncedCallback } from "use-debounce";
+
+export function Caption({
+  className,
+  ...props
+}: React.ComponentProps<typeof CaptionPrimitive>) {
+  return <CaptionPrimitive {...props} className="mr-auto" />;
+}
+
+export function CaptionTextarea(
+  props: React.ComponentProps<typeof CaptionTextareaPrimitive>
+) {
+  const element = useElement<TCustomImage>();
+
+  const state = useCaptionTextareaState();
+  const control = useCaptionTextarea(state);
+
+  const trpc = useTRPC();
+  const { mutate } = useMutation(
+    trpc.article.draft.updateContentImage.mutationOptions()
+  );
+
+  const updateContentImage = useDebouncedCallback(mutate, 300);
+
+  return (
+    <TextArea
+      {...control.props}
+      ref={control.ref}
+      onChange={(e) => {
+        control.props.onChange?.(e);
+
+        updateContentImage({
+          mediaId: element.mediaId,
+          caption: e.target.value,
+        });
+      }}
+      className={cn(
+        "mt-2 text-xs text-zinc-500 w-full resize-none border-none bg-inherit p-0 font-serif",
+        "focus:outline-none focus:[&::placeholder]:opacity-0",
+        "print:placeholder:text-transparent",
+        props.className
+      )}
+    />
+  );
+}
 
 const isImageNode = (
   node: TElement | TText,
@@ -29,9 +97,11 @@ type TCustomImage = {
   ufsId: string;
 } & TImageElement;
 
-const ImagePlugin = PlateImagePlugin.extend<{
-  ufsKey: string;
-}>({}).overrideEditor(
+const ImagePlugin = PlateImagePlugin.extend({
+  options: {
+    imageDataMap: new Map<string, string>(),
+  },
+}).overrideEditor(
   ({ editor, api, tf: { insertNodes, removeNodes, setNodes } }) => {
     return {
       transforms: {
@@ -47,8 +117,9 @@ const ImagePlugin = PlateImagePlugin.extend<{
           const [node] = nodeEntry;
 
           const trpcClient = createTRPCClient();
-          trpcClient.article.draft.deleteContentImage.mutate({
+          trpcClient.article.draft.updateContentImage.mutate({
             mediaId: node.mediaId,
+            markForDeletion: true,
           });
 
           removeNodes(options);
@@ -125,130 +196,99 @@ const ImagePlugin = PlateImagePlugin.extend<{
   }
 );
 
-const CONTENT: Record<
-  string,
-  {
-    accept: string[];
-    content: React.ReactNode;
-    // icon: React.ReactNode;
-  }
-> = {
-  [KEYS.img]: {
-    accept: ["image/*"],
-    content: "Add an image",
-    // icon: <ImageIcon />,
-  },
-};
-
-export const PlaceholderElement = withHOC(
-  PlaceholderProvider,
-  function PlaceholderElement(props: PlateElementProps<TPlaceholderElement>) {
-    const { editor, element } = props;
-    const { api } = useEditorPlugin(PlaceholderPlugin);
-
-    const { isUploading, progress, uploadedFile, uploadFile, uploadingFile } =
-      useUploadFile();
-
-    const loading = isUploading && uploadingFile;
-    const currentContent = CONTENT[element.mediaType];
-    const isImage = element.mediaType === KEYS.img;
-    const imageRef = React.useRef<HTMLImageElement>(null);
-
-    // const { openFilePicker } = useFilePicker({
-    //   accept: currentContent.accept,
-    //   multiple: true,
-    //   onFilesSelected: ({ plainFiles: updatedFiles }) => {
-    //     const firstFile = updatedFiles[0];
-    //     const restFiles = updatedFiles.slice(1);
-    //     replaceCurrentPlaceholder(firstFile);
-    //     if (restFiles.length > 0) {
-    //       editor.getTransforms(PlaceholderPlugin).insert.media(restFiles);
-    //     }
-    //   },
-    // });
-
-    const replaceCurrentPlaceholder = React.useCallback(
-      (file: File) => {
-        void uploadFile(file);
-        api.placeholder.addUploadingFile(element.id as string, file);
-      },
-      [api.placeholder, element.id, uploadFile]
-    );
-
-    React.useEffect(() => {
-      if (!uploadedFile) return;
-      const path = editor.api.findPath(element);
-
-      editor.tf.withoutSaving(() => {
-        editor.tf.removeNodes({ at: path });
-
-        const node = {
-          children: [{ text: "" }],
-          initialHeight: imageRef.current?.height,
-          initialWidth: imageRef.current?.width,
-          isUpload: true,
-          name: element.mediaType === KEYS.file ? uploadedFile.name : "",
-          placeholderId: element.id as string,
-          type: element.mediaType!,
-          url: uploadedFile.ufsUrl,
-        };
-
-        editor.tf.insertNodes(node, { at: path });
-        updateUploadHistory(editor, node);
-      });
-
-      api.placeholder.removeUploadingFile(element.id as string);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [uploadedFile, element.id]);
-
-    // React dev mode will call React.useEffect twice
-    const isReplaced = React.useRef(false);
-
-    /** Paste and drop */
-    React.useEffect(() => {
-      if (isReplaced.current) return;
-      isReplaced.current = true;
-
-      const currentFiles = api.placeholder.getUploadingFile(
-        element.id as string
-      );
-
-      if (!currentFiles) return;
-      replaceCurrentPlaceholder(currentFiles);
-
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [isReplaced]);
-
-    return (
-      <PlateElement className="my-1" {...props}>
-        {/* {isImage && loading && (
-          <ImageProgress
-            file={uploadingFile}
-            imageRef={imageRef}
-            progress={progress}
-          />
-        )} */}
-        {props.children}
-        {JSON.stringify(isUploading)}
-      </PlateElement>
-    );
-  }
-);
-
 export const ImageElement = (props: PlateElementProps<TImageElement>) => {
   const { focused, selected } = useMediaState();
 
+  const editor = useEditorRef();
+  const readOnly = useReadOnly();
+  const isFocusedLast = useFocusedLast();
+
+  const selectionCollapsed = useEditorSelector(
+    (editor) => !editor.api.isExpanded(),
+    []
+  );
+
+  const isImagePreviewOpen = useImagePreviewValue("isOpen", editor.id);
+
+  const isOpen =
+    isFocusedLast &&
+    !readOnly &&
+    selected &&
+    selectionCollapsed &&
+    !isImagePreviewOpen;
+
+  const isEditing = useFloatingMediaValue("isEditing");
+
+  React.useEffect(() => {
+    if (!isOpen && isEditing) {
+      FloatingMediaStore.set("isEditing", false);
+    }
+  }, [isOpen]);
+
+  const element = useElement<TCustomImage>();
+
+  const captionBtnState = useCaptionButtonState();
+
+  const captionBtnProps = useCaptionButton(captionBtnState);
+  const removeBtnProps = useRemoveNodeButton({ element });
+
   return (
     <PlateElement {...props} className="py-1">
-      <figure className="group relative m-0" contentEditable={false}>
-        <Image
-          referrerPolicy="no-referrer"
-          className={cn(
-            "block cursor-pointer object-cover left-0",
-            focused && selected && "ring-2 ring-sky-600 ring-offset-0"
-          )}
-          alt={props.attributes.alt as string | undefined}
-        />
+      <figure className="group relative m-0 mx-auto" contentEditable={false}>
+        <div className="relative w-fit">
+          <Image
+            referrerPolicy="no-referrer"
+            className={cn(
+              "block  object-cover left-0 rounded-md",
+              focused && selected && "ring-2 ring-sky-800 ring-offset-0"
+            )}
+            alt={props.attributes.alt as string | undefined}
+          />
+          <div
+            className={cn(
+              "absolute right-0 top-0 h-fit w-fit m-4 p-0.5 bg-zinc-50/70 border-[0.0125rem] border-zinc-300 rounded-md backdrop-blur-lg hidden group-hover:flex items-center gap-0.5 animate-in fade-in-0 duration-200 ease-in-out",
+              isOpen && "flex"
+            )}
+          >
+            <Button
+              isCircular={false}
+              variant="ghost"
+              size="icon"
+              onPress={captionBtnProps.props.onClick}
+            >
+              <TextIcon />
+            </Button>
+            <Button
+              isCircular={false}
+              variant="ghost"
+              size="icon"
+              onPress={() => {
+                const nodeEntry = editor.api.node(element);
+                if (!nodeEntry) return;
+
+                const [_, nodePath] = nodeEntry;
+                removeBtnProps.props.onClick();
+
+                editor.tf.focus({
+                  at: nodePath,
+                });
+              }}
+            >
+              <TrashIcon />
+            </Button>
+          </div>
+        </div>
+
+        <div className="col-span-full">
+          <Caption>
+            <CaptionTextarea
+              readOnly={readOnly}
+              onFocus={(e) => {
+                e.preventDefault();
+              }}
+            />
+          </Caption>
+        </div>
       </figure>
 
       <div>{props.children}</div>
@@ -258,12 +298,20 @@ export const ImageElement = (props: PlateElementProps<TImageElement>) => {
 
 export const MediaKit = [
   ImagePlugin.configure({
+    rules: {
+      break: {
+        default: "exit",
+      },
+    },
     render: {
       node: ImageElement,
     },
   }),
-  // PlaceholderPlugin.configure({
-  //   options: { disableEmptyPlaceholder: true },
-  //   render: { node: PlaceholderElement },
-  // }),
+  CaptionPlugin.configure({
+    options: {
+      query: {
+        allow: [KEYS.img],
+      },
+    },
+  }),
 ];

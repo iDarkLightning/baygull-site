@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Value } from "platejs";
 import {
   createPlatePlugin,
@@ -20,6 +20,8 @@ import { MediaKit } from "./media-kit";
 import { ParagraphKit } from "./paragraph-kit";
 import { StructureKit } from "./structure-kit";
 import { DraftStorePlugin } from "./draft-store";
+import { useEffect } from "react";
+import { useMatchRoute, useRouter } from "@tanstack/react-router";
 
 /**
  *
@@ -29,7 +31,7 @@ import { DraftStorePlugin } from "./draft-store";
  */
 
 export default function DraftContentEditor() {
-  const { data, isUpdating } = useDraft();
+  const { data, isUpdating, queryKey } = useDraft();
 
   const editor = usePlateEditor({
     plugins: [
@@ -44,15 +46,19 @@ export default function DraftContentEditor() {
       ...AutoFormatKit,
       ...MediaKit,
     ],
-    value: data.type === "default" ? JSON.parse(data.content ?? "") : [],
+    value: data.type === "default" ? JSON.parse(data.content ?? "[]") : [],
     onReady: ({ editor }) => {
       editor.setOption(DraftStorePlugin, "draftId", data.id);
     },
   });
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const updateDraftDefaultContent = useMutation(
-    trpc.article.draft.updateDraftDefaultContent.mutationOptions()
+    trpc.article.draft.updateDraftDefaultContent.mutationOptions({
+      onSettled: () => queryClient.invalidateQueries({ queryKey }),
+    })
   );
   const getHTMLData = useMutation(
     trpc.article.draft.getDraftDefaultContentHTML.mutationOptions()
@@ -65,6 +71,7 @@ export default function DraftContentEditor() {
 
       editor.tf.setValue(body.innerHTML);
     },
+    onSettled: () => queryClient.invalidateQueries({ queryKey }),
   });
 
   const debounce = useDebouncedCallback((value: Value) => {
@@ -74,7 +81,7 @@ export default function DraftContentEditor() {
       id: data.id,
       content: JSON.stringify(value),
     });
-  }, 100);
+  }, 300);
 
   return (
     <div>
@@ -88,14 +95,15 @@ export default function DraftContentEditor() {
       >
         Sync To Docs
       </Button>
+
       <Plate
         editor={editor}
-        onValueChange={({ value }) => {
+        onValueChange={({ editor, value }) => {
           debounce(value);
         }}
       >
         <PlateContent
-          className="focus-visible:outline-none h-full w-3/4 shadow-xs p-8 rounded-md border-[0.0125rem] border-zinc-300/70"
+          className="focus-visible:outline-none h-full w-full xl:w-3/4 p-8 rounded-md mx-auto"
           placeholder="Type your amazing content here..."
         />
       </Plate>

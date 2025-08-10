@@ -282,6 +282,7 @@ export const draftRouter = {
             input.media.map((media) => ({
               articleId,
               mimeType: media.mimeType,
+              caption: "",
               intent:
                 input.type === "graphic"
                   ? ("content_img" as const)
@@ -635,6 +636,7 @@ export const draftRouter = {
             .values({
               intent: "cover_img",
               articleId: input.id,
+              caption: "",
               fileName: input.data.fileName,
               mimeType: input.data.mimeType,
               url: input.data.url,
@@ -716,7 +718,15 @@ export const draftRouter = {
         .limit(1);
 
       if (media.length > 0) {
-        return media[0];
+        const [entry] = media;
+        await ctx.db
+          .update(articleMedia)
+          .set({
+            markedForDeletion: null,
+          })
+          .where(eq(articleMedia.id, entry.id));
+
+        return entry;
       } else {
         const utapi = new UTApi();
 
@@ -766,6 +776,7 @@ export const draftRouter = {
           .values({
             articleId: input.id,
             intent: "content_img",
+            caption: "",
             fileName: uploadResult.data.name,
             mimeType: uploadResult.data.type,
             size: uploadResult.data.size,
@@ -778,10 +789,12 @@ export const draftRouter = {
       }
     }),
 
-  deleteContentImage: adminProcedure
+  updateContentImage: adminProcedure
     .input(
       z.object({
         mediaId: z.string(),
+        caption: z.string().optional(),
+        markForDeletion: z.boolean().optional(),
       })
     )
     .mutation(async ({ ctx, input }) => {
@@ -793,11 +806,28 @@ export const draftRouter = {
 
       if (!media) throw new TRPCError({ code: "NOT_FOUND" });
 
-      await ctx.db.delete(articleMedia).where(eq(articleMedia.id, media.id));
-
-      const utapi = new UTApi();
-      return utapi.deleteFiles([media.ufsId]);
+      await ctx.db
+        .update(articleMedia)
+        .set({
+          ...(input.caption ? { caption: input.caption } : {}),
+          ...(input.markForDeletion
+            ? { markedForDeletion: input.markForDeletion ? ctx.user.id : null }
+            : {}),
+        })
+        .where(eq(articleMedia.id, media.id));
     }),
+
+  commitContentDeletion: adminProcedure.mutation(async ({ ctx }) => {
+    const media = await ctx.db
+      .delete(articleMedia)
+      .where(eq(articleMedia.markedForDeletion, ctx.user.id))
+      .returning();
+
+    const utapi = new UTApi();
+    utapi.deleteFiles(media.map((m) => m.ufsId));
+
+    return media.map((m) => m.id);
+  }),
 
   getAuthorList: adminProcedure.query(async ({ ctx }) => {
     const queryResult = await ctx.db.query.usersToArticles.findMany({
