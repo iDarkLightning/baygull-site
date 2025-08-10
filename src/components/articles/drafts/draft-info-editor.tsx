@@ -62,7 +62,7 @@ const DataDisplay: React.FC<
   }>
 > = (props) => {
   return (
-    <div className="bg-zinc-50 px-4 py-3 rounded-xl border-[0.0125rem] border-zinc-300/70 shadow-xs">
+    <div className="bg-zinc-50 px-4 py-3 rounded-xl border-[0.0125rem] border-zinc-300/70 shadow-xs grow lg:grow-0">
       <div className="flex items-center justify-between text-zinc-800 mb-2">
         <h3 className="font-medium text-xs">{props.label}</h3>
         <InfoIcon />
@@ -570,7 +570,7 @@ const InfoForm: React.FC = () => {
   );
 
   return (
-    <div className="flex-1/4 flex flex-col gap-4 max-w-2xl">
+    <div className="flex-1/4 flex flex-col gap-4 lg:max-w-2xl">
       <form.AppField
         name="type"
         validators={{
@@ -885,9 +885,9 @@ export const DraftInfoEditor = () => {
   const { data } = useDraft();
 
   return (
-    <div className="flex flex-col-reverse gap-4 md:flex-row md:gap-8">
+    <div className="flex flex-col-reverse gap-4 lg:flex-row lg:gap-8">
       <InfoForm />
-      <div className="flex-[1] flex gap-4 overflow-x-auto md:overflow-x-visible md:flex-col">
+      <div className="flex-[1] flex gap-4 overflow-x-auto lg:overflow-x-visible lg:flex-col">
         <DataDisplay label="Properties">
           <div className="flex text-xs gap-8 justify-between my-1 items-center">
             <p className="font-medium text-zinc-500">Type</p>
