@@ -20,7 +20,7 @@ import { cn } from "~/lib/cn";
 const MODAL_SIZES = {
   sm: "max-w-sm",
   base: "max-w-md",
-  md: "max-w-3xl",
+  md: "max-w-xl",
   screen: "max-w-7xl",
 } as const;
 
@@ -83,7 +83,7 @@ export const Modal: React.FC<ModalProps> = ({
 type ModalBodyProps = Omit<ComponentProps<"div">, "className">;
 
 export const ModalBody: React.FC<ModalBodyProps> = (props) => {
-  return <div {...props} className="flex flex-col gap-4 px-10 py-2" />;
+  return <div {...props} className="flex flex-col gap-1 px-10 pt-2" />;
 };
 
 ModalBody.displayName = "ModalBody";
@@ -103,10 +103,13 @@ export const ModalHeader: React.FC<ModalHeaderProps> = ({
 
 ModalHeader.displayName = "ModalFooter";
 
-type ModalFooterProps = Omit<ComponentProps<"div">, "className">;
+type ModalFooterProps = Omit<ComponentProps<"div">, "className"> & {
+  showCloseButton?: boolean;
+};
 
 export const ModalFooter: React.FC<ModalFooterProps> = ({
   children,
+  showCloseButton = true,
   ...props
 }) => {
   const state = useContext(OverlayTriggerStateContext);
@@ -116,9 +119,11 @@ export const ModalFooter: React.FC<ModalFooterProps> = ({
       {...props}
       className="flex w-full justify-end gap-2 border-t-[0.0125rem] border-neutral-300/70 px-10 py-4"
     >
-      <Button onPress={() => state?.close()} variant="ghost">
-        Close
-      </Button>
+      {showCloseButton && (
+        <Button onPress={() => state?.close()} variant="ghost">
+          Close
+        </Button>
+      )}
 
       {children}
     </div>
