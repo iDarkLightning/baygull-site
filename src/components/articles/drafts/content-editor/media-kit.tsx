@@ -27,7 +27,7 @@ import {
   useCaptionTextarea,
   useCaptionTextareaState,
 } from "@platejs/caption/react";
-import { KEYS, nanoid } from "platejs";
+import { KEYS } from "platejs";
 import { createTRPCClient, useTRPC } from "~/lib/trpc/client";
 import { DraftStorePlugin } from "./draft-store";
 
@@ -38,11 +38,11 @@ import {
   useCaptionButtonState,
 } from "@platejs/caption/react";
 import { useMutation } from "@tanstack/react-query";
+import { useEffect } from "react";
 import { TextArea } from "react-aria-components";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "~/components/ui/button";
 import { TextIcon, TrashIcon } from "~/components/ui/icons";
-import { useEffect } from "react";
 
 export function Caption({
   className,
