@@ -16,7 +16,12 @@ import {
 } from "@platejs/link/react";
 import { ListStyleType, someList, toggleList } from "@platejs/list";
 import { insertImageFromFiles } from "@platejs/media";
-import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { KEYS, TElement } from "platejs";
 import { useMemo, useState } from "react";
@@ -59,6 +64,14 @@ import {
   UnderlineIcon,
 } from "./editor-icons";
 import { getBlockType, setBlockType } from "./editor-transforms";
+import {
+  Modal,
+  ModalBody,
+  ModalDescription,
+  ModalFooter,
+  ModalHeader,
+  ModalHeading,
+} from "~/components/ui/modal";
 
 export function MarkToolbarButton({
   clear,
@@ -406,14 +419,31 @@ const DocSync = () => {
   const draft = useDraft();
 
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
+
   const docQuery = useSuspenseQuery(
     trpc.article.draft.getEditingDoc.queryOptions({
       id: draft.data.id,
     })
   );
 
+  const [isOpen, setIsOpen] = useState(false);
+  const [isSelected, setIsSelected] = useState(draft.data.isSynced);
+
   const updateSync = useMutation(
     trpc.article.draft.updateDocSync.mutationOptions({
+      onMutate: (newSync) => {
+        if (draft.data.type !== "default") return;
+
+        setIsSelected(newSync.isSynced);
+        return draft.getSnapshot();
+      },
+      onError: (_err, _nS, context) => {
+        if (!context) return;
+
+        queryClient.setQueryData(draft.queryKey, context);
+        setIsSelected(context.isSynced);
+      },
       onSettled: (data) => {
         if (data && data.isSynced) {
           const { body } = new DOMParser().parseFromString(
@@ -435,65 +465,116 @@ const DocSync = () => {
     const syncDisabledAt = new Date(draft.data.syncDisabledAt);
     const modifiedTime = new Date(docQuery.data.modifiedTime);
 
-    console.log(
-      syncDisabledAt.toLocaleTimeString(),
-      modifiedTime.toLocaleTimeString()
-    );
-
     return modifiedTime.getTime() > syncDisabledAt.getTime();
   }, [draft.data, docQuery.data]);
 
   return (
-    <div className="w-full justify-between flex items-center gap-1">
-      <motion.div
-        layout
-        transition={{
-          type: "spring",
-          duration: 0.35,
-          bounce: 0.3,
-        }}
-        className="flex items-center gap-2"
-      >
-        <Button
-          leadingVisual={<GoogleDocsIcon />}
-          variant="ghost"
-          isCircular={false}
+    <>
+      <div className="w-full justify-between flex items-center gap-1">
+        <motion.div
+          layout
+          transition={{
+            type: "spring",
+            duration: 0.35,
+            bounce: 0.3,
+          }}
+          className="flex items-center gap-2"
         >
-          <div className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}>
-            {docQuery.data.name}
-          </div>
-        </Button>
+          <Button
+            leadingVisual={<GoogleDocsIcon />}
+            variant="ghost"
+            isCircular={false}
+          >
+            <div
+              className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}
+            >
+              {docQuery.data.name}
+            </div>
+          </Button>
 
-        {shouldEnableSync && (
-          <div className="flex items-center gap-1 text-red-700">
-            <TooltipTrigger>
-              <Button variant="ghost" size="icon" isCircular={false}>
-                <InfoIcon />
+          {shouldEnableSync && (
+            <div className="flex items-center gap-1 text-red-700">
+              <TooltipTrigger>
+                <Button variant="ghost" size="icon" isCircular={false}>
+                  <InfoIcon />
+                </Button>
+                <Tooltip placement="bottom">
+                  <p className="text-red-700 text-center">
+                    There have been updates to the Google Doc since you last
+                    synced! <br />
+                    Review the changes or consider re-enabling sync!
+                  </p>
+                </Tooltip>
+              </TooltipTrigger>
+            </div>
+          )}
+        </motion.div>
+
+        <Switch
+          isSelected={isSelected}
+          onChange={(value) => {
+            if (value) {
+              return setIsOpen(true);
+            }
+
+            updateSync.mutate({
+              id: draft.data.id,
+              isSynced: value,
+            });
+          }}
+        >
+          <p className="text-xs w-max">Sync to Google Doc</p>
+        </Switch>
+      </div>
+
+      <Modal isOpen={isOpen} onOpenChange={setIsOpen}>
+        <ModalBody>
+          <ModalHeader>
+            <ModalHeading>Are you sure?</ModalHeading>
+            <ModalDescription>
+              Enabling sync will override the current editor content. This
+              operation is not reversible!
+            </ModalDescription>
+          </ModalHeader>
+        </ModalBody>
+        <ModalFooter>
+          <Button
+            onPress={() => {
+              updateSync.mutate({
+                id: draft.data.id,
+                isSynced: true,
+              });
+              setIsOpen(false);
+            }}
+          >
+            Enable Sync
+          </Button>
+        </ModalFooter>
+        {/* <div className="flex items-center justify-center flex-col px-8 py-6">
+          <div className="text-emerald-600 border-4 rounded-full p-2 flex items-center justify-center">
+            <AnimatedCheckIcon className="size-16" />
+          </div>
+          <p className="text-center font-semibold text-lg mb-1 mt-2">
+            Congratulations your article has been submitted!
+          </p>
+          <p className="text-xs text-zinc-500 text-center">
+            We look forward to reading your work. You can expect an email within
+            a week with updates about the editing process and updates on being
+            published!
+          </p>
+          <div className="mt-4 w-full flex flex-col gap-2">
+            <Link to="/">
+              <Button fullWidth>Return Home</Button>
+            </Link>
+            <Link to="/articles/submit">
+              <Button fullWidth variant="ghost">
+                Submit Another
               </Button>
-              <Tooltip placement="bottom">
-                <p className="text-red-700 text-center">
-                  There have been updates to the Google Doc since you last
-                  synced! <br />
-                  Review the changes or consider re-enabling sync!
-                </p>
-              </Tooltip>
-            </TooltipTrigger>
-          </div>
-        )}
-      </motion.div>
-
-      <Switch
-        defaultSelected={draft.data.isSynced}
-        onChange={(value) => {
-          updateSync.mutate({
-            id: draft.data.id,
-            isSynced: value,
-          });
-        }}
-      >
-        <p className="text-xs w-max">Sync to Google Doc</p>
-      </Switch>
-    </div>
+            </Link>
+          </div> */}
+        {/* </div> */}
+      </Modal>
+    </>
   );
 };
 

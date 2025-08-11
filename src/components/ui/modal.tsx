@@ -83,7 +83,7 @@ export const Modal: React.FC<ModalProps> = ({
 type ModalBodyProps = Omit<ComponentProps<"div">, "className">;
 
 export const ModalBody: React.FC<ModalBodyProps> = (props) => {
-  return <div {...props} className="flex flex-col gap-4 px-10 py-6" />;
+  return <div {...props} className="flex flex-col gap-4 px-10 py-2" />;
 };
 
 ModalBody.displayName = "ModalBody";
