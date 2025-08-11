@@ -221,7 +221,6 @@ export const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
           <Checkbox
             isSelected={isSelected}
             onChange={() => {
-              console.log(selectedKeys);
               if (selectedKeys.has(value)) {
                 const newSet = new Set(selectedKeys);
                 newSet.delete(value);

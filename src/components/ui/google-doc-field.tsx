@@ -39,8 +39,6 @@ export const GoogleDocField: React.FC<{
     !!docInfoQuery.data
   );
 
-  console.log(isInputDisplayed, props.queryEnabledByDefault);
-
   return (
     <TextField
       isInvalid={field.state.meta.errors.length > 0}

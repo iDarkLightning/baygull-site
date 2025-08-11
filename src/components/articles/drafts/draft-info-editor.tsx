@@ -668,7 +668,6 @@ const InfoForm: React.FC = () => {
                 if (validationResult.length > 0) return;
 
                 if (fieldApi.getMeta().isValid) {
-                  console.log("updating slug");
                   updateSlug.mutate({
                     id: data.id,
                     data: {
