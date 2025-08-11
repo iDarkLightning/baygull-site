@@ -46,7 +46,7 @@ import { MenuItem } from "~/components/ui/menu";
 import { ModalPopover } from "~/components/ui/modal-popover";
 import { Switch } from "~/components/ui/switch";
 import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
-import { useDraft } from "~/lib/articles/use-draft";
+import { useDefaultDraft, useDraft } from "~/lib/articles/use-draft";
 import { useTRPC } from "~/lib/trpc/client";
 import {
   AlignCenterIcon,
@@ -430,7 +430,7 @@ const steps = ["url", "sync"] as const;
 const EditDocForm: React.FC<{
   setIsSelected: (isSelected: boolean) => void;
 }> = ({ setIsSelected }) => {
-  const draft = useDraft();
+  const draft = useDefaultDraft();
   const multiStepControl = useMultiStepFormControl();
 
   const trpc = useTRPC();
@@ -439,8 +439,6 @@ const EditDocForm: React.FC<{
   const updateEditingUrl = useMutation(
     trpc.article.draft.updateEditingUrl.mutationOptions({
       onMutate: (newSync) => {
-        if (draft.data.type !== "default") return;
-
         multiStepControl.reset();
         setIsSelected(newSync.shouldSync);
 
@@ -466,7 +464,7 @@ const EditDocForm: React.FC<{
 
   const form = useAppForm({
     defaultValues: {
-      url: draft.data.type === "default" ? draft.data.editingUrl : "",
+      url: draft.data.editingUrl,
       sync: draft.data.isSynced,
     },
     onSubmit: async ({ value }) => {
@@ -627,7 +625,7 @@ const EditDocForm: React.FC<{
 };
 
 const DocSync = () => {
-  const draft = useDraft();
+  const draft = useDefaultDraft();
 
   const trpc = useTRPC();
 
@@ -645,8 +643,6 @@ const DocSync = () => {
   const updateSync = useMutation(
     trpc.article.draft.updateDocSync.mutationOptions({
       onMutate: (newSync) => {
-        if (draft.data.type !== "default") return;
-
         setIsSelected(newSync.isSynced);
         return draft.getSnapshot();
       },
@@ -748,7 +744,7 @@ const DocSync = () => {
 };
 
 const FixedToolbar = () => {
-  const draft = useDraft();
+  const draft = useDefaultDraft();
 
   return (
     <div className="sticky top-4 overflow-x-scroll bg-white/80 backdrop-blur-3xl z-10 flex gap-1 w-full xl:w-3/4 mx-auto border-[0.0125rem] border-zinc-300/70 rounded-md shadow-xs py-1.5 px-2">

@@ -8,7 +8,7 @@ import {
 } from "platejs/react";
 import { useDebouncedCallback } from "use-debounce";
 import { Button } from "~/components/ui/button";
-import { useDraft } from "~/lib/articles/use-draft";
+import { useDefaultDraft, useDraft } from "~/lib/articles/use-draft";
 import { useTRPC } from "~/lib/trpc/client";
 import { AutoFormatKit } from "./autoformat-kit";
 import { HeadingKit } from "./heading-kit";
@@ -33,11 +33,10 @@ import { draftDefaultContent } from "~/lib/db/schema";
  */
 
 export default function DraftContentEditor() {
-  const { data, isUpdating, setIsUpdating, queryKey, query } = useDraft();
+  const { data, isUpdating, setIsUpdating, queryKey, query } =
+    useDefaultDraft();
 
   const getValue = () => {
-    if (data.type !== "default") return [];
-
     if (data.isSynced) {
       const { body } = new DOMParser().parseFromString(
         data.content ?? "",
@@ -99,7 +98,7 @@ export default function DraftContentEditor() {
   return (
     <div>
       <Plate
-        readOnly={data.type === "default" ? data.isSynced : true}
+        readOnly={data.isSynced}
         editor={editor}
         onValueChange={({ editor, value }) => {
           if (data.isSynced) return;

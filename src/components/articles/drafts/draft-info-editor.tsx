@@ -272,6 +272,10 @@ const InfoForm: React.FC = () => {
               description:
                 previousData.type === "graphic" ? previousData.description : "",
               content: "",
+
+              isSynced: false,
+              syncDisabledAt: null,
+
               editingUrl: "",
               originalUrl: "",
               type: newType.type,

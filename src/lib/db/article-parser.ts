@@ -76,9 +76,6 @@ const draftMetaSchema = z.object({
 
   publishMeta: publishMetaSchema.omit({ status: true }),
 
-  isSynced: z.boolean(),
-  syncDisabledAt: date.nullable(),
-
   keyIdeas: z.string(),
   message: z.string(),
   submittedAt: date,
@@ -90,6 +87,10 @@ const draftDefaultContentSchema = defaultContentSchema.extend({
 
   content: z.string().nullable(),
   description: z.string(),
+
+  isSynced: z.boolean(),
+  syncDisabledAt: date.nullable(),
+
   editingUrl: z.string().url().or(z.literal("")),
   originalUrl: z.string().url().or(z.literal("")),
 });

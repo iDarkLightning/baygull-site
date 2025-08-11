@@ -6,6 +6,7 @@ import {
 import { useBlocker, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTRPC } from "../trpc/client";
+import { isStrictArticle } from "../db/article-parser";
 
 export const useDraft = () => {
   const trpc = useTRPC();
@@ -84,4 +85,25 @@ export const useDraft = () => {
     cancelQueries,
     getSnapshot,
   };
+};
+
+export const useDefaultDraft = () => {
+  const draft = useDraft();
+
+  if (!isStrictArticle(draft.data, "default", "draft"))
+    throw new Error("Invariant on draft type at useDefaultDraft!");
+
+  const getSnapshot = useCallback(async () => {
+    const snapshot = await draft.getSnapshot();
+    if (snapshot === undefined) return snapshot;
+
+    if (!isStrictArticle(snapshot, "default", "draft"))
+      throw new Error(
+        "Invariant on draft type at useDefaultDraft.getSnapshot!"
+      );
+
+    return snapshot;
+  }, [draft.getSnapshot]);
+
+  return { ...draft, data: draft.data, getSnapshot };
 };
