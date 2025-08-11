@@ -10,6 +10,10 @@ export const useMultiStepFormControl = () => {
   return {
     step,
     direction,
+    reset: () => {
+      setDirection(0);
+      setStep(0);
+    },
     moveForward: () => {
       setDirection(1);
       setStep((prev) => prev + 1);
@@ -131,7 +135,7 @@ export const MultiStepForm: React.FC<
 
   return (
     <motion.section
-      animate={{ height: height || "auto" }}
+      animate={{ height: height }}
       transition={{ duration: 0.3, bounce: 0.2, type: "spring" }}
     >
       <div ref={ref}>
