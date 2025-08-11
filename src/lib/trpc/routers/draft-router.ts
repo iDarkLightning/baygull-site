@@ -941,6 +941,47 @@ export const draftRouter = {
       }
     }),
 
+  updateEditingUrl: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        editingUrl: z.string().url(),
+        shouldSync: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db.transaction(async (tx) => {
+        const [result] = await tx
+          .update(draftDefaultContent)
+          .set({
+            editingUrl: input.editingUrl,
+            isSynced: input.shouldSync,
+            ...(input.shouldSync
+              ? { syncDisabledAt: null }
+              : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
+          })
+          .where(eq(draftDefaultContent.articleId, input.id))
+          .returning();
+
+        return result;
+      });
+
+      if (!result.isSynced) {
+        return { isSynced: false, content: result.content as string };
+      } else {
+        const drive = createDriveClient();
+
+        const fileId = new URL(result.editingUrl).pathname.split("/").at(3);
+
+        const response = await drive.files.export({
+          mimeType: "text/html",
+          fileId,
+        });
+
+        return { isSynced: true, content: response.data as string };
+      }
+    }),
+
   getAuthorList: adminProcedure.query(async ({ ctx }) => {
     const queryResult = await ctx.db.query.usersToArticles.findMany({
       with: {

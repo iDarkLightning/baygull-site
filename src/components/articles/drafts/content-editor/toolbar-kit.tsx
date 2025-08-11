@@ -24,9 +24,10 @@ import {
 } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { KEYS, TElement } from "platejs";
-import { useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Button as AriaButton,
+  DialogTrigger,
   FileTrigger,
   Key,
   Menu,
@@ -72,6 +73,16 @@ import {
   ModalHeader,
   ModalHeading,
 } from "~/components/ui/modal";
+import { Input } from "~/components/ui/input";
+import { useAppForm } from "~/lib/form";
+import { z } from "zod";
+import { useStore } from "@tanstack/react-form";
+import {
+  MultiStepForm,
+  useMultiStepFormControl,
+} from "~/components/ui/animated-multistep-form";
+import { Label } from "~/components/ui/label";
+import { useDisclosure } from "~/lib/hooks/use-disclosure";
 
 export function MarkToolbarButton({
   clear,
@@ -414,12 +425,211 @@ const ImageUploadButton = () => {
   );
 };
 
-const DocSync = () => {
-  const editor = useEditorRef();
+const steps = ["url", "sync"] as const;
+
+const EditDocForm: React.FC<{
+  setIsSelected: (isSelected: boolean) => void;
+}> = ({ setIsSelected }) => {
   const draft = useDraft();
+  const multiStepControl = useMultiStepFormControl();
 
   const trpc = useTRPC();
   const queryClient = useQueryClient();
+
+  const updateEditingUrl = useMutation(
+    trpc.article.draft.updateEditingUrl.mutationOptions({
+      onMutate: (newSync) => {
+        if (draft.data.type !== "default") return;
+
+        multiStepControl.reset();
+        setIsSelected(newSync.shouldSync);
+
+        return draft.getSnapshot();
+      },
+      onError: (_err, _nS, context) => {
+        if (!context) return;
+
+        queryClient.setQueryData(draft.queryKey, context);
+        setIsSelected(context.isSynced);
+      },
+      onSettled: async () => {
+        await draft.refetch();
+
+        return queryClient.invalidateQueries({
+          queryKey: trpc.article.draft.getEditingDoc.queryKey(),
+        });
+      },
+    })
+  );
+
+  const control = useDisclosure();
+
+  const form = useAppForm({
+    defaultValues: {
+      url: draft.data.type === "default" ? draft.data.editingUrl : "",
+      sync: draft.data.isSynced,
+    },
+    onSubmit: async ({ value }) => {
+      control.close();
+      updateEditingUrl.mutate({
+        id: draft.data.id,
+        editingUrl: value.url,
+        shouldSync: value.sync,
+      });
+    },
+  });
+
+  const docUrl = useStore(form.store, (s) => s.values.url);
+
+  const docQuery = useSuspenseQuery(
+    trpc.article.draft.getEditingDoc.queryOptions({
+      id: draft.data.id,
+    })
+  );
+
+  const docInfoQuery = useQuery({
+    ...trpc.article.getGoogleDocFromUrl.queryOptions({
+      docUrl: docUrl,
+    }),
+    retry: false,
+  });
+
+  const next = async () => {
+    if (steps[multiStepControl.step] === "sync") {
+      form.handleSubmit();
+    } else {
+      if (!form.getFieldMeta("url")?.isPristine || docInfoQuery.isSuccess)
+        return multiStepControl.moveForward();
+
+      const validateResult = await form.validateField("url", "submit");
+
+      if (validateResult.length === 0) {
+        multiStepControl.moveForward();
+      }
+    }
+  };
+
+  return (
+    <>
+      <Button
+        onPress={control.open}
+        leadingVisual={<GoogleDocsIcon />}
+        variant="ghost"
+        isCircular={false}
+      >
+        <div className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}>
+          {docQuery.data.name}
+        </div>
+      </Button>
+      <Modal
+        isOpen={control.isOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            form.reset();
+            multiStepControl.reset();
+          }
+          control.setOpen(open);
+        }}
+        size="md"
+      >
+        <ModalBody>
+          <ModalHeader>
+            <ModalHeading>Edit Linked Google Doc</ModalHeading>
+          </ModalHeader>
+          <div className="mb-4">
+            <MultiStepForm multiStepControl={multiStepControl}>
+              {steps[multiStepControl.step] === "url" && (
+                <div className="">
+                  <form.AppField
+                    name="url"
+                    validators={{
+                      onChange: z.string().url({
+                        message:
+                          "Please provide a Google Doc URL with link sharing enabled!",
+                      }),
+                      onChangeAsync: async (field) => {
+                        const errors =
+                          await field.fieldApi.parseValueWithSchemaAsync(
+                            z.string().refine(
+                              async (val) => {
+                                if (val !== "") {
+                                  const data = await docInfoQuery.refetch();
+
+                                  return !data.isError;
+                                }
+                              },
+                              {
+                                message:
+                                  "We can't find the Google Doc you provided! Please make sure you're using a valid Google Doc link with link sharing enabled.",
+                              }
+                            )
+                          );
+
+                        if (errors) return errors;
+                      },
+                    }}
+                    asyncDebounceMs={1_000}
+                    children={(field) => (
+                      <field.GoogleDocField queryEnabledByDefault />
+                    )}
+                  />
+                </div>
+              )}
+              {steps[multiStepControl.step] === "sync" && (
+                <div>
+                  <form.AppField
+                    name="sync"
+                    children={(field) => (
+                      <div className="flex items-center justify-between gap-2">
+                        <Label htmlFor="doc-sync">
+                          <div className="flex flex-col gap-0.5">
+                            <span>Sync after Update</span>
+                            <span className="text-xs font-normal">
+                              Existing content will be overwritten. This action
+                              is not irreversible!
+                            </span>
+                          </div>
+                        </Label>
+                        <Switch
+                          id="doc-sync"
+                          isSelected={field.state.value}
+                          onChange={field.handleChange}
+                        ></Switch>
+                      </div>
+                    )}
+                  />
+                </div>
+              )}
+            </MultiStepForm>
+          </div>
+        </ModalBody>
+        <ModalFooter showCloseButton={false}>
+          {steps[multiStepControl.step] === "sync" && (
+            <Button onPress={multiStepControl.moveBackward} variant="ghost">
+              Back
+            </Button>
+          )}
+          <Button
+            onPress={next}
+            isLoading={updateEditingUrl.isPending}
+            trailingVisual={
+              steps[multiStepControl.step] === "url" ? (
+                <ChevronRightIcon />
+              ) : undefined
+            }
+          >
+            {steps[multiStepControl.step] === "url" ? "Next" : "Update"}
+          </Button>
+        </ModalFooter>
+      </Modal>
+    </>
+  );
+};
+
+const DocSync = () => {
+  const draft = useDraft();
+
+  const trpc = useTRPC();
 
   const docQuery = useSuspenseQuery(
     trpc.article.draft.getEditingDoc.queryOptions({
@@ -429,6 +639,8 @@ const DocSync = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isSelected, setIsSelected] = useState(draft.data.isSynced);
+
+  const queryClient = useQueryClient();
 
   const updateSync = useMutation(
     trpc.article.draft.updateDocSync.mutationOptions({
@@ -444,23 +656,14 @@ const DocSync = () => {
         queryClient.setQueryData(draft.queryKey, context);
         setIsSelected(context.isSynced);
       },
-      onSettled: (data) => {
-        if (data && data.isSynced) {
-          const { body } = new DOMParser().parseFromString(
-            data.content,
-            "text/html"
-          );
-
-          editor.tf.setValue(body.innerHTML);
-        }
-
+      onSettled: async () => {
         return draft.refetch();
       },
     })
   );
 
   const shouldEnableSync = useMemo(() => {
-    if (!draft.data.syncDisabledAt) return false;
+    if (!draft.data.syncDisabledAt || draft.data.isSynced) return false;
 
     const syncDisabledAt = new Date(draft.data.syncDisabledAt);
     const modifiedTime = new Date(docQuery.data.modifiedTime);
@@ -480,18 +683,7 @@ const DocSync = () => {
           }}
           className="flex items-center gap-2"
         >
-          <Button
-            leadingVisual={<GoogleDocsIcon />}
-            variant="ghost"
-            isCircular={false}
-          >
-            <div
-              className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}
-            >
-              {docQuery.data.name}
-            </div>
-          </Button>
-
+          <EditDocForm setIsSelected={setIsSelected} />
           {shouldEnableSync && (
             <div className="flex items-center gap-1 text-red-700">
               <TooltipTrigger>
@@ -550,29 +742,6 @@ const DocSync = () => {
             Enable Sync
           </Button>
         </ModalFooter>
-        {/* <div className="flex items-center justify-center flex-col px-8 py-6">
-          <div className="text-emerald-600 border-4 rounded-full p-2 flex items-center justify-center">
-            <AnimatedCheckIcon className="size-16" />
-          </div>
-          <p className="text-center font-semibold text-lg mb-1 mt-2">
-            Congratulations your article has been submitted!
-          </p>
-          <p className="text-xs text-zinc-500 text-center">
-            We look forward to reading your work. You can expect an email within
-            a week with updates about the editing process and updates on being
-            published!
-          </p>
-          <div className="mt-4 w-full flex flex-col gap-2">
-            <Link to="/">
-              <Button fullWidth>Return Home</Button>
-            </Link>
-            <Link to="/articles/submit">
-              <Button fullWidth variant="ghost">
-                Submit Another
-              </Button>
-            </Link>
-          </div> */}
-        {/* </div> */}
       </Modal>
     </>
   );
