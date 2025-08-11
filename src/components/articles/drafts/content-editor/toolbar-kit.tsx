@@ -216,9 +216,9 @@ const AlignMenu = () => {
           }}
         >
           {alignments.map((alignment) => (
-            <MenuItem key={`${alignment.id}-align`}>
+            <MenuItem key={`${alignment.id}-align`} id={alignment.id}>
               <TooltipTrigger>
-                <AriaButton id={alignment.id}>
+                <AriaButton>
                   <div className="">{alignment.icon}</div>
                 </AriaButton>
                 <Tooltip placement="right">{alignment.tooltip}</Tooltip>
