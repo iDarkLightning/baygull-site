@@ -37,11 +37,12 @@ import {
   useCaptionButton,
   useCaptionButtonState,
 } from "@platejs/caption/react";
+import { useMutation } from "@tanstack/react-query";
 import { TextArea } from "react-aria-components";
+import { useDebouncedCallback } from "use-debounce";
 import { Button } from "~/components/ui/button";
 import { TextIcon, TrashIcon } from "~/components/ui/icons";
-import { useMutation } from "@tanstack/react-query";
-import { useDebouncedCallback } from "use-debounce";
+import { useEffect } from "react";
 
 export function Caption({
   className,
@@ -90,7 +91,7 @@ export function CaptionTextarea(
 const isImageNode = (
   node: TElement | TText,
   imgType: string
-): node is TImageElement => node && "type" in node && node.type === imgType;
+): node is TCustomImage => node && "type" in node && node.type === imgType;
 
 type TCustomImage = {
   mediaId: string;
@@ -101,100 +102,68 @@ const ImagePlugin = PlateImagePlugin.extend({
   options: {
     imageDataMap: new Map<string, string>(),
   },
-}).overrideEditor(
-  ({ editor, api, tf: { insertNodes, removeNodes, setNodes } }) => {
-    return {
-      transforms: {
-        removeNodes: (options) => {
-          if (!options) return removeNodes(options);
+}).overrideEditor(({ editor, tf: { apply, setNodes } }) => {
+  return {
+    transforms: {
+      apply: (op) => {
+        if (op.type === "insert_node") {
+          apply(op);
+          if (!isImageNode(op.node, editor.getType(KEYS.img))) return;
 
-          const nodeEntry = api.node<TCustomImage>({
-            at: options.at,
-            match: (n) => n.type === editor.getType(KEYS.img),
-          });
-
-          if (!nodeEntry) return removeNodes(options);
-          const [node] = nodeEntry;
+          const { setIsUpdating, draftId } =
+            editor.getOptions(DraftStorePlugin);
 
           const trpcClient = createTRPCClient();
-          trpcClient.article.draft.updateContentImage.mutate({
-            mediaId: node.mediaId,
-            markForDeletion: true,
-          });
 
-          removeNodes(options);
-        },
-        insertNodes: (nodes, options) => {
-          const normalizedNodes = Array.isArray(nodes) ? nodes : [nodes];
-
-          const taggedNodes = normalizedNodes.map((n) => ({
-            ...n,
-            children: (n.children as TElement[])?.map((child) =>
-              isImageNode(child, editor.getType(KEYS.img))
-                ? { ...child, tempId: nanoid() }
-                : child
-            ),
-            ...(isImageNode(n, editor.getType(KEYS.img))
-              ? {
-                  tempId: nanoid(),
+          setIsUpdating(true);
+          trpcClient.article.draft.uploadExternalContentImage
+            .mutate({
+              id: draftId,
+              url: op.node.url,
+            })
+            .then((data) => {
+              setNodes(
+                {
+                  ...op.node,
+                  mediaId: data.id,
+                  url: data.url,
+                  ufsId: data.ufsId,
+                },
+                {
+                  at: op.path,
                 }
-              : {}),
-          }));
+              );
 
-          insertNodes(taggedNodes, options);
-
-          const draftId = editor.getOption(DraftStorePlugin, "draftId");
-
-          taggedNodes
-            .flatMap(
-              (node) =>
-                [
-                  node,
-                  ...(Array.isArray(node.children)
-                    ? node.children
-                    : [node.children]),
-                ] as TElement[]
-            )
-            .filter((node) => isImageNode(node, editor.getType(KEYS.img)))
-            .forEach((node) => {
-              const trpcClient = createTRPCClient();
-
-              trpcClient.article.draft.uploadExternalContentImage
-                .mutate({
-                  id: draftId,
-                  url: node.url,
-                })
-                .then((data) => {
-                  const matchedNodeEntry = api.node<TCustomImage>({
-                    at: [],
-                    match: (n) =>
-                      n.type === editor.getType(KEYS.img) &&
-                      n.tempId === node.tempId,
-                  });
-
-                  if (!matchedNodeEntry) return;
-                  const [matchedNode] = matchedNodeEntry;
-
-                  delete matchedNode.tempId;
-
-                  setNodes(
-                    {
-                      ...matchedNode,
-                      mediaId: data.id,
-                      url: data.url,
-                      ufsId: data.ufsId,
-                    },
-                    {
-                      at: api.findPath(matchedNode),
-                    }
-                  );
-                });
+              setIsUpdating(false);
             });
-        },
+        } else if (op.type === "remove_node") {
+          if (!isImageNode(op.node, editor.getType(KEYS.img))) return apply(op);
+
+          if (!op.node.mediaId) return;
+
+          apply(op);
+          const setIsUpdating = editor.getOption(
+            DraftStorePlugin,
+            "setIsUpdating"
+          );
+
+          setIsUpdating(true);
+
+          const trpcClient = createTRPCClient();
+          trpcClient.article.draft.updateContentImage
+            .mutate({
+              mediaId: op.node.mediaId,
+              markForDeletion: true,
+            })
+            .then(() => setIsUpdating(false))
+            .catch(() => setIsUpdating(false));
+        } else {
+          apply(op);
+        }
       },
-    };
-  }
-);
+    },
+  };
+});
 
 export const ImageElement = (props: PlateElementProps<TImageElement>) => {
   const { focused, selected } = useMediaState();
@@ -219,7 +188,7 @@ export const ImageElement = (props: PlateElementProps<TImageElement>) => {
 
   const isEditing = useFloatingMediaValue("isEditing");
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isOpen && isEditing) {
       FloatingMediaStore.set("isEditing", false);
     }
@@ -231,6 +200,18 @@ export const ImageElement = (props: PlateElementProps<TImageElement>) => {
 
   const captionBtnProps = useCaptionButton(captionBtnState);
   const removeBtnProps = useRemoveNodeButton({ element });
+
+  if (!element.mediaId) {
+    return (
+      <figure className="group relative m-0 mx-auto">
+        <Image
+          referrerPolicy="no-referrer"
+          className={cn("block object-cover left-0 rounded-md opacity-70")}
+          alt={props.attributes.alt as string | undefined}
+        />
+      </figure>
+    );
+  }
 
   return (
     <PlateElement {...props} className="py-1">
