@@ -4,6 +4,7 @@ import DraftContentEditor from "~/components/articles/drafts/content-editor/edit
 export const Route = createFileRoute(
   "/manage/_admin-layout/a/drafts/publish/$id/content"
 )({
+  ssr: "data-only",
   component: RouteComponent,
 });
 

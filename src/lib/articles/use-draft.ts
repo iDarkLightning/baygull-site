@@ -4,7 +4,7 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import { useBlocker, useParams } from "@tanstack/react-router";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTRPC } from "../trpc/client";
 
 export const useDraft = () => {
@@ -24,25 +24,23 @@ export const useDraft = () => {
   );
 
   const { data, refetch, ...query } = useSuspenseQuery(
-    trpc.article.draft.getById.queryOptions({
-      draftId: params.id,
-    })
+    trpc.article.draft.getById.queryOptions(
+      {
+        draftId: params.id,
+      },
+      {
+        refetchOnWindowFocus: "always",
+      }
+    )
   );
-
-  // const isUpdating = useCallback(
-  //   () =>
-  //     queryClient.isMutating({
-  //       predicate: (mut) =>
-  //         (mut.state.variables as { id: string }).id === data.id,
-  //     }) > 0,
-  //   [queryClient, data.id]
-  // );
 
   const isMutating = useIsMutating({
     predicate: (mut) => (mut.state.variables as { id: string }).id === data.id,
   });
 
-  const isUpdating = isMutating > 0;
+  const [isUpdating, setIsUpdating] = useState(isMutating > 0);
+
+  useEffect(() => setIsUpdating(isMutating > 0), [isMutating]);
 
   useBlocker({
     shouldBlockFn: () => {
@@ -80,6 +78,7 @@ export const useDraft = () => {
     query,
     queryKey,
     isUpdating,
+    setIsUpdating,
     shouldRefetch,
     refetch,
     cancelQueries,

@@ -76,6 +76,9 @@ const draftMetaSchema = z.object({
 
   publishMeta: publishMetaSchema.omit({ status: true }),
 
+  isSynced: z.boolean(),
+  syncDisabledAt: date.nullable(),
+
   keyIdeas: z.string(),
   message: z.string(),
   submittedAt: date,

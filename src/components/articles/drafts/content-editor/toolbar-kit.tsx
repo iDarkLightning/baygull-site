@@ -1,3 +1,4 @@
+import type { Alignment } from "@platejs/basic-styles";
 import {
   createPlatePlugin,
   useEditorPlugin,
@@ -7,16 +8,40 @@ import {
   useMarkToolbarButtonState,
   useSelectionFragmentProp,
 } from "platejs/react";
-import type { Alignment } from "@platejs/basic-styles";
 
+import { TextAlignPlugin } from "@platejs/basic-styles/react";
+import {
+  useLinkToolbarButton,
+  useLinkToolbarButtonState,
+} from "@platejs/link/react";
+import { ListStyleType, someList, toggleList } from "@platejs/list";
+import { insertImageFromFiles } from "@platejs/media";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { KEYS, TElement } from "platejs";
+import { useMemo, useState } from "react";
 import {
   Button as AriaButton,
   FileTrigger,
   Key,
   Menu,
   MenuTrigger,
-  ToggleButtonGroup,
 } from "react-aria-components";
+import { Button, ToggleButton } from "~/components/ui/button";
+import {
+  ChevronDownIcon,
+  ChevronRightIcon,
+  GoogleDocsIcon,
+  InfoIcon,
+  LinkIcon,
+  TextIcon,
+} from "~/components/ui/icons";
+import { MenuItem } from "~/components/ui/menu";
+import { ModalPopover } from "~/components/ui/modal-popover";
+import { Switch } from "~/components/ui/switch";
+import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
+import { useDraft } from "~/lib/articles/use-draft";
+import { useTRPC } from "~/lib/trpc/client";
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -33,35 +58,7 @@ import {
   StrikeThroughIcon,
   UnderlineIcon,
 } from "./editor-icons";
-import { Button, ToggleButton } from "~/components/ui/button";
-import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
-import {
-  FunnelIcon,
-  TextIcon,
-  StatusIcon,
-  PeopleIcon,
-  ClockIcon,
-  LinkIcon,
-  ChevronRightIcon,
-  ChevronDownIcon,
-} from "~/components/ui/icons";
-import { MenuItem, SubmenuItem } from "~/components/ui/menu";
-import { ModalPopover } from "~/components/ui/modal-popover";
-import { TextAlignPlugin } from "@platejs/basic-styles/react";
-import { useMemo, useState } from "react";
-import { ListStyleType, someList, toggleList } from "@platejs/list";
-import {
-  useLinkToolbarButtonState,
-  useLinkToolbarButton,
-} from "@platejs/link/react";
-import { KEYS, TElement } from "platejs";
 import { getBlockType, setBlockType } from "./editor-transforms";
-import { insertImageFromFiles } from "@platejs/media";
-
-// import { FixedToolbar } from "@/components/ui/fixed-toolbar";
-// import { FixedToolbarButtons } from "@/components/ui/fixed-toolbar-buttons";
-// import { FloatingToolbar } from "@/components/ui/floating-toolbar";
-// import { FloatingToolbarButtons } from "@/components/ui/floating-toolbar-buttons";
 
 export function MarkToolbarButton({
   clear,
@@ -404,15 +401,118 @@ const ImageUploadButton = () => {
   );
 };
 
-const FixedToolbar = () => {
+const DocSync = () => {
+  const editor = useEditorRef();
+  const draft = useDraft();
+
+  const trpc = useTRPC();
+  const docQuery = useSuspenseQuery(
+    trpc.article.draft.getEditingDoc.queryOptions({
+      id: draft.data.id,
+    })
+  );
+
+  const updateSync = useMutation(
+    trpc.article.draft.updateDocSync.mutationOptions({
+      onSettled: (data) => {
+        if (data && data.isSynced) {
+          const { body } = new DOMParser().parseFromString(
+            data.content,
+            "text/html"
+          );
+
+          editor.tf.setValue(body.innerHTML);
+        }
+
+        return draft.refetch();
+      },
+    })
+  );
+
+  const shouldEnableSync = useMemo(() => {
+    if (!draft.data.syncDisabledAt) return false;
+
+    const syncDisabledAt = new Date(draft.data.syncDisabledAt);
+    const modifiedTime = new Date(docQuery.data.modifiedTime);
+
+    console.log(
+      syncDisabledAt.toLocaleTimeString(),
+      modifiedTime.toLocaleTimeString()
+    );
+
+    return modifiedTime.getTime() > syncDisabledAt.getTime();
+  }, [draft.data, docQuery.data]);
+
   return (
-    <div className="sticky top-4 bg-white/80 backdrop-blur-3xl z-10 flex gap-1 w-full xl:w-3/4 mx-auto border-[0.0125rem] border-zinc-300/70 rounded-md shadow-xs py-1.5 px-2">
-      <TextTypeMenu />
-      <MarkButtons />
-      <AlignMenu />
-      <ListButtons />
-      <LinkToolbarButton />
-      <ImageUploadButton />
+    <div className="w-full justify-between flex items-center gap-1">
+      <motion.div
+        layout
+        transition={{
+          type: "spring",
+          duration: 0.35,
+          bounce: 0.3,
+        }}
+        className="flex items-center gap-2"
+      >
+        <Button
+          leadingVisual={<GoogleDocsIcon />}
+          variant="ghost"
+          isCircular={false}
+        >
+          <div className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}>
+            {docQuery.data.name}
+          </div>
+        </Button>
+
+        {shouldEnableSync && (
+          <div className="flex items-center gap-1 text-red-700">
+            <TooltipTrigger>
+              <Button variant="ghost" size="icon" isCircular={false}>
+                <InfoIcon />
+              </Button>
+              <Tooltip placement="bottom">
+                <p className="text-red-700 text-center">
+                  There have been updates to the Google Doc since you last
+                  synced! <br />
+                  Review the changes or consider re-enabling sync!
+                </p>
+              </Tooltip>
+            </TooltipTrigger>
+          </div>
+        )}
+      </motion.div>
+
+      <Switch
+        defaultSelected={draft.data.isSynced}
+        onChange={(value) => {
+          updateSync.mutate({
+            id: draft.data.id,
+            isSynced: value,
+          });
+        }}
+      >
+        <p className="text-xs w-max">Sync to Google Doc</p>
+      </Switch>
+    </div>
+  );
+};
+
+const FixedToolbar = () => {
+  const draft = useDraft();
+
+  return (
+    <div className="sticky top-4 overflow-x-scroll bg-white/80 backdrop-blur-3xl z-10 flex gap-1 w-full xl:w-3/4 mx-auto border-[0.0125rem] border-zinc-300/70 rounded-md shadow-xs py-1.5 px-2">
+      {!draft.data.isSynced && (
+        <>
+          <TextTypeMenu />
+          <MarkButtons />
+          <AlignMenu />
+          <ListButtons />
+          <LinkToolbarButton />
+          <ImageUploadButton />
+        </>
+      )}
+      <DocSync />
     </div>
   );
 };

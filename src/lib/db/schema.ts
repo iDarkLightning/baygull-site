@@ -150,6 +150,9 @@ export const draftDefaultContent = sqliteTable("draft_default_content", {
 
   content: text("content", { mode: "json" }),
 
+  isSynced: integer("is_synced", { mode: "boolean" }).notNull().default(true),
+  syncDisabledAt: text("sync_disabled_at"),
+
   editingUrl: text("editingUrl").notNull(),
   originalUrl: text("originalUrl").notNull(),
 });

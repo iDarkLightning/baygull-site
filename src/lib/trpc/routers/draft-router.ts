@@ -178,17 +178,51 @@ export const draftRouter = {
 
       if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
 
-      const articleParse = parseArticle(
-        {
-          ...draft,
-          ...draft.draftMeta,
-          ...(draft.type === "default"
-            ? draft.draftDefaultContent
-            : draft.graphicContent),
-        },
-        draft.type,
-        "draft"
-      );
+      const articleParse = await (async () => {
+        if (draft.type !== "default") {
+          return parseArticle(
+            {
+              ...draft,
+              ...draft.draftMeta,
+              ...draft.graphicContent,
+            },
+            draft.type,
+            "draft"
+          );
+        }
+
+        const content = draft.draftDefaultContent;
+        if (!content.isSynced) {
+          return parseArticle(
+            {
+              ...draft,
+              ...draft.draftMeta,
+              ...content,
+            },
+            draft.type,
+            "draft"
+          );
+        }
+
+        const drive = createDriveClient();
+
+        const fileId = new URL(content.editingUrl).pathname.split("/").at(3);
+
+        const response = await drive.files.export({
+          mimeType: "text/html",
+          fileId,
+        });
+
+        return parseArticle(
+          {
+            ...draft,
+            ...draft.draftMeta,
+            ...{ ...content, content: response.data as string },
+          },
+          draft.type,
+          "draft"
+        );
+      })();
 
       return {
         ...articleParse,
@@ -828,6 +862,84 @@ export const draftRouter = {
 
     return media.map((m) => m.id);
   }),
+
+  getEditingDoc: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const query = await ctx.db
+        .select()
+        .from(draftDefaultContent)
+        .where(eq(draftDefaultContent.articleId, input.id))
+        .limit(1);
+
+      if (!query) throw new TRPCError({ code: "NOT_FOUND" });
+
+      const [draftContent] = query;
+
+      const fileId = new URL(draftContent.editingUrl).pathname.split("/").at(3);
+
+      const drive = createDriveClient();
+      const response = await drive.files.get({
+        fileId,
+        fields: "id,name,modifiedTime",
+      });
+
+      if (response.status !== 200)
+        throw new TRPCError({
+          code: "NOT_FOUND",
+        });
+
+      return response.data as {
+        id: string;
+        name: string;
+        modifiedTime: string;
+      };
+    }),
+
+  updateDocSync: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+        isSynced: z.boolean(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.db.transaction(async (tx) => {
+        const [result] = await tx
+          .update(draftDefaultContent)
+          .set({
+            isSynced: input.isSynced,
+            ...(input.isSynced
+              ? { syncDisabledAt: null }
+              : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
+          })
+          .where(eq(draftDefaultContent.articleId, input.id))
+          .returning();
+
+        await setUpdatedTime(tx, input.id);
+
+        return result;
+      });
+
+      if (!input.isSynced) {
+        return { isSynced: false, content: result.content as string };
+      } else {
+        const drive = createDriveClient();
+
+        const fileId = new URL(result.editingUrl).pathname.split("/").at(3);
+
+        const response = await drive.files.export({
+          mimeType: "text/html",
+          fileId,
+        });
+
+        return { isSynced: true, content: response.data as string };
+      }
+    }),
 
   getAuthorList: adminProcedure.query(async ({ ctx }) => {
     const queryResult = await ctx.db.query.usersToArticles.findMany({

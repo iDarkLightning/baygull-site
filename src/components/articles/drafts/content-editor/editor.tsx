@@ -23,6 +23,7 @@ import { DraftStorePlugin } from "./draft-store";
 import { useEffect } from "react";
 import { useMatchRoute, useRouter } from "@tanstack/react-router";
 import { ToolbarKit } from "./toolbar-kit";
+import { draftDefaultContent } from "~/lib/db/schema";
 
 /**
  *
@@ -32,7 +33,22 @@ import { ToolbarKit } from "./toolbar-kit";
  */
 
 export default function DraftContentEditor() {
-  const { data, isUpdating, queryKey } = useDraft();
+  const { data, isUpdating, setIsUpdating, queryKey, query } = useDraft();
+
+  const getValue = () => {
+    if (data.type !== "default") return [];
+
+    if (data.isSynced) {
+      const { body } = new DOMParser().parseFromString(
+        data.content ?? "",
+        "text/html"
+      );
+
+      return body.innerHTML;
+    }
+
+    return JSON.parse(data.content ?? "[]");
+  };
 
   const editor = usePlateEditor({
     plugins: [
@@ -48,9 +64,11 @@ export default function DraftContentEditor() {
       ...MediaKit,
       ...ToolbarKit,
     ],
-    value: data.type === "default" ? JSON.parse(data.content ?? "[]") : [],
+    value: getValue(),
+
     onReady: ({ editor }) => {
       editor.setOption(DraftStorePlugin, "draftId", data.id);
+      editor.setOption(DraftStorePlugin, "setIsUpdating", setIsUpdating);
     },
   });
 
@@ -62,19 +80,12 @@ export default function DraftContentEditor() {
       onSettled: () => queryClient.invalidateQueries({ queryKey }),
     })
   );
-  const getHTMLData = useMutation(
-    trpc.article.draft.getDraftDefaultContentHTML.mutationOptions()
-  );
-  const syncDraftToDocs = useMutation({
-    mutationKey: ["sync-draft-to-docs", data.id],
-    mutationFn: async (data: { id: string }) => {
-      const htmlData = await getHTMLData.mutateAsync({ id: data.id });
-      const { body } = new DOMParser().parseFromString(htmlData, "text/html");
 
-      editor.tf.setValue(body.innerHTML);
-    },
-    onSettled: () => queryClient.invalidateQueries({ queryKey }),
-  });
+  useEffect(() => {
+    if (data.isSynced && query.status === "success") {
+      editor.tf.setValue(getValue());
+    }
+  }, [query.isRefetching]);
 
   const debounce = useDebouncedCallback((value: Value) => {
     if (isUpdating) return;
@@ -87,20 +98,11 @@ export default function DraftContentEditor() {
 
   return (
     <div>
-      <Button
-        // isLoading={isUpdating}
-        onPress={() =>
-          syncDraftToDocs.mutate({
-            id: data.id,
-          })
-        }
-      >
-        Sync To Docs
-      </Button>
-
       <Plate
+        readOnly={data.type === "default" ? data.isSynced : true}
         editor={editor}
         onValueChange={({ editor, value }) => {
+          if (data.isSynced) return;
           debounce(value);
         }}
       >

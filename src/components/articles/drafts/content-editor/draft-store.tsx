@@ -4,5 +4,6 @@ export const DraftStorePlugin = createPlatePlugin({
   key: "draft-store",
   options: {
     draftId: "",
+    setIsUpdating: (val: boolean) => {},
   },
 });
