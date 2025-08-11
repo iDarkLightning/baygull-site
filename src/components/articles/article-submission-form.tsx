@@ -1,11 +1,9 @@
 import { formOptions, useStore } from "@tanstack/react-form";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
-import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect } from "react";
-import { Key, RadioGroup, TextField } from "react-aria-components";
+import { Key, RadioGroup } from "react-aria-components";
 import Confetti from "react-confetti";
-import useMeasure from "react-use-measure";
 import { z } from "zod";
 import { cn } from "~/lib/cn";
 import { useAppForm, withForm } from "~/lib/form";
@@ -18,12 +16,11 @@ import {
   MultiStepFormProgress,
   useMultiStepFormControl,
 } from "../ui/animated-multistep-form";
-import { BarLoading } from "../ui/bar-loading";
 import { Button } from "../ui/button";
+import { Media, mediaSchema } from "../ui/file-upload";
 import { FieldError } from "../ui/form-field";
 import {
   AnimatedCheckIcon,
-  AnimatedXMarkIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   GoogleDocsIcon,
@@ -32,13 +29,11 @@ import {
   PhotoIcon,
   TextIcon,
 } from "../ui/icons";
-import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Modal } from "../ui/modal";
 import { MultiSelect } from "../ui/multi-select";
 import { ArticleTypeRadio, TArticleType } from "./article-type-radio";
 import { CollaboratorMultiSelect } from "./collaborator-multi-select";
-import { Media, mediaSchema } from "../ui/file-upload";
 
 const steps = [
   "splash",
@@ -199,8 +194,6 @@ const InitialInfo = withForm({
       retry: false,
     });
 
-    const [ref, { width }] = useMeasure();
-
     return (
       <div className="flex flex-col gap-2">
         <FormSectionHeading
@@ -279,111 +272,7 @@ const InitialInfo = withForm({
               },
             }}
             asyncDebounceMs={1_000}
-            children={(field) => {
-              const isInputDisplayed = !(
-                field.state.meta.isBlurred &&
-                !field.state.meta.isValidating &&
-                docInfoQuery.isSuccess &&
-                !!docInfoQuery.data
-              );
-
-              return (
-                <TextField
-                  isInvalid={field.state.meta.errors.length > 0}
-                  value={field.state.value}
-                  onChange={field.handleChange}
-                  onBlur={field.handleBlur}
-                >
-                  <Label>Google Docs Link</Label>
-                  <p className="text-sm text-neutral-600 mb-2">
-                    Please ensure that link sharing is enabled for your article,
-                    otherwise we cannot access it!
-                  </p>
-                  <div className="flex items-center gap-2">
-                    {isInputDisplayed && (
-                      <Input fullWidth autoFocus={field.state.meta.isDirty} />
-                    )}
-                    {field.state.meta.isDirty && (
-                      <Button
-                        variant="outline"
-                        fullWidth={!isInputDisplayed}
-                        onPress={() =>
-                          field.setMeta((m) => ({
-                            ...m,
-                            isBlurred: false,
-                          }))
-                        }
-                        isCircular={false}
-                      >
-                        <motion.div
-                          animate={{
-                            width: width || "auto",
-                          }}
-                          transition={{
-                            duration: 0.35,
-                            type: "spring",
-                            bounce: 0.05,
-                          }}
-                        >
-                          <AnimatePresence mode="wait">
-                            <motion.div
-                              key={
-                                field.state.meta.isValidating
-                                  ? "validating"
-                                  : "result"
-                              }
-                              transition={{
-                                duration: 0.2,
-                                delay: isInputDisplayed ? undefined : 0.3,
-                                ease: "easeInOut",
-                                type: "spring",
-                                bounce: 0.2,
-                              }}
-                              className="flex items-center gap-2 font-sans"
-                            >
-                              <div
-                                ref={ref}
-                                className="flex items-center gap-2 text-neutral-700"
-                              >
-                                {field.state.meta.isValidating ||
-                                (docInfoQuery.isPending &&
-                                  field.state.meta.isValid) ? (
-                                  <BarLoading />
-                                ) : docInfoQuery.isSuccess ? (
-                                  <>
-                                    {!isInputDisplayed ? (
-                                      <GoogleDocsIcon />
-                                    ) : (
-                                      <AnimatedCheckIcon className="size-4 text-sky-600" />
-                                    )}
-                                    {!isInputDisplayed && (
-                                      <motion.p
-                                        initial={{ x: "15%", opacity: 0 }}
-                                        animate={{ x: "0%", opacity: 1 }}
-                                        className="text-xs"
-                                      >
-                                        {docInfoQuery.data?.name}
-                                      </motion.p>
-                                    )}
-                                  </>
-                                ) : (
-                                  <AnimatedXMarkIcon className="size-4 text-rose-600" />
-                                )}
-                              </div>
-                            </motion.div>
-                          </AnimatePresence>
-                        </motion.div>
-                      </Button>
-                    )}
-                  </div>
-                  {field.state.meta.errors.map(
-                    ({ message }: { message: string }) => (
-                      <FieldError key={message} message={message} />
-                    )
-                  )}
-                </TextField>
-              );
-            }}
+            children={(field) => <field.GoogleDocField />}
           />
         </RenderIfNotExcluded>
 
