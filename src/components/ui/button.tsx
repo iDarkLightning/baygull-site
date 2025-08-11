@@ -1,8 +1,10 @@
 import { cva, type VariantProps } from "class-variance-authority";
-import React, { useId } from "react";
+import React, { ComponentRef, useId } from "react";
 import {
   Button as AriaButton,
   type ButtonProps as AriaButtonProps,
+  ToggleButton as AriaToggleButton,
+  type ToggleButtonProps as AriaToggleButtonProps,
 } from "react-aria-components";
 import { cn } from "~/lib/cn";
 import { ThreeDotsLoading } from "./three-dots";
@@ -127,3 +129,49 @@ export const Button: React.FC<ButtonProps> = ({
 };
 
 Button.displayName = "Button";
+
+export type ToggleButtonProps = Omit<
+  AriaToggleButtonProps,
+  "className" | "children"
+> &
+  VariantProps<typeof button> & {
+    children: React.ReactNode;
+    ref?: React.Ref<HTMLButtonElement>;
+  };
+
+export const ToggleButton: React.FC<ToggleButtonProps> = ({
+  children,
+  variant = "ghost",
+  size = "icon",
+  fullWidth,
+  isCircular = false,
+  ref,
+  ...props
+}) => {
+  const id = useId();
+  const disabled = props.isDisabled;
+
+  return (
+    <FocusRing focusRingClass="ring-[1.25px] ring-offset-0 ring-sky-800">
+      <AriaToggleButton
+        className={cn(
+          button({
+            variant: props.isDisabled ? "disabled" : variant,
+            size,
+            fullWidth,
+            isCircular,
+          }),
+          "data-[selected]:bg-zinc-100"
+        )}
+        ref={ref}
+        isDisabled={disabled}
+        aria-describedby={id}
+        {...props}
+      >
+        <span id={id} className={cn("flex flex-col items-center gap-2")}>
+          {children}
+        </span>
+      </AriaToggleButton>
+    </FocusRing>
+  );
+};

@@ -17,8 +17,7 @@ export const MenuItem: React.FC<
         {
           "bg-neutral-100": isFocused,
           "bg-neutral-100 outline-none": isHovered && !isDisabled,
-          "bg-sky-800/80 text-white": isSelected,
-          "bg-sky-900/80 text-white": isSelected && (isHovered || isFocused),
+          "bg-zinc-100": isSelected || (isSelected && (isHovered || isFocused)),
           "cursor-not-allowed opacity-70": isDisabled,
         }
       )

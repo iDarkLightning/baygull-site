@@ -22,6 +22,7 @@ import { StructureKit } from "./structure-kit";
 import { DraftStorePlugin } from "./draft-store";
 import { useEffect } from "react";
 import { useMatchRoute, useRouter } from "@tanstack/react-router";
+import { ToolbarKit } from "./toolbar-kit";
 
 /**
  *
@@ -45,6 +46,7 @@ export default function DraftContentEditor() {
       ...HorizontalRuleKit,
       ...AutoFormatKit,
       ...MediaKit,
+      ...ToolbarKit,
     ],
     value: data.type === "default" ? JSON.parse(data.content ?? "[]") : [],
     onReady: ({ editor }) => {
@@ -86,7 +88,7 @@ export default function DraftContentEditor() {
   return (
     <div>
       <Button
-        isLoading={isUpdating}
+        // isLoading={isUpdating}
         onPress={() =>
           syncDraftToDocs.mutate({
             id: data.id,
@@ -103,7 +105,7 @@ export default function DraftContentEditor() {
         }}
       >
         <PlateContent
-          className="focus-visible:outline-none h-full w-full xl:w-3/4 p-8 rounded-md mx-auto"
+          className="focus-visible:outline-none h-full w-full xl:w-3/4 max-w-[60rem] p-8 rounded-md mx-auto"
           placeholder="Type your amazing content here..."
         />
       </Plate>
