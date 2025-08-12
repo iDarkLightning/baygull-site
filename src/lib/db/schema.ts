@@ -120,7 +120,7 @@ export const publishDefaultContent = sqliteTable("publish_default_content", {
 
   description: text("description").notNull(),
 
-  content: text("content").notNull(),
+  content: text("content", { mode: "json" }).notNull(),
 });
 
 export const draftMeta = sqliteTable("draft_meta", {
