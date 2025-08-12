@@ -16,26 +16,32 @@ import { MenuItemLink } from "~/components/ui/menu";
 import { ModalPopover } from "~/components/ui/modal-popover";
 import { useDraft } from "~/lib/articles/use-draft";
 
+type ArticleType = "default" | "headline" | "graphic";
+
 const tabs = [
   {
     id: "draft-information",
     to: "/manage/a/drafts/publish/$id" as const,
     name: "Information",
+    hideFor: [] as ArticleType[],
   },
   {
     id: "draft-content",
     to: "/manage/a/drafts/publish/$id/content" as const,
     name: "Content",
+    hideFor: ["headline"] as ArticleType[],
   },
   {
     id: "draft-layout",
     to: "/manage/a/drafts/publish/$id/layout" as const,
     name: "Layout",
+    hideFor: [] as ArticleType[],
   },
   {
     id: "draft-seo",
     to: "/manage/a/drafts/publish/$id/seo" as const,
     name: "SEO Data",
+    hideFor: [] as ArticleType[],
   },
 ];
 
@@ -87,49 +93,53 @@ function RouteComponent() {
               </AriaButton>
               <ModalPopover>
                 <Menu>
-                  {tabs.map((tab) => (
-                    <MenuItemLink
-                      to={tab.to}
-                      params={params}
-                      key={tab.id}
-                      activeProps={{}}
-                    >
-                      <div className="flex gap-3 items-center justify-between">
-                        {tab.name}
-                        <ChevronRightIcon />
-                      </div>
-                    </MenuItemLink>
-                  ))}
+                  {tabs
+                    .filter((tab) => !tab.hideFor.includes(data.type))
+                    .map((tab) => (
+                      <MenuItemLink
+                        to={tab.to}
+                        params={params}
+                        key={tab.id}
+                        activeProps={{}}
+                      >
+                        <div className="flex gap-3 items-center justify-between">
+                          {tab.name}
+                          <ChevronRightIcon />
+                        </div>
+                      </MenuItemLink>
+                    ))}
                 </Menu>
               </ModalPopover>
             </MenuTrigger>
           </div>
           <div className="hidden md:flex flex-wrap gap-2 items-center bg-zinc-50 w-fit rounded-full border-[0.0125rem] border-zinc-200/70 shaadow-xs">
-            {tabs.map((tab) => (
-              <Link
-                key={tab.id}
-                to={tab.to}
-                params={params}
-                className="text-sm relative font-medium py-2.5 px-4 rounded-full cursor-default"
-              >
-                <p className="z-20 text-black relative">{tab.name}</p>
-                <MatchRoute to={tab.to}>
-                  {(match) =>
-                    match && (
-                      <motion.span
-                        layoutId={"draft-bubble"}
-                        className="absolute inset-0 z-10 bg-zinc-200/40 rounded-full transition-colors shadow-inner"
-                        transition={{
-                          type: "spring",
-                          bounce: 0.2,
-                          duration: 0.3,
-                        }}
-                      />
-                    )
-                  }
-                </MatchRoute>
-              </Link>
-            ))}
+            {tabs
+              .filter((tab) => !tab.hideFor.includes(data.type))
+              .map((tab) => (
+                <Link
+                  key={tab.id}
+                  to={tab.to}
+                  params={params}
+                  className="text-sm relative font-medium py-2.5 px-4 rounded-full cursor-default"
+                >
+                  <p className="z-20 text-black relative">{tab.name}</p>
+                  <MatchRoute to={tab.to}>
+                    {(match) =>
+                      match && (
+                        <motion.span
+                          layoutId={"draft-bubble"}
+                          className="absolute inset-0 z-10 bg-zinc-200/40 rounded-full transition-colors shadow-inner"
+                          transition={{
+                            type: "spring",
+                            bounce: 0.2,
+                            duration: 0.3,
+                          }}
+                        />
+                      )
+                    }
+                  </MatchRoute>
+                </Link>
+              ))}
             {/* <Button leadingVisual={<PublishIcon />}>Publish</Button> */}
           </div>
         </div>
