@@ -1,0 +1,24 @@
+{
+  "name": "@baygull/auth",
+  "version": "1.0.0",
+  "description": "",
+  "main": "./src/auth.ts",
+  "exports": {
+    ".": "./src/index.ts",
+    "./client": "./src/client.ts"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.0",
+  "dependencies": { 
+    "@baygull/db": "workspace:*",
+    "better-auth": "^1.1.21"
+  },
+  "devDependencies": {
+    "@types/node": "^24.2.1"
+  }
+}

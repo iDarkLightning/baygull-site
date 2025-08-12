@@ -1,6 +1,6 @@
 import type { FileRouter } from "uploadthing/server";
 import { createUploadthing, UploadThingError } from "uploadthing/server";
-import { auth } from "../auth/auth";
+import { auth } from "@baygull/auth";
 
 const f = createUploadthing();
 

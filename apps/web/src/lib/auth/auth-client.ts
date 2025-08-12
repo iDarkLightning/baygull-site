@@ -1,14 +1,10 @@
+import { authClient } from "@baygull/auth/client";
 import {
+  useMutation,
   UseMutationOptions,
   useQueryClient,
-  useMutation,
 } from "@tanstack/react-query";
-import { createAuthClient } from "better-auth/react";
 import { useTRPC } from "../trpc/client";
-
-export const authClient = createAuthClient({
-  baseURL: process.env.BASE_URL,
-});
 
 export const useSignIn = (opts: UseMutationOptions = {}) => {
   const queryClient = useQueryClient();

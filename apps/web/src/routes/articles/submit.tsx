@@ -1,7 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { ArticleSubmissionForm } from "~/components/articles/article-submission-form";
 import { CollapsedHeader, Header } from "~/components/layout/nav";
-import { authClient } from "~/lib/auth/auth-client";
+import { authClient } from "@baygull/auth/client";
 
 export const Route = createFileRoute("/articles/submit")({
   beforeLoad: async ({ context }) => {

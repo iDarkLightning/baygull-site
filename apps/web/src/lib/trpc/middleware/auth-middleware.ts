@@ -1,4 +1,4 @@
-import { auth } from "~/lib/auth/auth";
+import { auth } from "@baygull/auth";
 import { createTRPCMiddleware, publicProcedure } from "../init";
 import { TRPCError } from "@trpc/server";
 
