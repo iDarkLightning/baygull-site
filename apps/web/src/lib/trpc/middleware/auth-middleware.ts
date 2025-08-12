@@ -1,7 +1,6 @@
 import { auth } from "~/lib/auth/auth";
 import { createTRPCMiddleware, publicProcedure } from "../init";
 import { TRPCError } from "@trpc/server";
-import { User } from "~/lib/db/schema";
 
 export const extractAuth = createTRPCMiddleware(async ({ ctx, next }) => {
   const session = await auth.api.getSession({

@@ -1,6 +1,6 @@
 import { isCuid } from "@paralleldrive/cuid2";
 import { z } from "zod";
-import { topic } from "~/lib/db/schema";
+import { topic } from "@baygull/db/schema";
 import { publicProcedure } from "../init";
 import { adminProcedure } from "../middleware/auth-middleware";
 

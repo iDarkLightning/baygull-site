@@ -1,16 +1,12 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Value } from "platejs";
-import {
-  createPlatePlugin,
-  Plate,
-  PlateContent,
-  usePlateEditor,
-} from "platejs/react";
+import { Plate, PlateContent, usePlateEditor } from "platejs/react";
+import { useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { Button } from "~/components/ui/button";
-import { useDefaultDraft, useDraft } from "~/lib/articles/use-draft";
+import { useDefaultDraft } from "~/lib/articles/use-draft";
 import { useTRPC } from "~/lib/trpc/client";
 import { AutoFormatKit } from "./autoformat-kit";
+import { DraftStorePlugin } from "./draft-store";
 import { HeadingKit } from "./heading-kit";
 import { HorizontalRuleKit } from "./horizontal-rule-kit";
 import { LinkKit } from "./link-kit";
@@ -19,11 +15,7 @@ import { MarksKit } from "./marks-kit";
 import { MediaKit } from "./media-kit";
 import { ParagraphKit } from "./paragraph-kit";
 import { StructureKit } from "./structure-kit";
-import { DraftStorePlugin } from "./draft-store";
-import { useEffect } from "react";
-import { useMatchRoute, useRouter } from "@tanstack/react-router";
 import { ToolbarKit } from "./toolbar-kit";
-import { draftDefaultContent } from "~/lib/db/schema";
 
 /**
  *

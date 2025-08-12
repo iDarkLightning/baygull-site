@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useRef } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
-import { type User } from "../db/schema";
+import { type User } from "@baygull/db/schema";
 
 type TArticlePublishFormStore = {
   // Step Controls

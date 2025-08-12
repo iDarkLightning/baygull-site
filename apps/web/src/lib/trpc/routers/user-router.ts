@@ -1,7 +1,7 @@
 import { eq, not } from "drizzle-orm";
 import { publicProcedure } from "../init";
 import { authedProcedure, extractAuth } from "../middleware/auth-middleware";
-import { user } from "~/lib/db/schema";
+import { user } from "@baygull/db/schema";
 import { z } from "zod";
 
 export const userRouter = {

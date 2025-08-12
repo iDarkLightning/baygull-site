@@ -1,4 +1,4 @@
-import { db } from "../db";
+import { db } from "@baygull/db";
 
 export const createTRPCContext = (request: Request) => {
   return {

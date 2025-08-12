@@ -1,0 +1,27 @@
+{
+  "name": "@baygull/db",
+  "version": "1.0.0",
+  "description": "",
+  "exports": {
+    ".": "./src/index.ts",
+    "./schema": "./src/schema.ts",
+    "./article-parser": "./src/article-parser.ts"
+  },
+  "scripts": {
+    "test": "echo"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.8.0",
+  "devDependencies": {
+    "@types/node": "^24.2.1",
+    "dotenv": "^16.4.7",
+    "drizzle-kit": "^0.30.5"
+  },
+  "dependencies": {
+    "@libsql/client": "^0.14.0",
+    "drizzle-orm": "^0.40.0",
+    "zod": "^3.24.2"
+  }
+}

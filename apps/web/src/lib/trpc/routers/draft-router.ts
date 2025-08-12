@@ -4,8 +4,8 @@ import { and, count, eq, like, not, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { UTApi } from "uploadthing/server";
 import { z } from "zod";
-import { db } from "~/lib/db";
-import { parseArticle } from "~/lib/db/article-parser";
+import { db } from "@baygull/db/";
+import { parseArticle } from "@baygull/db/article-parser";
 import {
   article,
   articleMedia,
@@ -16,7 +16,7 @@ import {
   publishMeta,
   topic,
   usersToArticles,
-} from "~/lib/db/schema";
+} from "@baygull/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
 

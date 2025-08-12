@@ -4,7 +4,7 @@ import DOMPurify from "isomorphic-dompurify";
 import parse from "node-html-parser";
 import { UTApi } from "uploadthing/server";
 import { z } from "zod";
-import { parseArticle } from "~/lib/db/article-parser";
+import { parseArticle } from "@baygull/db/article-parser";
 import {
   article,
   articleMedia,
@@ -14,7 +14,7 @@ import {
   topic,
   user,
   usersToArticles,
-} from "~/lib/db/schema";
+} from "@baygull/db/schema";
 import { createDriveClient } from "~/lib/google-drive";
 import { type TRPCContext } from "../context";
 import { publicProcedure } from "../init";
