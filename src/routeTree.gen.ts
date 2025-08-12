@@ -22,6 +22,7 @@ import { Route as ManageAdminLayoutAStatusRouteImport } from './routes/manage._a
 import { Route as ManageAdminLayoutADraftsPublishIdRouteRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/route'
 import { Route as ManageAdminLayoutADraftsPublishIdIndexRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/index'
 import { Route as ManageAdminLayoutADraftsPublishIdSeoRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/seo'
+import { Route as ManageAdminLayoutADraftsPublishIdPublishingRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/publishing'
 import { Route as ManageAdminLayoutADraftsPublishIdLayoutRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/layout'
 import { Route as ManageAdminLayoutADraftsPublishIdContentRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/content'
 import { ServerRoute as ApiUploadthingServerRouteImport } from './routes/api/uploadthing'
@@ -89,6 +90,12 @@ const ManageAdminLayoutADraftsPublishIdSeoRoute =
     path: '/seo',
     getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
   } as any)
+const ManageAdminLayoutADraftsPublishIdPublishingRoute =
+  ManageAdminLayoutADraftsPublishIdPublishingRouteImport.update({
+    id: '/publishing',
+    path: '/publishing',
+    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+  } as any)
 const ManageAdminLayoutADraftsPublishIdLayoutRoute =
   ManageAdminLayoutADraftsPublishIdLayoutRouteImport.update({
     id: '/layout',
@@ -128,6 +135,7 @@ export interface FileRoutesByFullPath {
   '/manage/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
   '/manage/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
   '/manage/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  '/manage/a/drafts/publish/$id/publishing': typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
   '/manage/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
   '/manage/a/drafts/publish/$id/': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
   '/manage/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
   '/manage/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  '/manage/a/drafts/publish/$id/publishing': typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
   '/manage/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
   '/manage/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
@@ -157,6 +166,7 @@ export interface FileRoutesById {
   '/manage/_admin-layout/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
   '/manage/_admin-layout/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
   '/manage/_admin-layout/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  '/manage/_admin-layout/a/drafts/publish/$id/publishing': typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
   '/manage/_admin-layout/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
   '/manage/_admin-layout/a/drafts/publish/$id/': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
@@ -173,6 +183,7 @@ export interface FileRouteTypes {
     | '/manage/a/drafts/publish/$id'
     | '/manage/a/drafts/publish/$id/content'
     | '/manage/a/drafts/publish/$id/layout'
+    | '/manage/a/drafts/publish/$id/publishing'
     | '/manage/a/drafts/publish/$id/seo'
     | '/manage/a/drafts/publish/$id/'
   fileRoutesByTo: FileRoutesByTo
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/manage/a/$status'
     | '/manage/a/drafts/publish/$id/content'
     | '/manage/a/drafts/publish/$id/layout'
+    | '/manage/a/drafts/publish/$id/publishing'
     | '/manage/a/drafts/publish/$id/seo'
     | '/manage/a/drafts/publish/$id'
   id:
@@ -201,6 +213,7 @@ export interface FileRouteTypes {
     | '/manage/_admin-layout/a/drafts/publish/$id'
     | '/manage/_admin-layout/a/drafts/publish/$id/content'
     | '/manage/_admin-layout/a/drafts/publish/$id/layout'
+    | '/manage/_admin-layout/a/drafts/publish/$id/publishing'
     | '/manage/_admin-layout/a/drafts/publish/$id/seo'
     | '/manage/_admin-layout/a/drafts/publish/$id/'
   fileRoutesById: FileRoutesById
@@ -321,6 +334,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdSeoRouteImport
       parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
     }
+    '/manage/_admin-layout/a/drafts/publish/$id/publishing': {
+      id: '/manage/_admin-layout/a/drafts/publish/$id/publishing'
+      path: '/publishing'
+      fullPath: '/manage/a/drafts/publish/$id/publishing'
+      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdPublishingRouteImport
+      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+    }
     '/manage/_admin-layout/a/drafts/publish/$id/layout': {
       id: '/manage/_admin-layout/a/drafts/publish/$id/layout'
       path: '/layout'
@@ -366,6 +386,7 @@ declare module '@tanstack/react-start/server' {
 interface ManageAdminLayoutADraftsPublishIdRouteRouteChildren {
   ManageAdminLayoutADraftsPublishIdContentRoute: typeof ManageAdminLayoutADraftsPublishIdContentRoute
   ManageAdminLayoutADraftsPublishIdLayoutRoute: typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
+  ManageAdminLayoutADraftsPublishIdPublishingRoute: typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
   ManageAdminLayoutADraftsPublishIdSeoRoute: typeof ManageAdminLayoutADraftsPublishIdSeoRoute
   ManageAdminLayoutADraftsPublishIdIndexRoute: typeof ManageAdminLayoutADraftsPublishIdIndexRoute
 }
@@ -376,6 +397,8 @@ const ManageAdminLayoutADraftsPublishIdRouteRouteChildren: ManageAdminLayoutADra
       ManageAdminLayoutADraftsPublishIdContentRoute,
     ManageAdminLayoutADraftsPublishIdLayoutRoute:
       ManageAdminLayoutADraftsPublishIdLayoutRoute,
+    ManageAdminLayoutADraftsPublishIdPublishingRoute:
+      ManageAdminLayoutADraftsPublishIdPublishingRoute,
     ManageAdminLayoutADraftsPublishIdSeoRoute:
       ManageAdminLayoutADraftsPublishIdSeoRoute,
     ManageAdminLayoutADraftsPublishIdIndexRoute:

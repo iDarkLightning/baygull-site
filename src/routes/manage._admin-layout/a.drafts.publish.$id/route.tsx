@@ -43,6 +43,12 @@ const tabs = [
     name: "SEO Data",
     hideFor: [] as ArticleType[],
   },
+  {
+    id: "draft-publishing",
+    to: "/manage/a/drafts/publish/$id/publishing" as const,
+    name: "Publishing",
+    hideFor: [] as ArticleType[],
+  },
 ];
 
 export const Route = createFileRoute(
