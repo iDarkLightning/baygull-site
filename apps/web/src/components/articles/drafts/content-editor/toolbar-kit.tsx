@@ -47,7 +47,7 @@ import { ModalPopover } from "~/components/ui/modal-popover";
 import { Switch } from "~/components/ui/switch";
 import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
 import { useDefaultDraft, useDraft } from "~/lib/articles/use-draft";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import {
   AlignCenterIcon,
   AlignJustifyIcon,
@@ -292,6 +292,7 @@ export function LinkToolbarButton() {
     <TooltipTrigger>
       <ToggleButton
         {...buttonProps}
+        onMouseDown={buttonProps.onMouseDown}
         isSelected={buttonProps.pressed}
         data-plate-focus
       >

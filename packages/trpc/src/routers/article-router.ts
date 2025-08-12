@@ -1,8 +1,5 @@
 import { TRPCError } from "@trpc/server";
-import { and, eq, getTableColumns } from "drizzle-orm";
-import DOMPurify from "isomorphic-dompurify";
-import parse from "node-html-parser";
-import { UTApi } from "uploadthing/server";
+import { eq, and, getTableColumns } from "drizzle-orm";
 import { z } from "zod";
 import { parseArticle } from "@baygull/db/article-parser";
 import {
@@ -15,42 +12,21 @@ import {
   user,
   usersToArticles,
 } from "@baygull/db/schema";
-import { createDriveClient } from "~/lib/google-drive";
+import { createDriveClient } from "../google-drive";
 import { type TRPCContext } from "../context";
 import { publicProcedure } from "../init";
 import { authedProcedure } from "../middleware/auth-middleware";
 import { draftRouter } from "./draft-router";
 
-const processArticleContent = async (htmlContent: string) => {
-  const parsed = parse(htmlContent);
-  const imgs = parsed.querySelectorAll("img");
-
-  const urls = imgs.map((img) => img.getAttribute("src")!);
-
-  const utapi = new UTApi();
-  const uploadResult = await utapi.uploadFilesFromUrl(urls);
-
-  imgs.forEach((img, index) => {
-    if (uploadResult[index].error) {
-      throw new Error("Error occurred parsing!");
-    }
-    img.setAttribute("src", uploadResult[index].data.ufsUrl);
-  });
-
-  const oldImgs = parsed.querySelectorAll("img");
-  imgs.forEach((img, index) => parsed.exchangeChild(oldImgs[index], img));
-
-  return DOMPurify.sanitize(parsed.toString());
-};
-
 const getAllArticles = async (ctx: TRPCContext) => {
   const articles = await ctx.db.query.article.findMany({
-    where: and(eq(article.type, "default"), eq(article.status, "published")),
+    where: (_, { eq, and }) =>
+      and(eq(article.type, "default"), eq(article.status, "published")),
     with: {
       publishMeta: true,
       publishDefaultContent: true,
       media: {
-        where: eq(articleMedia.intent, "cover_img"),
+        where: (_, { eq }) => eq(articleMedia.intent, "cover_img"),
       },
       users: {
         with: {

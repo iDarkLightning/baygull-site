@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Drawer } from "vaul";
 import { useSignIn, useSignOut } from "~/lib/auth/auth-client";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import { Button } from "../ui/button";
 import { MenuIcon, PencilSquareIcon, UserIcon } from "../ui/icons";
 

@@ -11,7 +11,7 @@ import type { ReactNode } from "react";
 
 import { QueryClient } from "@tanstack/react-query";
 import { type TRPCOptionsProxy } from "@trpc/tanstack-react-query";
-import { type TRPCRouter } from "~/lib/trpc/routers/root-router";
+import { type TRPCRouter } from "@baygull/trpc";
 import globalCss from "~/styles/global.css?url";
 import { RouterProvider } from "react-aria-components";
 import type { TRPCClient } from "@trpc/client";

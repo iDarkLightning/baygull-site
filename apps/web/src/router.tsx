@@ -5,8 +5,8 @@ import { routerWithQueryClient } from "@tanstack/react-router-with-query";
 import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import superjson from "superjson";
-import { TRPCProvider } from "./lib/trpc/client";
-import type { TRPCRouter } from "./lib/trpc/routers/root-router";
+import { TRPCProvider } from "./lib/trpc-client";
+import type { TRPCRouter } from "@baygull/trpc";
 import { routeTree } from "./routeTree.gen";
 
 export function createRouter() {

@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CollapsedHeader } from "~/components/layout/nav";
 import { PageProgress } from "~/components/page-progress";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 
 export const Route = createFileRoute("/articles/$slug")({
   loader: async ({ params, context }) => {

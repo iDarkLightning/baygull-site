@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { type TArticlesList } from "~/lib/trpc/types";
+import { type TArticlesList } from "@baygull/trpc/types";
 
 type ArticleHighlightsProps = {
   articles: TArticlesList;

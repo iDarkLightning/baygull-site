@@ -5,7 +5,7 @@ import {
 } from "@tanstack/react-query";
 import { useBlocker, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useTRPC } from "../trpc/client";
+import { useTRPC } from "../trpc-client";
 import { isStrictArticle } from "@baygull/db/article-parser";
 
 export const useDraft = () => {

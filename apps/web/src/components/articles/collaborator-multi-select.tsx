@@ -4,7 +4,7 @@ import {
   MultiSelectBody,
   MultiSelectItem,
 } from "../ui/multi-select";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import { useMemo } from "react";
 
 export const CollaboratorMultiSelect: React.FC<{

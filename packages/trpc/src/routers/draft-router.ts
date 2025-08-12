@@ -17,7 +17,7 @@ import {
   topic,
   usersToArticles,
 } from "@baygull/db/schema";
-import { createDriveClient } from "~/lib/google-drive";
+import { createDriveClient } from "../google-drive";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";

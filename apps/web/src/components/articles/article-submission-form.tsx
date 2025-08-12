@@ -9,7 +9,7 @@ import { cn } from "~/lib/cn";
 import { useAppForm, withForm } from "~/lib/form";
 import { formatBytes } from "~/lib/format-bytes";
 import { getGreeting } from "~/lib/get-greeting";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import { useUploadThing } from "~/lib/uploadthing/client";
 import {
   MultiStepForm,

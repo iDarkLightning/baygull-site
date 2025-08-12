@@ -4,7 +4,7 @@ import { Plate, PlateContent, usePlateEditor } from "platejs/react";
 import { useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import { useDefaultDraft } from "~/lib/articles/use-draft";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import { AutoFormatKit } from "./autoformat-kit";
 import { DraftStorePlugin } from "./draft-store";
 import { HeadingKit } from "./heading-kit";

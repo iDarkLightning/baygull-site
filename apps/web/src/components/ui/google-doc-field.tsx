@@ -5,7 +5,7 @@ import { GoogleDocsIcon, AnimatedCheckIcon, AnimatedXMarkIcon } from "./icons";
 import { useFieldContext } from "~/lib/form";
 import { useStore } from "@tanstack/react-form";
 import { useQuery } from "@tanstack/react-query";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import { FieldError } from "./form-field";
 import { Input } from "./input";
 import { Label } from "./label";

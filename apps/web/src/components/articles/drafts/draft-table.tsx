@@ -28,8 +28,8 @@ import { Popover } from "~/components/ui/popover";
 import { Tooltip, TooltipTrigger } from "~/components/ui/tooltip";
 import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
 import { cn } from "~/lib/cn";
-import { useTRPC } from "~/lib/trpc/client";
-import { TDraftList } from "~/lib/trpc/types";
+import { useTRPC } from "~/lib/trpc-client";
+import { TDraftList } from "@baygull/trpc/types";
 
 const columnHelper = createColumnHelper<TDraftList[number]>();
 

@@ -2,7 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, linkOptions, MatchRoute } from "@tanstack/react-router";
 import { Drawer } from "vaul";
 import { cn } from "~/lib/cn";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 import { Button } from "../ui/button";
 import {
   ArchiveBoxIcon,

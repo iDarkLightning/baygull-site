@@ -35,7 +35,7 @@ import { Media, mediaSchema } from "~/components/ui/file-upload";
 import { SelectItem } from "~/components/ui/select";
 import { Switch } from "~/components/ui/switch";
 import { useDraft } from "~/lib/articles/use-draft";
-import { useTRPC, useTRPCClient } from "~/lib/trpc/client";
+import { useTRPC, useTRPCClient } from "~/lib/trpc-client";
 import { useUploadThing } from "~/lib/uploadthing/client";
 import { ArticleTypeRadio, TArticleType } from "../article-type-radio";
 import { CollaboratorMultiSelect } from "../collaborator-multi-select";

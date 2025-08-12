@@ -42,7 +42,7 @@ import {
 } from "~/components/ui/table-filter";
 import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
 import { cn } from "~/lib/cn";
-import { useTRPC } from "~/lib/trpc/client";
+import { useTRPC } from "~/lib/trpc-client";
 
 const typesDisplay = {
   default: {

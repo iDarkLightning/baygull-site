@@ -28,7 +28,7 @@ import {
   useCaptionTextareaState,
 } from "@platejs/caption/react";
 import { KEYS } from "platejs";
-import { createTRPCClient, useTRPC } from "~/lib/trpc/client";
+import { createTRPCClient, useTRPC } from "~/lib/trpc-client";
 import { DraftStorePlugin } from "./draft-store";
 
 import {
