@@ -14,7 +14,7 @@ import {
 } from "../ui/icons";
 
 import { motion } from "framer-motion";
-import { useState } from "react";
+import React, { useState } from "react";
 
 const tabs = [
   {
@@ -55,7 +55,9 @@ const tabs = [
   },
 ];
 
-const Nav = () => {
+const Nav: React.FC<{
+  isCollapsed?: boolean;
+}> = ({ isCollapsed = false }) => {
   const trpc = useTRPC();
   const userQuery = useSuspenseQuery(trpc.user.me.queryOptions());
 
@@ -63,21 +65,35 @@ const Nav = () => {
 
   return (
     <>
-      <div className="flex gap-2 items-center border-b-[0.0125rem] border-zinc-400/60 p-3 flex-1/12">
+      <div
+        className={cn(
+          "flex gap-2 items-center border-b-[0.0125rem] border-zinc-400/60 p-3 flex-1/12",
+          isCollapsed && "justify-center"
+        )}
+      >
         <img src="/logo.png" alt="" className="size-12" />
-        <div className="leading-5">
-          <p className="font-semibold">The Bay Gull</p>
-          <p className="font-medium text-xs text-sky-700">Admin</p>
-        </div>
+        {!isCollapsed && (
+          <div className="leading-5">
+            <p className="font-semibold">The Bay Gull</p>
+            <p className="font-medium text-xs text-sky-700">Admin</p>
+          </div>
+        )}
       </div>
       <div className="flex flex-col gap-4 flex-10/12 my-2">
         {tabs.map((tab) => (
           <div key={tab.id}>
-            <p className="font-semibold text-neutral-500 text-xs mx-3 px-1.5 mb-2">
-              {tab.label}
-            </p>
+            {!isCollapsed && (
+              <p className="font-semibold text-neutral-500 text-xs mx-3 px-1.5 mb-2">
+                {tab.label}
+              </p>
+            )}
 
-            <div className="flex flex-col gap-1">
+            <div
+              className={cn(
+                "flex flex-col gap-1",
+                isCollapsed && "items-center"
+              )}
+            >
               {tab.tabs.map((tab) => (
                 <Link
                   to={tab.to}
@@ -91,8 +107,10 @@ const Nav = () => {
                   }}
                   key={`${tab.id}-${tab.id}`}
                   className={cn(
-                    "relative cursor-default px-1.5 mx-3 py-1.5 font-medium text-xs text-neutral-500 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
-                    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800"
+                    "relative cursor-default p-1.5 mx-3 font-medium text-xs text-neutral-500 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
+                    "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800",
+                    isCollapsed &&
+                      "aspect-square flex items-center justify-center size-10"
                   )}
                 >
                   <MatchRoute to={tab.to} params={tab.params} fuzzy>
@@ -111,28 +129,37 @@ const Nav = () => {
                     }
                   </MatchRoute>
                   <span className="z-20">
-                    <tab.icon />
+                    <tab.icon className={isCollapsed ? "size-5" : "size-4"} />
                   </span>
-                  <p className="text-neutral-700 font-medium z-20">
-                    {tab.name}
-                  </p>
+                  {!isCollapsed && (
+                    <p className="text-neutral-700 font-medium z-20">
+                      {tab.name}
+                    </p>
+                  )}
                 </Link>
               ))}
             </div>
           </div>
         ))}
       </div>
-      <div className="flex-1/12 items-center gap-2 p-3 border-t-[0.0125rem] border-zinc-400/60 lg:flex hidden">
+      <div
+        className={cn(
+          "flex-1/12 items-center gap-2 p-3 border-t-[0.0125rem] border-zinc-400/60 lg:flex hidden",
+          isCollapsed && "justify-center"
+        )}
+      >
         <img
           src={userQuery.data.image ?? ""}
           className="rounded-xl size-10"
           alt=""
           referrerPolicy="no-referrer"
         />
-        <div className="leading-6">
-          <p className="font-medium">{userQuery.data.name}</p>
-          <p className="text-neutral-800 text-xs">{userQuery.data.email}</p>
-        </div>
+        {!isCollapsed && (
+          <div className="leading-6">
+            <p className="font-medium">{userQuery.data.name}</p>
+            <p className="text-neutral-800 text-xs">{userQuery.data.email}</p>
+          </div>
+        )}
       </div>
     </>
   );
@@ -170,10 +197,17 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
 
   if (!userQuery.data) throw new Error("Impossible state!");
 
+  const isCollapsed = false;
+
   return (
     <div className="font-sans flex flex-col lg:flex-row lg:h-screen w-screen bg-zinc-50 overflow-auto">
-      <div className="min-w-64 max-w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed">
-        <Nav />
+      <div
+        className={cn(
+          "w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed",
+          isCollapsed && "w-18"
+        )}
+      >
+        <Nav isCollapsed={isCollapsed} />
       </div>
       <div className="p-3 flex items-center justify-between lg:hidden bg-zinc-50 ">
         <MobileNavDrawer>
@@ -188,7 +222,12 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
           referrerPolicy="no-referrer"
         />
       </div>
-      <div className="bg-white m-2 grow lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-20px)] h-fit pb-2 lg:w-full lg:min-w-min z-50 border-[0.0125rem] border-zinc-400/60 shadow-sm flex flex-col">
+      <div
+        className={cn(
+          "bg-white m-2 grow lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-20px)] h-fit pb-2 lg:w-full lg:min-w-min z-50 border-[0.0125rem] border-zinc-400/60 shadow-sm flex flex-col",
+          isCollapsed && "lg:ml-18"
+        )}
+      >
         {props.children}
       </div>
     </div>

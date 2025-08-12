@@ -574,7 +574,7 @@ const InfoForm: React.FC = () => {
   );
 
   return (
-    <div className="flex-1/4 flex flex-col gap-4 lg:max-w-2xl">
+    <div className="flex-1/4 flex flex-col gap-4 lg:max-w-lg xl:max-w-2xl">
       <form.AppField
         name="type"
         validators={{
