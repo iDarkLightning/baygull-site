@@ -1,11 +1,11 @@
 import React, { useMemo } from "react";
-import { DropZone, FileTrigger, Text } from "react-aria-components";
+import { DropZone, FileTrigger, Text } from "@baygull/ui/aria";
 import { z } from "zod";
-import { cn } from "~/lib/cn";
+import { cn } from "@baygull/ui/cn";
 import { formatBytes } from "~/lib/format-bytes";
 import type { ArticleMedia } from "@baygull/db/schema";
-import { Button } from "./button";
-import { TrashIcon } from "./icons";
+import { Button } from "@baygull/ui/button";
+import { TrashIcon } from "@baygull/ui/icons";
 
 const mimeTypes = ["image/png", "image/jpeg"];
 

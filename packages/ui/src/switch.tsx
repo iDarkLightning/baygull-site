@@ -1,6 +1,6 @@
 import React, { ComponentProps } from "react";
 import { Switch as AriaSwitch } from "react-aria-components";
-import { cn } from "~/lib/cn";
+import { cn } from "./cn";
 
 type SwitchProps = Omit<
   ComponentProps<typeof AriaSwitch>,

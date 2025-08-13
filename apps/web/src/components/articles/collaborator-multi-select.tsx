@@ -3,7 +3,7 @@ import {
   MultiSelectTrigger,
   MultiSelectBody,
   MultiSelectItem,
-} from "../ui/multi-select";
+} from "@baygull/ui/multi-select";
 import { useTRPC } from "~/lib/trpc-client";
 import { useMemo } from "react";
 

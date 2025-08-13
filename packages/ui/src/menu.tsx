@@ -3,9 +3,8 @@ import {
   MenuItem as AriaMenuItem,
   SubmenuTrigger,
 } from "react-aria-components";
-import { cn } from "~/lib/cn";
+import { cn } from "./cn";
 import { ChevronRightIcon } from "./icons";
-import { createLink } from "@tanstack/react-router";
 
 export const MenuItem: React.FC<
   Omit<React.ComponentProps<typeof AriaMenuItem>, "className">
@@ -25,8 +24,6 @@ export const MenuItem: React.FC<
     {...props}
   />
 );
-
-export const MenuItemLink = createLink(MenuItem);
 
 MenuItem.displayName = "MenuItem";
 

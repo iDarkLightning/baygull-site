@@ -6,12 +6,11 @@ import {
   ListBoxItem as Item,
   ListBox,
   SelectContext,
-  Text,
 } from "react-aria-components";
-import { cn } from "~/lib/cn";
 import { Button } from "./button";
-import { Popover } from "./popover";
+import { cn } from "./cn";
 import { ChevronDownIcon } from "./icons";
+import { Popover } from "./popover";
 
 type SelectProps = Omit<
   ComponentProps<typeof AriaSelect>,

@@ -6,14 +6,14 @@ import {
   useMatchRoute,
 } from "@tanstack/react-router";
 import { motion } from "framer-motion";
-import { Button as AriaButton, Menu, MenuTrigger } from "react-aria-components";
+import { Button as AriaButton, Menu, MenuTrigger } from "@baygull/ui/aria";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
   RefreshIcon,
-} from "~/components/ui/icons";
-import { MenuItemLink } from "~/components/ui/menu";
-import { ModalPopover } from "~/components/ui/modal-popover";
+} from "@baygull/ui/icons";
+import { MenuItemLink } from "~/components/ui/menu-item-link";
+import { ModalPopover } from "@baygull/ui/modal-popover";
 import { useDraft } from "~/lib/articles/use-draft";
 
 type ArticleType = "default" | "headline" | "graphic";

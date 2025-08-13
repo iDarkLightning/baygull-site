@@ -1,3 +1,5 @@
+import { Button } from "@baygull/ui/button";
+import { MenuIcon, PencilSquareIcon, UserIcon } from "@baygull/ui/icons";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
@@ -6,8 +8,6 @@ import { useInView } from "react-intersection-observer";
 import { Drawer } from "vaul";
 import { useSignIn, useSignOut } from "~/lib/auth/auth-client";
 import { useTRPC } from "~/lib/trpc-client";
-import { Button } from "../ui/button";
-import { MenuIcon, PencilSquareIcon, UserIcon } from "../ui/icons";
 
 const SidebarMenu = () => {
   const trpc = useTRPC();

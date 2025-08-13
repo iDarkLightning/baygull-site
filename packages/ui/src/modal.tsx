@@ -1,21 +1,14 @@
-import React, {
-  ComponentProps,
-  forwardRef,
-  useContext,
-  type ComponentPropsWithoutRef,
-  type ElementRef,
-} from "react";
+import React, { ComponentProps, useContext } from "react";
 import {
   Modal as AriaModal,
   Dialog,
-  DialogTrigger,
+  Heading,
   ModalOverlay,
   OverlayTriggerStateContext,
   type DialogProps,
-  Heading,
 } from "react-aria-components";
 import { Button } from "./button";
-import { cn } from "~/lib/cn";
+import { cn } from "./cn";
 
 const MODAL_SIZES = {
   sm: "max-w-sm",

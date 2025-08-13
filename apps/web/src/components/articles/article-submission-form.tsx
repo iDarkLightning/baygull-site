@@ -2,10 +2,10 @@ import { formOptions, useStore } from "@tanstack/react-form";
 import { useMutation, useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import React, { useEffect } from "react";
-import { Key, RadioGroup } from "react-aria-components";
+import { Key, RadioGroup } from "@baygull/ui/aria";
 import Confetti from "react-confetti";
 import { z } from "zod";
-import { cn } from "~/lib/cn";
+import { cn } from "@baygull/ui/cn";
 import { useAppForm, withForm } from "~/lib/form";
 import { formatBytes } from "~/lib/format-bytes";
 import { getGreeting } from "~/lib/get-greeting";
@@ -16,11 +16,11 @@ import {
   MultiStepFormProgress,
   useMultiStepFormControl,
 } from "../ui/animated-multistep-form";
-import { Button } from "../ui/button";
-import { Media, mediaSchema } from "../ui/file-upload";
+import { Button } from "@baygull/ui/button";
+import { Media, mediaSchema } from "..//ui/file-upload";
 import { FieldError } from "../ui/form-field";
+import { AnimatedCheckIcon } from "../ui/icons";
 import {
-  AnimatedCheckIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
   GoogleDocsIcon,
@@ -28,10 +28,10 @@ import {
   PeopleIcon,
   PhotoIcon,
   TextIcon,
-} from "../ui/icons";
-import { Label } from "../ui/label";
-import { Modal } from "../ui/modal";
-import { MultiSelect } from "../ui/multi-select";
+} from "@baygull/ui/icons";
+import { Label } from "@baygull/ui/label";
+import { Modal } from "@baygull/ui/modal";
+import { MultiSelect } from "@baygull/ui/multi-select";
 import { ArticleTypeRadio, TArticleType } from "./article-type-radio";
 import { CollaboratorMultiSelect } from "./collaborator-multi-select";
 

@@ -20,7 +20,7 @@ import {
   useReadOnly,
   useRemoveNodeButton,
 } from "platejs/react";
-import { cn } from "~/lib/cn";
+import { cn } from "@baygull/ui/cn";
 
 import {
   CaptionPlugin,
@@ -39,10 +39,10 @@ import {
 } from "@platejs/caption/react";
 import { useMutation } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { TextArea } from "react-aria-components";
+import { TextArea } from "@baygull/ui/aria";
 import { useDebouncedCallback } from "use-debounce";
-import { Button } from "~/components/ui/button";
-import { TextIcon, TrashIcon } from "~/components/ui/icons";
+import { Button } from "@baygull/ui/button";
+import { TextIcon, TrashIcon } from "@baygull/ui/icons";
 
 export function Caption({
   className,

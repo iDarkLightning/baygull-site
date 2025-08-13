@@ -1,7 +1,7 @@
 import { motion, MotionConfig } from "framer-motion";
 import React, { useEffect, useState } from "react";
-import { Radio } from "react-aria-components";
-import { cn } from "~/lib/cn";
+import { Radio } from "@baygull/ui/aria";
+import { cn } from "@baygull/ui/cn";
 
 const articleTypes = [
   {

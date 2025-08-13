@@ -1,6 +1,5 @@
-import { motion } from "framer-motion";
 import React from "react";
-import { cn } from "@baygull/ui/cn";
+import { cn } from "./cn";
 
 export const ChevronLeftIcon = () => (
   <svg
@@ -468,72 +467,6 @@ export const InfoIcon = () => (
       fillRule="evenodd"
       d="M15 8A7 7 0 1 1 1 8a7 7 0 0 1 14 0ZM9 5a1 1 0 1 1-2 0 1 1 0 0 1 2 0ZM6.75 8a.75.75 0 0 0 0 1.5h.75v1.75a.75.75 0 0 0 1.5 0v-2.5A.75.75 0 0 0 8.25 8h-1.5Z"
       clipRule="evenodd"
-    />
-  </svg>
-);
-
-export const AnimatedCheckIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
-  <svg
-    {...props}
-    fill="none"
-    viewBox="0 0 24 24  "
-    stroke="currentColor"
-    strokeWidth={3}
-  >
-    <motion.path
-      initial={{ pathLength: 0 }}
-      animate={{ pathLength: 1 }}
-      transition={{
-        delay: 0.2,
-        type: "tween",
-        ease: "easeOut",
-        duration: 0.3,
-      }}
-      d="M5 13l4 4L19 7"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-export const AnimatedXMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (
-  props
-) => (
-  <svg
-    {...props}
-    fill="none"
-    viewBox="0 0 24 24"
-    stroke="currentColor"
-    strokeWidth={3}
-  >
-    {/* First stroke of the X */}
-    <motion.path
-      d="M6 6l12 12"
-      initial={{ pathLength: 0 }}
-      animate={{ pathLength: 1 }}
-      transition={{
-        delay: 0.2,
-        duration: 0.3,
-        ease: "easeOut",
-      }}
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-
-    {/* Second stroke of the X */}
-    <motion.path
-      d="M18 6l-12 12"
-      initial={{ pathLength: 0 }}
-      animate={{ pathLength: 1 }}
-      transition={{
-        delay: 0.5, // start after the first line
-        duration: 0.3,
-        ease: "easeOut",
-      }}
-      strokeLinecap="round"
-      strokeLinejoin="round"
     />
   </svg>
 );

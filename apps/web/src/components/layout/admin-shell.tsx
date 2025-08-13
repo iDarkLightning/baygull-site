@@ -1,17 +1,15 @@
-import { useSuspenseQuery } from "@tanstack/react-query";
-import { Link, linkOptions, MatchRoute } from "@tanstack/react-router";
-import { Drawer } from "vaul";
-import { cn } from "~/lib/cn";
-import { useTRPC } from "~/lib/trpc-client";
-import { Button } from "../ui/button";
+import { Button } from "@baygull/ui/button";
 import {
   ArchiveBoxIcon,
-  DocumentDuplicatesIcon,
   GlobeIcon,
   MenuIcon,
   PencilSquareIcon,
-  PeopleIcon,
-} from "../ui/icons";
+} from "@baygull/ui/icons";
+import { useSuspenseQuery } from "@tanstack/react-query";
+import { Link, linkOptions, MatchRoute } from "@tanstack/react-router";
+import { Drawer } from "vaul";
+import { cn } from "@baygull/ui/cn";
+import { useTRPC } from "~/lib/trpc-client";
 
 import { motion } from "framer-motion";
 import React, { useState } from "react";

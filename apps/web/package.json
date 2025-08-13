@@ -16,6 +16,7 @@
     "@baygull/db": "workspace:*",
     "@baygull/auth": "workspace:*",
     "@baygull/trpc": "workspace:*",
+    "@baygull/ui": "workspace:*",
 
     "@internationalized/date": "^3.8.2",
     "@libsql/client": "^0.14.0",

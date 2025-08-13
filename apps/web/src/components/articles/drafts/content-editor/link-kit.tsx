@@ -30,16 +30,16 @@ import React, {
   useState,
 } from "react";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { Button } from "@baygull/ui/button";
 import {
   ExternalLinkIcon,
   LinkIcon,
   LinkSlashIcon,
   PencilSquareIcon,
   TextIcon,
-} from "~/components/ui/icons";
-import { Input } from "~/components/ui/input";
-import { Popover } from "~/components/ui/popover";
+} from "@baygull/ui/icons";
+import { Input } from "@baygull/ui/input";
+import { Popover } from "@baygull/ui/popover";
 import { useAppForm } from "~/lib/form";
 
 const getCursorPixelOffsetWithin = (

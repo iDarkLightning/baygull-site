@@ -1,7 +1,7 @@
 import React from "react";
 import { Modal } from "./modal";
 import { Popover } from "./popover";
-import useWindowSize from "~/lib/hooks/use-window-size";
+import useWindowSize from "./hooks/use-window-size";
 
 type ModalPopoverProps = {
   modalProps?: React.ComponentProps<typeof Modal>;

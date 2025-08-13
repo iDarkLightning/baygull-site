@@ -5,35 +5,31 @@ import {
   useSuspenseQuery,
 } from "@tanstack/react-query";
 import React, { Suspense, useMemo, useState } from "react";
-import { Key, RadioGroup, TextField } from "react-aria-components";
+import { Key, RadioGroup, TextField } from "@baygull/ui/aria";
 import slugify from "slugify";
 import { z } from "zod";
-import {
-  AnimatedCheckIcon,
-  AnimatedXMarkIcon,
-  ClockIcon,
-  InfoIcon,
-} from "~/components/ui/icons";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import { AnimatedCheckIcon, AnimatedXMarkIcon } from "~/components/ui/icons";
+import { ClockIcon, InfoIcon } from "@baygull/ui/icons";
+import { Input } from "@baygull/ui/input";
+import { Label } from "@baygull/ui/label";
 import {
   MultiSelect,
   MultiSelectBody,
   MultiSelectItem,
   MultiSelectTrigger,
-} from "~/components/ui/multi-select";
-import { cn } from "~/lib/cn";
+} from "@baygull/ui/multi-select";
+import { cn } from "@baygull/ui/cn";
 import { useAppForm, withForm } from "~/lib/form";
 
 import { FieldError } from "~/components/ui/form-field";
 
 import { createId } from "@paralleldrive/cuid2";
 import { formOptions, useStore } from "@tanstack/react-form";
-import { BarLoading } from "~/components/ui/bar-loading";
-import { Button } from "~/components/ui/button";
+import { BarLoading } from "@baygull/ui/bar-loading";
+import { Button } from "@baygull/ui/button";
 import { Media, mediaSchema } from "~/components/ui/file-upload";
-import { SelectItem } from "~/components/ui/select";
-import { Switch } from "~/components/ui/switch";
+import { SelectItem } from "@baygull/ui/select";
+import { Switch } from "@baygull/ui/switch";
 import { useDraft } from "~/lib/articles/use-draft";
 import { useTRPC, useTRPCClient } from "~/lib/trpc-client";
 import { useUploadThing } from "~/lib/uploadthing/client";

@@ -23,6 +23,9 @@ importers:
       '@baygull/trpc':
         specifier: workspace:*
         version: link:../../packages/trpc
+      '@baygull/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       '@internationalized/date':
         specifier: ^3.8.2
         version: 3.8.2
@@ -297,6 +300,37 @@ importers:
       '@types/node':
         specifier: ^24.2.1
         version: 24.2.1
+
+  packages/ui:
+    dependencies:
+      '@internationalized/date':
+        specifier: ^3.8.2
+        version: 3.8.2
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      react:
+        specifier: ^19.0.0
+        version: 19.1.1
+      react-aria:
+        specifier: ^3.37.0
+        version: 3.42.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-aria-components:
+        specifier: ^1.6.0
+        version: 1.11.0(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      react-use-measure:
+        specifier: ^2.1.7
+        version: 2.1.7(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      tailwind-merge:
+        specifier: ^3.0.2
+        version: 3.3.1
+    devDependencies:
+      '@types/react':
+        specifier: ^19.0.10
+        version: 19.1.10
 
 packages:
 
@@ -5519,7 +5553,6 @@ packages:
 
   libsql@0.4.7:
     resolution: {integrity: sha512-T9eIRCs6b0J1SHKYIvD8+KCJMcWZ900iZyxdnSCdqxN12Z1ijzT+jY5nrk72Jw4B0HGzms2NgpryArlJqvc3Lw==}
-    cpu: [x64, arm64, wasm32]
     os: [darwin, linux, win32]
 
   lie@3.3.0:
