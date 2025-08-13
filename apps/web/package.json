@@ -15,7 +15,7 @@
   "dependencies": {
     "@baygull/db": "workspace:*",
     "@baygull/auth": "workspace:*",
-    "@baygull/trpc": "workspace:*",
+    "@baygull/api": "workspace:*",
     "@baygull/ui": "workspace:*",
 
     "@internationalized/date": "^3.8.2",

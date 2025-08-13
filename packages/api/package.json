@@ -1,5 +1,5 @@
 {
-  "name": "@baygull/trpc",
+  "name": "@baygull/api",
   "version": "1.0.0",
   "description": "",
   "keywords": [],
@@ -7,9 +7,9 @@
   "license": "ISC",
   "packageManager": "pnpm@10.8.0",
   "exports": {
-    ".": "./src/routers/root-router.ts",
-    "./types": "./src/types.ts",
-    "./context": "./src/context.ts"
+    "./trpc": "./src/trpc/routers/root-router.ts",
+    "./trpc/types": "./src/trpc/types.ts",
+    "./trpc/context": "./src/trpc/context.ts"
   },
   "dependencies": {
     "@baygull/auth": "workspace:*",

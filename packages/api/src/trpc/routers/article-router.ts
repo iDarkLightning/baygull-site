@@ -12,7 +12,7 @@ import {
   user,
   usersToArticles,
 } from "@baygull/db/schema";
-import { createDriveClient } from "../google-drive";
+import { createDriveClient } from "../../google-drive";
 import { type TRPCContext } from "../context";
 import { publicProcedure } from "../init";
 import { authedProcedure } from "../middleware/auth-middleware";

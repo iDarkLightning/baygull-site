@@ -1,5 +1,5 @@
 import { createTRPCContext } from "@trpc/tanstack-react-query";
-import type { TRPCRouter } from "@baygull/trpc";
+import type { TRPCRouter } from "@baygull/api/trpc";
 import {
   createTRPCClient as _createTRPCClient,
   httpBatchStreamLink,

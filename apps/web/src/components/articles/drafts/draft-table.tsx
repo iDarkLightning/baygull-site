@@ -30,7 +30,7 @@ import { Tooltip, TooltipTrigger } from "@baygull/ui/tooltip";
 import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
 import { cn } from "@baygull/ui/cn";
 import { useTRPC } from "~/lib/trpc-client";
-import { TDraftList } from "@baygull/trpc/types";
+import { TDraftList } from "@baygull/api/trpc/types";
 
 const columnHelper = createColumnHelper<TDraftList[number]>();
 
