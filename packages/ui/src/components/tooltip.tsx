@@ -3,7 +3,7 @@ import {
   TooltipTrigger as AriaTooltipTrigger,
   type TooltipTriggerComponentProps,
 } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 export const TooltipTrigger: React.FC<TooltipTriggerComponentProps> = ({
   delay = 250,

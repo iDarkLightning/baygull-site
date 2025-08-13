@@ -8,7 +8,7 @@ import {
   SelectContext,
 } from "react-aria-components";
 import { Button } from "./button";
-import { cn } from "./cn";
+import { cn } from "../cn";
 import { ChevronDownIcon } from "./icons";
 import { Popover } from "./popover";
 

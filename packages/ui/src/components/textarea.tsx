@@ -5,7 +5,7 @@ import {
   type TextAreaProps as AriaTextAreaProps,
 } from "react-aria-components";
 import { inputBase } from "./input";
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 const textArea = cva(cn(inputBase(), "h-auto px-2 py-1"), {
   variants: {

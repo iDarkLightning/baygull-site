@@ -8,7 +8,7 @@ import {
   type DialogProps,
 } from "react-aria-components";
 import { Button } from "./button";
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 const MODAL_SIZES = {
   sm: "max-w-sm",

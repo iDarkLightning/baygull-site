@@ -1,6 +1,6 @@
 import { CSSProperties, type ComponentProps } from "react";
 import { Popover as AriaPopover, Dialog } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 type PopoverProps = Omit<ComponentProps<typeof AriaPopover>, "className"> & {
   triggerWidth?: number;

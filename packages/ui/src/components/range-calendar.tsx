@@ -6,7 +6,7 @@ import {
   CalendarGrid,
   Heading,
 } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 import { Button } from "./button";
 import { ChevronLeftIcon, ChevronRightIcon } from "./icons";
 

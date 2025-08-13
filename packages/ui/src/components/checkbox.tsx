@@ -1,5 +1,5 @@
 import { Checkbox as AriaCheckbox } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 
 const CheckIcon = () => (
   <svg

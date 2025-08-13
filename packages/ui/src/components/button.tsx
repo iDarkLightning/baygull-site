@@ -7,7 +7,7 @@ import {
   ToggleButton as AriaToggleButton,
   type ToggleButtonProps as AriaToggleButtonProps,
 } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 import { ThreeDotsLoading } from "./three-dots";
 
 export const button = cva(

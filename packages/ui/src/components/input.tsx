@@ -4,7 +4,7 @@ import {
   Input as AriaInput,
   type InputProps as AriaInputProps,
 } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 import useMeasure from "react-use-measure";
 
 export const inputBase = cva([

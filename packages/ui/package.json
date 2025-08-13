@@ -4,8 +4,7 @@
   "description": "",
   
   "exports": {
-    ".": "./src/index.ts",
-    "./*": "./src/*.tsx",
+    "./*": "./src/components/*.tsx",
     "./aria": "./src/aria.ts",
     "./cn": "./src/cn.ts"
   }, 

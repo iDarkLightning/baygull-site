@@ -3,7 +3,7 @@ import {
   MenuItem as AriaMenuItem,
   SubmenuTrigger,
 } from "react-aria-components";
-import { cn } from "./cn";
+import { cn } from "../cn";
 import { ChevronRightIcon } from "./icons";
 
 export const MenuItem: React.FC<
