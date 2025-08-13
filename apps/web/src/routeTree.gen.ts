@@ -27,7 +27,7 @@ import { Route as ManageAdminLayoutADraftsPublishIdLayoutRouteImport } from './r
 import { Route as ManageAdminLayoutADraftsPublishIdContentRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/content'
 import { ServerRoute as ApiUploadthingServerRouteImport } from './routes/api/uploadthing'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api/trpc.$'
-import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth/$'
+import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 
 const ManageRouteImport = createFileRoute('/manage')()
 const rootServerRouteImport = createServerRootRoute()

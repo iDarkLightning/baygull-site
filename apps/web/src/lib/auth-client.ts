@@ -4,7 +4,7 @@ import {
   UseMutationOptions,
   useQueryClient,
 } from "@tanstack/react-query";
-import { useTRPC } from "../trpc-client";
+import { useTRPC } from "./trpc-client";
 
 export const useSignIn = (opts: UseMutationOptions = {}) => {
   const queryClient = useQueryClient();

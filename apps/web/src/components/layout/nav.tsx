@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import React, { useEffect, useState } from "react";
 import { useInView } from "react-intersection-observer";
 import { Drawer } from "vaul";
-import { useSignIn, useSignOut } from "~/lib/auth/auth-client";
+import { useSignIn, useSignOut } from "~/lib/auth-client";
 import { useTRPC } from "~/lib/trpc-client";
 
 const SidebarMenu = () => {
