@@ -9,7 +9,8 @@
   "exports": {
     "./trpc": "./src/trpc/routers/root-router.ts",
     "./trpc/types": "./src/trpc/types.ts",
-    "./trpc/context": "./src/trpc/context.ts"
+    "./trpc/context": "./src/trpc/context.ts",
+    "./uploadthing": "./src/uploadthing/index.ts"
   },
   "dependencies": {
     "@baygull/auth": "workspace:*",
