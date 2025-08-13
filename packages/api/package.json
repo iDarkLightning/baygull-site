@@ -8,6 +8,7 @@
   "packageManager": "pnpm@10.8.0",
   "exports": {
     "./trpc": "./src/trpc/routers/root-router.ts",
+    "./trpc/server": "./src/trpc/server.ts",
     "./trpc/types": "./src/trpc/types.ts",
     "./trpc/context": "./src/trpc/context.ts",
     "./uploadthing": "./src/uploadthing/index.ts"

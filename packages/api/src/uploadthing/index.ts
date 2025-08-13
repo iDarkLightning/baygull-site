@@ -33,3 +33,5 @@ export const uploadRouter = {
 } satisfies FileRouter;
 
 export type UploadRouter = typeof uploadRouter;
+
+export { createRouteHandler } from "uploadthing/server";
