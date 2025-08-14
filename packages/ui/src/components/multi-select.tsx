@@ -27,7 +27,9 @@ import { SelectItem } from "./select";
 
 type TMultiSelectContext = {
   selectedKeys: Set<Key>;
-  setSelectedKeys: React.Dispatch<React.SetStateAction<Set<Key>>>;
+  setSelectedKeys:
+    | React.Dispatch<React.SetStateAction<Set<Key>>>
+    | ((keys: Set<Key>) => void);
   triggerControl: ReturnType<typeof useMeasure>;
 };
 
@@ -43,10 +45,7 @@ export const useMultiSelect = () => {
 };
 
 export const MultiSelect: React.FC<
-  React.PropsWithChildren<{
-    selectedKeys: Set<Key>;
-    setSelectedKeys: (keys: Set<Key>) => void;
-  }>
+  React.PropsWithChildren<Omit<TMultiSelectContext, "triggerControl">>
 > = (props) => {
   const triggerControl = useMeasure();
 
@@ -141,7 +140,7 @@ type MultiSelectBodyProps = Omit<
   >;
   onSelectionChange?: (args: {
     keys: Set<Key>;
-    setSelectedKeys: React.Dispatch<React.SetStateAction<Set<Key>>>;
+    setSelectedKeys: TMultiSelectContext["setSelectedKeys"];
   }) => void;
   autoCompleteProps?: Omit<ComponentProps<typeof AutoComplete>, "children">;
 };

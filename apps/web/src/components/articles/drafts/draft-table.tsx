@@ -81,14 +81,17 @@ const columns = [
     cell: (info) => {
       const users = info.getValue();
 
-      const [{ user: firstUser }] = users;
+      const [firstUserEntry] = users;
+      if (!firstUserEntry) return null;
 
       return (
         <div>
           <div className="flex-1/12 items-center gap-2 flex px-3 py-2 mr-4">
             <div className="leading-6">
-              <p className="font-medium">{firstUser.name}</p>
-              <p className="text-neutral-600 text-xs">{firstUser.email}</p>
+              <p className="font-medium">{firstUserEntry.user.name}</p>
+              <p className="text-neutral-600 text-xs">
+                {firstUserEntry.user.email}
+              </p>
             </div>
             {users.length - 1 > 0 && (
               <TooltipTrigger>

@@ -1,10 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "react-jsx",
     "moduleResolution": "Bundler",
-    "paths": {
-      "~/*": ["./src/*"]
-    }
+    "lib": ["ES2022"],
   },
 }

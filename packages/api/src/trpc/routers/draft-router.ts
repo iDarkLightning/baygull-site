@@ -348,13 +348,16 @@ export const draftRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const id = await ctx.db.transaction(async (tx) => {
-        const [{ id }] = await tx
-          .update(article)
-          .set({
-            title: input.title,
-          })
-          .where(eq(article.id, input.id))
-          .returning({ id: article.id });
+        const { id } = await ctx.uniqueResultOrThrow(
+          tx
+            .update(article)
+            .set({
+              title: input.title,
+            })
+            .where(eq(article.id, input.id))
+            .limit(1)
+            .returning({ id: article.id })
+        );
 
         if (input.deriveSlug) {
           const derivedSlug = slugify(input.title, {
@@ -363,10 +366,12 @@ export const draftRouter = {
             trim: true,
           });
 
-          const [{ count: slugCount }] = await tx
-            .select({ count: count() })
-            .from(publishMeta)
-            .where(like(publishMeta.slug, `${derivedSlug}%`));
+          const { count: slugCount } = await ctx.uniqueResultOrThrow(
+            tx
+              .select({ count: count() })
+              .from(publishMeta)
+              .where(like(publishMeta.slug, `${derivedSlug}%`))
+          );
 
           await tx
             .update(publishMeta)
@@ -389,15 +394,18 @@ export const draftRouter = {
   validateSlug: adminProcedure
     .input(z.object({ id: z.string().refine(isCuid), slug: z.string() }))
     .query(async ({ ctx, input }) => {
-      const [{ count: rows }] = await ctx.db
-        .select({ count: count() })
-        .from(publishMeta)
-        .where(
-          and(
-            eq(publishMeta.slug, input.slug),
-            not(eq(publishMeta.articleId, input.id))
+      const { count: rows } = await ctx.uniqueResultOrThrow(
+        ctx.db
+          .select({ count: count() })
+          .from(publishMeta)
+          .where(
+            and(
+              eq(publishMeta.slug, input.slug),
+              not(eq(publishMeta.articleId, input.id))
+            )
           )
-        );
+          .limit(1)
+      );
 
       if (rows > 0)
         throw new TRPCError({
@@ -416,15 +424,17 @@ export const draftRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const id = await ctx.db.transaction(async (tx) => {
-        const [{ id }] = await tx
-          .update(article)
-          .set({
-            type: input.type,
-          })
-          .where(eq(article.id, input.id))
-          .returning({
-            id: article.id,
-          });
+        const { id } = await ctx.uniqueResultOrThrow(
+          tx
+            .update(article)
+            .set({
+              type: input.type,
+            })
+            .where(eq(article.id, input.id))
+            .returning({
+              id: article.id,
+            })
+        );
 
         if (input.type === "default") {
           const [graphicDesc] = await tx
@@ -495,10 +505,13 @@ export const draftRouter = {
     .mutation(async ({ ctx, input }) => {
       if (input.data.deriveFromTitle) {
         await ctx.db.transaction(async (tx) => {
-          const [{ title }] = await tx
-            .select({ title: article.title })
-            .from(article)
-            .where(eq(article.id, input.id));
+          const { title } = await ctx.uniqueResultOrThrow(
+            tx
+              .select({ title: article.title })
+              .from(article)
+              .where(eq(article.id, input.id))
+              .limit(1)
+          );
 
           const derivedSlug = slugify(title, {
             lower: true,
@@ -506,15 +519,18 @@ export const draftRouter = {
             trim: true,
           });
 
-          const [{ count: slugCount }] = await tx
-            .select({ count: count() })
-            .from(publishMeta)
-            .where(
-              and(
-                like(publishMeta.slug, `${derivedSlug}%`),
-                not(eq(publishMeta.articleId, input.id))
+          const { count: slugCount } = await ctx.uniqueResultOrThrow(
+            tx
+              .select({ count: count() })
+              .from(publishMeta)
+              .where(
+                and(
+                  like(publishMeta.slug, `${derivedSlug}%`),
+                  not(eq(publishMeta.articleId, input.id))
+                )
               )
-            );
+              .limit(1)
+          );
 
           await tx
             .update(publishMeta)
@@ -745,22 +761,23 @@ export const draftRouter = {
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const media = await ctx.db
-        .select()
-        .from(articleMedia)
-        .where(eq(articleMedia.url, input.url))
-        .limit(1);
+      const media = await ctx.uniqueResult(
+        ctx.db
+          .select()
+          .from(articleMedia)
+          .where(eq(articleMedia.url, input.url))
+          .limit(1)
+      );
 
-      if (media.length > 0) {
-        const [entry] = media;
+      if (media !== undefined) {
         await ctx.db
           .update(articleMedia)
           .set({
             markedForDeletion: null,
           })
-          .where(eq(articleMedia.id, entry.id));
+          .where(eq(articleMedia.id, media.id));
 
-        return entry;
+        return media;
       } else {
         const utapi = new UTApi();
 
@@ -783,6 +800,7 @@ export const draftRouter = {
             ] as const;
           } else {
             const [header, data] = input.url.split(",");
+            if (!header || !data) throw new TRPCError({ code: "BAD_REQUEST" });
 
             const mime =
               header.match(/:(.*?);/)?.[1] || "application/octet-stream";
@@ -796,7 +814,9 @@ export const draftRouter = {
           type: mime,
         });
 
-        const uploadResult = (await utapi.uploadFiles([file]))[0];
+        const uploadResult = await ctx.uniqueResultOrThrow(
+          utapi.uploadFiles([file])
+        );
 
         if (uploadResult.error)
           throw new TRPCError({
@@ -805,19 +825,21 @@ export const draftRouter = {
             message: uploadResult.error.message,
           });
 
-        const [media] = await ctx.db
-          .insert(articleMedia)
-          .values({
-            articleId: input.id,
-            intent: "content_img",
-            caption: "",
-            fileName: uploadResult.data.name,
-            mimeType: uploadResult.data.type,
-            size: uploadResult.data.size,
-            ufsId: uploadResult.data.key,
-            url: uploadResult.data.ufsUrl,
-          })
-          .returning();
+        const media = await ctx.uniqueResultOrThrow(
+          ctx.db
+            .insert(articleMedia)
+            .values({
+              articleId: input.id,
+              intent: "content_img",
+              caption: "",
+              fileName: uploadResult.data.name,
+              mimeType: uploadResult.data.type,
+              size: uploadResult.data.size,
+              ufsId: uploadResult.data.key,
+              url: uploadResult.data.ufsUrl,
+            })
+            .returning()
+        );
 
         return media;
       }
@@ -832,13 +854,13 @@ export const draftRouter = {
       })
     )
     .mutation(async ({ ctx, input }) => {
-      const [media] = await ctx.db
-        .select()
-        .from(articleMedia)
-        .where(eq(articleMedia.id, input.mediaId))
-        .limit(1);
-
-      if (!media) throw new TRPCError({ code: "NOT_FOUND" });
+      const media = await ctx.uniqueResultOrThrow(
+        ctx.db
+          .select()
+          .from(articleMedia)
+          .where(eq(articleMedia.id, input.mediaId))
+          .limit(1)
+      );
 
       await ctx.db
         .update(articleMedia)
@@ -870,15 +892,13 @@ export const draftRouter = {
       })
     )
     .query(async ({ ctx, input }) => {
-      const query = await ctx.db
-        .select()
-        .from(draftDefaultContent)
-        .where(eq(draftDefaultContent.articleId, input.id))
-        .limit(1);
-
-      if (!query) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const [draftContent] = query;
+      const draftContent = await ctx.uniqueResultOrThrow(
+        ctx.db
+          .select()
+          .from(draftDefaultContent)
+          .where(eq(draftDefaultContent.articleId, input.id))
+          .limit(1)
+      );
 
       const fileId = new URL(draftContent.editingUrl).pathname.split("/").at(3);
 
@@ -909,16 +929,19 @@ export const draftRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.transaction(async (tx) => {
-        const [result] = await tx
-          .update(draftDefaultContent)
-          .set({
-            isSynced: input.isSynced,
-            ...(input.isSynced
-              ? { syncDisabledAt: null }
-              : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
-          })
-          .where(eq(draftDefaultContent.articleId, input.id))
-          .returning();
+        const result = await ctx.uniqueResultOrThrow(
+          tx
+            .update(draftDefaultContent)
+            .set({
+              isSynced: input.isSynced,
+              ...(input.isSynced
+                ? { syncDisabledAt: null }
+                : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
+            })
+            .where(eq(draftDefaultContent.articleId, input.id))
+            .limit(1)
+            .returning()
+        );
 
         await setUpdatedTime(tx, input.id);
 
@@ -951,17 +974,22 @@ export const draftRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.db.transaction(async (tx) => {
-        const [result] = await tx
-          .update(draftDefaultContent)
-          .set({
-            editingUrl: input.editingUrl,
-            isSynced: input.shouldSync,
-            ...(input.shouldSync
-              ? { syncDisabledAt: null }
-              : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
-          })
-          .where(eq(draftDefaultContent.articleId, input.id))
-          .returning();
+        const result = ctx.uniqueResultOrThrow(
+          tx
+            .update(draftDefaultContent)
+            .set({
+              editingUrl: input.editingUrl,
+              isSynced: input.shouldSync,
+              ...(input.shouldSync
+                ? { syncDisabledAt: null }
+                : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
+            })
+            .where(eq(draftDefaultContent.articleId, input.id))
+            .limit(1)
+            .returning()
+        );
+
+        await setUpdatedTime(tx, input.id);
 
         return result;
       });

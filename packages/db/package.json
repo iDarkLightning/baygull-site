@@ -8,7 +8,7 @@
     "./article-parser": "./src/article-parser.ts"
   },
   "scripts": {
-    "test": "echo"
+    "typecheck": "tsc"
   },
   "keywords": [],
   "author": "",

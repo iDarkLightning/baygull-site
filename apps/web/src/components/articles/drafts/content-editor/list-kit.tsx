@@ -53,7 +53,7 @@ export const ListKit = [
               const classList = element.parentElement?.classList;
               if (!classList) return 0;
 
-              return Number(classList[0].charAt(classList[0].length - 1)) + 1;
+              return Number(classList[0]?.charAt(classList[0].length - 1)) + 1;
             };
 
             const resolveListStyleType = () => {

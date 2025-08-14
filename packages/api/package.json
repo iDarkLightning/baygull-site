@@ -6,6 +6,9 @@
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.8.0",
+  "scripts": {
+    "typecheck": "tsc"
+  },
   "exports": {
     "./trpc": "./src/trpc/routers/root-router.ts",
     "./trpc/server": "./src/trpc/server.ts",

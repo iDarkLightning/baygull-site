@@ -505,7 +505,13 @@ const InfoForm: React.FC = () => {
 
   const updateCoverImg = useMutation({
     mutationKey: trpc.article.draft.updateCoverImage.mutationKey(),
-    mutationFn: async ({ file, id }: { id: string; file: File | null }) => {
+    mutationFn: async ({
+      file,
+      id,
+    }: {
+      id: string;
+      file: File | null | undefined;
+    }) => {
       if (!file) {
         await trpcClient.article.draft.updateCoverImage.mutate({
           id,
@@ -518,6 +524,8 @@ const InfoForm: React.FC = () => {
         if (!uploadResult) throw new Error("Upload failed!");
 
         const [uploadedFile] = uploadResult;
+        if (!uploadedFile) throw new Error("Upload Failed!");
+
         await trpcClient.article.draft.updateCoverImage.mutate({
           id,
           data: {
@@ -738,7 +746,8 @@ const InfoForm: React.FC = () => {
                 </div>
                 {field
                   .getMeta()
-                  .errors.map(({ message }: { message: string }) => (
+                  .errors.filter((err) => !!err)
+                  .map(({ message }: { message: string }) => (
                     <FieldError key={message} message={message} />
                   ))}
                 <div className="mt-2">
@@ -819,13 +828,11 @@ const InfoForm: React.FC = () => {
             onChangeDebounceMs: 300,
             onChange: async ({ value, fieldApi }) => {
               if (!fieldApi.getMeta().isValid) return;
+              const file = value.filter((m) => m.__type === "file")[0]?.file;
 
               updateCoverImg.mutate({
                 id: data.id,
-                file:
-                  value.length === 0
-                    ? null
-                    : value.filter((m) => m.__type === "file")[0].file,
+                file: value.length === 0 ? null : file,
               });
             },
           }}
@@ -867,9 +874,12 @@ const InfoForm: React.FC = () => {
               includeMe
               isInvalid={!field.state.meta.isValid}
             />
-            {field.getMeta().errors.map(({ message }: { message: string }) => (
-              <FieldError message={message} />
-            ))}
+            {field
+              .getMeta()
+              .errors.filter((err) => !!err)
+              .map(({ message }: { message: string }) => (
+                <FieldError message={message} />
+              ))}
           </MultiSelect>
         )}
       />

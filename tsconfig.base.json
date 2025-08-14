@@ -1,0 +1,17 @@
+{
+    "compilerOptions": {
+        "esModuleInterop": true,
+        "skipLibCheck": true,
+        "target": "ES2022",
+        "moduleDetection": "force",
+        "isolatedModules": true,
+
+        "strict": true,
+        "noImplicitAny": true,
+        "noUncheckedIndexedAccess": true,
+        "strictNullChecks": true,
+
+        "module": "preserve",
+        "noEmit": true,
+    }
+}

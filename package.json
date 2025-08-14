@@ -10,6 +10,7 @@
   "license": "ISC",
   "packageManager": "pnpm@10.8.0",
   "devDependencies": {
-    "dotenv-cli": "^10.0.0"
+    "dotenv-cli": "^10.0.0",
+    "typescript": "^5.7.3"
   }
 }

@@ -9,12 +9,13 @@
     "./cn": "./src/cn.ts"
   }, 
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "typecheck": "tsc"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "packageManager": "pnpm@10.8.0",
+
   "dependencies": {
     "@internationalized/date": "^3.8.2",
     "class-variance-authority": "^0.7.1",

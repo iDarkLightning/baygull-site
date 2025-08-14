@@ -294,15 +294,22 @@ export const DraftFilterDisplay = () => {
         </FilterDescription>
         <FilterMenu>
           <FilterMenuButton>
-            {[...state.types].map((type) => (
-              <div
-                key={type}
-                className={cn(typesDisplay[type].className, "-ml-0.5")}
-              />
-            ))}
+            {[...state.types]
+              .filter(
+                (type): type is "default" | "headline" | "graphic" =>
+                  typeof type === "string"
+              )
+              .map((type) => (
+                <div
+                  key={type}
+                  className={cn(typesDisplay[type].className, "-ml-0.5")}
+                />
+              ))}
             <p className="ml-1">
               {state.types.size === 1
-                ? typesDisplay[[...state.types][0]].display
+                ? typesDisplay[
+                    [...state.types][0] as "default" | "headline" | "graphic"
+                  ].display
                 : `${state.types.size} types`}
             </p>
           </FilterMenuButton>
