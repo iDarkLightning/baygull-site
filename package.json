@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "dev": "dotenv -e .env -- pnpm -r dev"
+    "dev": "dotenv -e .env -- pnpm -r dev",
+    "typecheck": "pnpm -r typecheck"
   },
   "keywords": [],
   "author": "",
