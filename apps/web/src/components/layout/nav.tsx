@@ -204,9 +204,9 @@ export const Header = () => {
   }, []);
 
   return (
-    <AnimatePresence>
+    <>
       <ExpandedHeader ref={ref} />
       {collapsed && (scrollY !== 0 || !inView) && <CollapsedHeader />}
-    </AnimatePresence>
+    </>
   );
 };
