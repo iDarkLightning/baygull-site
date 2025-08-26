@@ -681,27 +681,16 @@ export const draftRouter = {
         await ctx.db.transaction(async (tx) => {
           if (input.data.action === "delete") return;
 
-          await tx
-            .insert(articleMedia)
-            .values({
-              intent: "cover_img",
-              articleId: input.id,
-              caption: "",
-              fileName: input.data.fileName,
-              mimeType: input.data.mimeType,
-              url: input.data.url,
-              size: input.data.size,
-              ufsId: input.data.ufsId,
-            })
-            .onConflictDoUpdate({
-              target: articleMedia.articleId,
-              set: {
-                fileName: input.data.fileName,
-                mimeType: input.data.mimeType,
-                url: input.data.url,
-                size: input.data.size,
-              },
-            });
+          await tx.insert(articleMedia).values({
+            intent: "cover_img",
+            articleId: input.id,
+            caption: "",
+            fileName: input.data.fileName,
+            mimeType: input.data.mimeType,
+            url: input.data.url,
+            size: input.data.size,
+            ufsId: input.data.ufsId,
+          });
 
           await setUpdatedTime(tx, input.id);
         });
