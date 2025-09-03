@@ -144,7 +144,7 @@ importers:
         specifier: ^1.1.2
         version: 1.1.2(@types/react-dom@19.1.7(@types/react@19.1.10))(@types/react@19.1.10)(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.25.0
         version: 3.25.76
       zustand:
         specifier: ^5.0.3
@@ -199,7 +199,7 @@ importers:
         specifier: ^7.5.2
         version: 7.7.3(h3@1.15.4)(tailwindcss@4.1.11)
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.25.0
         version: 3.25.76
     devDependencies:
       '@types/node':
@@ -230,8 +230,11 @@ importers:
       drizzle-orm:
         specifier: ^0.40.0
         version: 0.40.1(@libsql/client@0.14.0)(gel@2.1.1)(kysely@0.28.5)
+      drizzle-zod:
+        specifier: ^0.8.3
+        version: 0.8.3(drizzle-orm@0.40.1(@libsql/client@0.14.0)(gel@2.1.1)(kysely@0.28.5))(zod@3.25.76)
       zod:
-        specifier: ^3.24.2
+        specifier: ^3.25.0
         version: 3.25.76
     devDependencies:
       '@types/node':
@@ -3552,6 +3555,12 @@ packages:
         optional: true
       sqlite3:
         optional: true
+
+  drizzle-zod@0.8.3:
+    resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: ^3.25.0 || ^4.0.0
 
   dunder-proto@1.0.1:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
@@ -9642,6 +9651,11 @@ snapshots:
       '@libsql/client': 0.14.0
       gel: 2.1.1
       kysely: 0.28.5
+
+  drizzle-zod@0.8.3(drizzle-orm@0.40.1(@libsql/client@0.14.0)(gel@2.1.1)(kysely@0.28.5))(zod@3.25.76):
+    dependencies:
+      drizzle-orm: 0.40.1(@libsql/client@0.14.0)(gel@2.1.1)(kysely@0.28.5)
+      zod: 3.25.76
 
   dunder-proto@1.0.1:
     dependencies:
