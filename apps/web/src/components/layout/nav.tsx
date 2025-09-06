@@ -1,5 +1,10 @@
 import { Button } from "@baygull/ui/button";
-import { MenuIcon, PencilSquareIcon, UserIcon } from "@baygull/ui/icons";
+import {
+  ManageIcon,
+  MenuIcon,
+  PencilSquareIcon,
+  UserIcon,
+} from "@baygull/ui/icons";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
@@ -24,52 +29,62 @@ const SidebarMenu = () => {
         <MenuIcon />
       </Button>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
+        <Drawer.Overlay className="fixed inset-0 bg-white/10 backdrop-blur-xs" />
         <Drawer.Content
-          className="right-2 top-2 bottom-2 fixed z-10 outline-none w-[310px] flex"
+          className="right-0 top-0 bottom-0 fixed z-[1000] outline-none w-[310px] flex"
           // The gap between the edge of the screen and the drawer is 8px in this case.
           style={
             { "--initial-transform": "calc(100% + 8px)" } as React.CSSProperties
           }
         >
-          <div className="bg-zinc-50 h-full w-full grow p-5 flex flex-col rounded-[16px] font-sans">
+          <div className="bg-zinc-800 text-white shadow-sm border-l-[0.0125rem] border-zinc-700/70 h-full w-full grow p-5 flex flex-col rounded-l-lg font-sans">
             <div className="max-w-md flex flex-col gap-4 h-full justify-between">
-              <div className="flex items-center gap-3 border-b-[0.0125rem] border-b-neutral-200 pb-4 flex-1/12">
+              <div className="flex items-center gap-3 border-b-[0.0125rem] border-b-zinc-600 pb-4 flex-1/12">
                 <img
                   src={userQuery.data.image ?? ""}
-                  className="rounded-full w-14"
+                  className="rounded-full w-10"
                   alt=""
                   referrerPolicy="no-referrer"
                 />
                 <div className="leading-4">
-                  <p className="font-semibold text-lg">{userQuery.data.name}</p>
-                  <p className="text-neutral-600">{userQuery.data.email}</p>
+                  <p className="font-medium">{userQuery.data.name}</p>
+                  <p className="text-zinc-400 text-sm">
+                    {userQuery.data.email}
+                  </p>
                 </div>
               </div>
               <div className="flex flex-col gap-2 flex-11/12">
                 <Link
                   to="/articles/submit"
-                  className="flex gap-2 items-center p-2 hover:bg-neutral-200 transition-colors rounded-full px-4 text-neutral-800"
+                  className="flex gap-2 items-center text-sm p-2 hover:bg-neutral-700 transition-colors rounded-full px-4 text-zinc-200"
                 >
                   <span>
                     <PencilSquareIcon />
                   </span>
                   <span>Submit Article</span>
                 </Link>
-                {/* <Link to="/articles/submit">View Drafts</Link> */}
+                {userQuery.data.role === 2 && (
+                  <Link
+                    to="/manage/a/$status"
+                    params={{ status: "drafts" }}
+                    className="flex gap-2 items-center text-sm p-2 hover:bg-neutral-700 transition-colors rounded-full px-4 text-zinc-200"
+                  >
+                    <span>
+                      <ManageIcon />
+                    </span>
+                    <span>Manage</span>
+                  </Link>
+                )}
               </div>
               <div className="flex-1/12">
-                <Button onPress={() => signOut.mutate()} fullWidth>
+                <Button
+                  variant="primaryAlt"
+                  onPress={() => signOut.mutate()}
+                  fullWidth
+                >
                   Sign Out
                 </Button>
               </div>
-              {/* <Drawer.Title className="font-medium mb-2 text-zinc-900">
-                It supports all directions.
-              </Drawer.Title>
-              <Drawer.Description className="text-zinc-600 mb-2">
-                This one specifically is not touching the edge of the screen,
-                but that&apos;s not required for a side drawer.
-              </Drawer.Description> */}
             </div>
           </div>
         </Drawer.Content>

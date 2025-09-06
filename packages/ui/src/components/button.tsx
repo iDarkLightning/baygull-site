@@ -23,6 +23,8 @@ export const button = cva(
       variant: {
         primary:
           "bg-neutral-800 hover:bg-neutral-800/85 text-white disabled:hover:bg-neutral-300",
+        primaryAlt:
+          "bg-neutral-700 hover:bg-neutral-600/85 border-[0.0125rem] border-neutral-500 text-white disabled:hover:bg-neutral-300",
         outline:
           "border-[0.0125rem] border-zinc-300/70 hover:border-zinc-400/80 disabled:hover:bg-transparent shadow-xs",
         secondary:
