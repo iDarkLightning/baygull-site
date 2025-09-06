@@ -120,11 +120,9 @@ export const articleQueryBuilder = <
 
         return createBuilder({
           ...fields,
-          coverImg: sql`${sq.coverMedia}`.mapWith((val) =>
-            val === null
-              ? (val as null)
-              : (JSON.parse(val) as typeof sq.coverMedia._.type)
-          ),
+          coverImg: sq.coverMedia as SQL.Aliased<
+            typeof sq.coverMedia._.type | null
+          >,
         });
       },
 
