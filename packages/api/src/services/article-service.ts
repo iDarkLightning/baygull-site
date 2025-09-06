@@ -113,7 +113,7 @@ export const articleQueryBuilder = <
           })
           .from(articleMedia)
           .where(eq(articleMedia.intent, "cover_img"))
-          .limit(1)
+          .groupBy(articleMedia.articleId)
           .as("cover_media_sub");
 
         extensions.push((qb) => qb.leftJoin(sq, eq(article.id, sq.articleId)));
