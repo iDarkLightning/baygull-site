@@ -283,7 +283,7 @@ export const DraftFilterDisplay = () => {
   const state = useDraftFilterStore((s) => s);
 
   const trpc = useTRPC();
-  const authors = useQuery(trpc.article.draft.getAuthorList.queryOptions());
+  const authors = useQuery(trpc.article.manage.getAuthorList.queryOptions());
 
   return (
     <div className="flex gap-2 mt-2 items-center flex-wrap">
@@ -455,7 +455,7 @@ function AuthorMultiSelect() {
   );
 
   const trpc = useTRPC();
-  const authors = useQuery(trpc.article.draft.getAuthorList.queryOptions());
+  const authors = useQuery(trpc.article.manage.getAuthorList.queryOptions());
 
   return (
     <MultiSelect selectedKeys={keys} setSelectedKeys={setKeys}>

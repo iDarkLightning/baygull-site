@@ -48,7 +48,7 @@ const formOpts = formOptions({
     coverImg: [] as Media[],
     authors: new Set<Key>(),
     topics: new Set<Key>(),
-    description: "" as string | undefined,
+    description: "" as string | null,
   },
 });
 
@@ -95,7 +95,7 @@ const TopicSelector = withForm({
     );
 
     const updateTopics = useMutation(
-      trpc.article.draft.updateTopics.mutationOptions({
+      trpc.article.manage.updateTopics.mutationOptions({
         onMutate: () => draft.getSnapshot(),
         onSettled: async () => {
           if (!draft.shouldRefetch()) return;
@@ -107,7 +107,7 @@ const TopicSelector = withForm({
           queryClient.setQueryData(draft.queryKey, context);
           form.setFieldValue(
             "topics",
-            new Set<Key>(data.topics.map(({ topic }) => topic.id))
+            new Set<Key>(data.topics.map((topic) => topic.id))
           );
         },
       })
@@ -225,8 +225,8 @@ const InfoForm: React.FC = () => {
     defaultValues: {
       title: data.title,
       type: data.type,
-      slugDerivedFromTitle: data.publishMeta.deriveSlugFromTitle,
-      slug: data.publishMeta.slug,
+      slugDerivedFromTitle: data.deriveSlugFromTitle,
+      slug: data.slug,
       coverImg: (data.coverImg
         ? [
             {
@@ -235,22 +235,22 @@ const InfoForm: React.FC = () => {
             },
           ]
         : []) as Media[],
-      authors: new Set<Key>(data.users.map(({ user }) => user.id)),
-      topics: new Set<Key>(data.topics.map(({ topic }) => topic.id)),
-      description: data.type !== "headline" ? data.description : undefined,
+      authors: new Set<Key>(data.users.map((user) => user.id)),
+      topics: new Set<Key>(data.topics.map((topic) => topic.id)),
+      description: data.type !== "headline" ? data.description : null,
     },
     listeners: {
       onChangeDebounceMs: 1_000,
       onChange: async () => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.article.draft.getAll.queryKey({ status: "draft" }),
+          queryKey: trpc.article.manage.getAll.queryKey({ status: "draft" }),
         });
       },
     },
   });
 
   const updateType = useMutation(
-    trpc.article.draft.updateType.mutationOptions({
+    trpc.article.manage.updateType.mutationOptions({
       scope: {
         id: MUTATION_SCOPE_ID,
       },
@@ -282,6 +282,7 @@ const InfoForm: React.FC = () => {
               description:
                 previousData.type === "default" ? previousData.description : "",
               type: newType.type,
+              content: [],
             };
           } else if (newType.type === "headline") {
             return {
@@ -308,7 +309,7 @@ const InfoForm: React.FC = () => {
   );
 
   const updateTitle = useMutation(
-    trpc.article.draft.updateTitle.mutationOptions({
+    trpc.article.manage.updateTitle.mutationOptions({
       scope: {
         id: MUTATION_SCOPE_ID,
       },
@@ -362,12 +363,12 @@ const InfoForm: React.FC = () => {
           form.setFieldValue("title", context.title);
 
           form.validateField("slug", "change");
-          form.setFieldValue("slug", context.publishMeta.slug);
+          form.setFieldValue("slug", context.slug);
         } else {
           // don't roll back the slug
           queryClient.setQueryData(draft.queryKey, {
             ...context,
-            publishMeta: { ...context.publishMeta, slug },
+            slug,
           });
 
           form.setFieldValue("title", context.title);
@@ -379,17 +380,17 @@ const InfoForm: React.FC = () => {
         const refetchResult = await draft.refetch();
         if (!refetchResult.data) return;
 
-        if (refetchResult.data.publishMeta.deriveSlugFromTitle) {
+        if (refetchResult.data.deriveSlugFromTitle) {
           form.validateField("slug", "change");
 
-          form.setFieldValue("slug", refetchResult.data.publishMeta.slug);
+          form.setFieldValue("slug", refetchResult.data.slug);
         }
       },
     })
   );
 
   const updateSlug = useMutation(
-    trpc.article.draft.updateSlug.mutationOptions({
+    trpc.article.manage.updateSlug.mutationOptions({
       scope: { id: MUTATION_SCOPE_ID },
       onMutate: async (slugData) => {
         await draft.cancelQueries();
@@ -404,7 +405,7 @@ const InfoForm: React.FC = () => {
             trim: true,
           });
 
-          if (slug !== previousData.publishMeta.slug) {
+          if (slug !== previousData.slug) {
             queryClient.setQueryData(draft.queryKey, (prev) => {
               if (!prev) return;
 
@@ -425,11 +426,8 @@ const InfoForm: React.FC = () => {
         if (!context) return;
 
         queryClient.setQueryData(draft.queryKey, context);
-        form.setFieldValue(
-          "slugDerivedFromTitle",
-          context.publishMeta.deriveSlugFromTitle
-        );
-        form.setFieldValue("slug", context.publishMeta.slug);
+        form.setFieldValue("slugDerivedFromTitle", context.deriveSlugFromTitle);
+        form.setFieldValue("slug", context.slug);
       },
       onSettled: async () => {
         if (!draft.shouldRefetch()) return;
@@ -437,16 +435,16 @@ const InfoForm: React.FC = () => {
         const refetchResult = await draft.refetch();
         if (!refetchResult.data) return;
 
-        if (refetchResult.data.publishMeta.deriveSlugFromTitle) {
+        if (refetchResult.data.deriveSlugFromTitle) {
           form.validateField("slug", "change");
-          form.setFieldValue("slug", refetchResult.data.publishMeta.slug);
+          form.setFieldValue("slug", refetchResult.data.slug);
         }
       },
     })
   );
 
   const updateDescription = useMutation(
-    trpc.article.draft.updateDescription.mutationOptions({
+    trpc.article.manage.updateDescription.mutationOptions({
       onMutate: async (descData) => {
         await draft.cancelQueries();
 
@@ -482,7 +480,7 @@ const InfoForm: React.FC = () => {
   );
 
   const updateAuthors = useMutation(
-    trpc.article.draft.updateAuthors.mutationOptions({
+    trpc.article.manage.updateAuthors.mutationOptions({
       onMutate: () => draft.getSnapshot(),
       onSettled: async () => {
         if (!draft.shouldRefetch()) return;
@@ -495,7 +493,7 @@ const InfoForm: React.FC = () => {
         queryClient.setQueryData(draft.queryKey, context);
         form.setFieldValue(
           "authors",
-          new Set<Key>(data.users.map(({ user }) => user.id))
+          new Set<Key>(data.users.map((user) => user.id))
         );
       },
     })
@@ -504,7 +502,7 @@ const InfoForm: React.FC = () => {
   const trpcClient = useTRPCClient();
 
   const updateCoverImg = useMutation({
-    mutationKey: trpc.article.draft.updateCoverImage.mutationKey(),
+    mutationKey: trpc.article.manage.updateCoverImage.mutationKey(),
     mutationFn: async ({
       file,
       id,
@@ -513,7 +511,7 @@ const InfoForm: React.FC = () => {
       file: File | null | undefined;
     }) => {
       if (!file) {
-        await trpcClient.article.draft.updateCoverImage.mutate({
+        await trpcClient.article.manage.updateCoverImage.mutate({
           id,
           data: {
             action: "delete",
@@ -526,7 +524,7 @@ const InfoForm: React.FC = () => {
         const [uploadedFile] = uploadResult;
         if (!uploadedFile) throw new Error("Upload Failed!");
 
-        await trpcClient.article.draft.updateCoverImage.mutate({
+        await trpcClient.article.manage.updateCoverImage.mutate({
           id,
           data: {
             action: "add",
@@ -565,7 +563,7 @@ const InfoForm: React.FC = () => {
 
   const slug = useStore(form.store, (s) => s.values.slug);
   const validateSlug = useQuery(
-    trpc.article.draft.validateSlug.queryOptions(
+    trpc.article.manage.validateSlug.queryOptions(
       {
         id: data.id,
         slug,
@@ -791,7 +789,7 @@ const InfoForm: React.FC = () => {
           listeners={{
             onChangeDebounceMs: 300,
             onChange: ({ fieldApi, value }) => {
-              if (fieldApi.getMeta().isValid) {
+              if (fieldApi.getMeta().isValid && data.type !== "headline") {
                 updateDescription.mutate({
                   id: data.id,
                   type: data.type,

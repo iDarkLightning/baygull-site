@@ -5,6 +5,7 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema.ts",
+    "./utils": "./src/utils.ts",
     "./article-parser": "./src/article-parser.ts"
   },
   "scripts": {

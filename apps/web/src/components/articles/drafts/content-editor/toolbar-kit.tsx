@@ -4,6 +4,7 @@ import {
   useEditorPlugin,
   useEditorRef,
   useEditorSelector,
+  useEditorValue,
   useMarkToolbarButton,
   useMarkToolbarButtonState,
   useSelectionFragmentProp,
@@ -326,7 +327,7 @@ const textTypes = [
     label: "Heading 3",
     id: "h3",
   },
-];
+] as const;
 
 const TextTypeMenu = () => {
   const editor = useEditorRef();
@@ -436,7 +437,7 @@ const EditDocForm: React.FC<{
   const queryClient = useQueryClient();
 
   const updateEditingUrl = useMutation(
-    trpc.article.draft.updateEditingUrl.mutationOptions({
+    trpc.article.manage.updateEditingUrl.mutationOptions({
       onMutate: (newSync) => {
         multiStepControl.reset();
         setIsSelected(newSync.shouldSync);
@@ -453,7 +454,7 @@ const EditDocForm: React.FC<{
         await draft.refetch();
 
         return queryClient.invalidateQueries({
-          queryKey: trpc.article.draft.getEditingDoc.queryKey(),
+          queryKey: trpc.article.manage.getEditingDoc.queryKey(),
         });
       },
     })
@@ -479,7 +480,7 @@ const EditDocForm: React.FC<{
   const docUrl = useStore(form.store, (s) => s.values.url);
 
   const docQuery = useSuspenseQuery(
-    trpc.article.draft.getEditingDoc.queryOptions({
+    trpc.article.manage.getEditingDoc.queryOptions({
       id: draft.data.id,
     })
   );
@@ -629,7 +630,7 @@ const DocSync = () => {
   const trpc = useTRPC();
 
   const docQuery = useSuspenseQuery(
-    trpc.article.draft.getEditingDoc.queryOptions({
+    trpc.article.manage.getEditingDoc.queryOptions({
       id: draft.data.id,
     })
   );
@@ -639,10 +640,20 @@ const DocSync = () => {
 
   const queryClient = useQueryClient();
 
+  const updateDraftDefaultContent = useMutation(
+    trpc.article.manage.updateDraftDefaultContent.mutationOptions({
+      onSettled: () =>
+        queryClient.invalidateQueries({ queryKey: draft.queryKey }),
+    })
+  );
+
+  const editorValue = useEditorValue();
+
   const updateSync = useMutation(
-    trpc.article.draft.updateDocSync.mutationOptions({
+    trpc.article.manage.updateDocSync.mutationOptions({
       onMutate: (newSync) => {
         setIsSelected(newSync.isSynced);
+
         return draft.getSnapshot();
       },
       onError: (_err, _nS, context) => {
@@ -652,7 +663,11 @@ const DocSync = () => {
         setIsSelected(context.isSynced);
       },
       onSettled: async () => {
-        return draft.refetch();
+        const [{ data }] = await draft.refetch();
+
+        if (data && !data.isSynced) {
+          updateDraftDefaultContent.mutate(editorValue);
+        }
       },
     })
   );

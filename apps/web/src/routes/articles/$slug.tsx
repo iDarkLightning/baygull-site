@@ -28,30 +28,32 @@ function RouteComponent() {
         <h2 className="text-4xl font-semibold leading-[1.4]">
           {article.title}
         </h2>
-        <p className="py-4 text-lg text-neutral-700">{article.description}</p>
+        {article.type !== "headline" && (
+          <p className="py-4 text-lg text-neutral-700">{article.description}</p>
+        )}
         <div className="flex items-center gap-3">
           <div className="flex items-center group">
-            {article.users.map(({ user }) => (
+            {article.users.map((user) => (
               <img
                 key={user.id}
                 src={user.image || ""}
                 width="48"
                 height="48"
-                className="rounded-full"
+                className="rounded-full size-8"
                 referrerPolicy="no-referrer"
               />
             ))}
           </div>
           <p className="font-medium">
             By{" "}
-            {article.users.map(({ user }) => (
+            {article.users.map((user) => (
               <a key={user.id} className="text-sky-700 underline">
                 {user.name}
               </a>
             ))}
           </p>
         </div>
-        {article.coverImg && (
+        {article.type !== "graphic" && article.coverImg && (
           <img
             src={article.coverImg.url}
             width="1600"
@@ -62,7 +64,7 @@ function RouteComponent() {
         )}
         <div className="flex items-center justify-between mt-4">
           <div className="flex flex-wrap gap-2">
-            {article.topics.map(({ topic }) => (
+            {article.topics.map((topic) => (
               <div
                 key={topic.id}
                 className="p-1 px-3 border w-fit border-neutral-400 rounded-full font-sans font-medium"
@@ -78,10 +80,11 @@ function RouteComponent() {
           </p>
         </div>
         <hr className="my-4 text-neutral-300" />
-        <div
+
+        {/* <div
           className="flex flex-col gap-4 text-lg leading-relaxed text-[#363636] pb-8 break-words ![&>img]:w-full parent"
           dangerouslySetInnerHTML={{ __html: article.content }}
-        />
+        /> */}
       </main>
     </>
   );

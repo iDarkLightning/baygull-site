@@ -30,18 +30,23 @@ export const ArticleSpotlight: React.FC<ArticleSpotlightProps> = (props) => (
         Spotlight
       </p>
     </div>
-    {props.article.description.length > 0 && (
-      <div>
-        <p className="text-neutral-600 break-words">
-          {props.article.description}
-        </p>
-      </div>
-    )}
+    {props.article.type !== "headline" &&
+      props.article.description &&
+      props.article.description.length > 0 && (
+        <div>
+          <p className="text-neutral-600 break-words">
+            {props.article.description}
+          </p>
+        </div>
+      )}
     <div className="flex flex-col gap-1">
       {props.article.topics.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-1">
-          {props.article.topics.map(({ topic }: any) => (
-            <div className="p-1 px-3 border w-fit border-neutral-400 rounded-full font-sans font-medium">
+          {props.article.topics.map((topic) => (
+            <div
+              className="p-1 px-3 border w-fit border-neutral-400 rounded-full font-sans font-medium"
+              key={topic.id}
+            >
               <p>{topic.name}</p>
             </div>
           ))}
@@ -57,7 +62,7 @@ export const ArticleSpotlight: React.FC<ArticleSpotlightProps> = (props) => (
         <p>
           By{" "}
           <span className="uppercase">
-            {props.article.users.map(({ user }: any) => user.name).join(", ")}
+            {props.article.users.map((user) => user.name).join(", ")}
           </span>
         </p>
       </div>

@@ -25,20 +25,20 @@ import { ToolbarKit } from "./toolbar-kit";
  */
 
 export default function DraftContentEditor() {
-  const { data, isUpdating, setIsUpdating, queryKey, query } =
+  const { data, isUpdating, setIsUpdating, queryKey, query, contentQuery } =
     useDefaultDraft();
 
   const getValue = () => {
     if (data.isSynced) {
       const { body } = new DOMParser().parseFromString(
-        data.content ?? "",
+        (data.content as string) ?? "",
         "text/html"
       );
 
       return body.innerHTML;
     }
 
-    return JSON.parse(data.content ?? "[]");
+    return JSON.parse((data.content as string) ?? "[]");
   };
 
   const editor = usePlateEditor({
@@ -67,7 +67,7 @@ export default function DraftContentEditor() {
   const queryClient = useQueryClient();
 
   const updateDraftDefaultContent = useMutation(
-    trpc.article.draft.updateDraftDefaultContent.mutationOptions({
+    trpc.article.manage.updateDraftDefaultContent.mutationOptions({
       onSettled: () => queryClient.invalidateQueries({ queryKey }),
     })
   );
@@ -76,7 +76,7 @@ export default function DraftContentEditor() {
     if (data.isSynced && query.status === "success") {
       editor.tf.setValue(getValue());
     }
-  }, [query.isRefetching]);
+  }, [query.isRefetching, contentQuery.isRefetching]);
 
   const debounce = useDebouncedCallback((value: Value) => {
     if (isUpdating) return;

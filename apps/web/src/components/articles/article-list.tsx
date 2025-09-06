@@ -27,7 +27,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
                 dateStyle: "medium",
               }).format(new Date(article.publishedAt))}
             </p>
-            {article.coverImg && (
+            {article.type !== "graphic" && article.coverImg && (
               <img
                 src={article.coverImg.url}
                 alt=""
@@ -40,13 +40,15 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
             <p className="text-xl font-semibold group-hover:underline group-hover:text-sky-600 text-balance">
               {article.title}
             </p>
-            <p className="text-neutral-600 text-sm break-words">
-              {article.description}
-            </p>
+            {article.type !== "headline" && (
+              <p className="text-neutral-600 text-sm break-words">
+                {article.description}
+              </p>
+            )}
             <div className="flex items-center gap-2 text-sm text-neutral-600 mt-1">
               {article.topics.length > 0 && (
                 <div className="flex flex-wrap gap-2 pt-1">
-                  {article.topics.map(({ topic }) => (
+                  {article.topics.map((topic) => (
                     <div
                       key={topic.id}
                       className="p-1 px-3 border w-fit border-neutral-400 rounded-full font-sans font-medium"
@@ -59,7 +61,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
               <p>
                 By{" "}
                 <span className="uppercase">
-                  {article.users.map(({ user }) => user.name).join(", ")}
+                  {article.users.map((user) => user.name).join(", ")}
                 </span>
               </p>
             </div>

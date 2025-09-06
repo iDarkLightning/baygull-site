@@ -39,7 +39,7 @@ const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
 const columns = [
   columnHelper.accessor(
     (row) => {
-      if (row.type !== "headline" && row.status !== "archived") {
+      if (row.type !== "headline") {
         return { title: row.title, desc: row.description };
       }
 
@@ -88,10 +88,8 @@ const columns = [
         <div>
           <div className="flex-1/12 items-center gap-2 flex px-3 py-2 mr-4">
             <div className="leading-6">
-              <p className="font-medium">{firstUserEntry.user.name}</p>
-              <p className="text-neutral-600 text-xs">
-                {firstUserEntry.user.email}
-              </p>
+              <p className="font-medium">{firstUserEntry.name}</p>
+              <p className="text-neutral-600 text-xs">{firstUserEntry.email}</p>
             </div>
             {users.length - 1 > 0 && (
               <TooltipTrigger>
@@ -101,7 +99,7 @@ const columns = [
                 <Tooltip placement="end">
                   {users
                     .slice(1)
-                    .map(({ user }) => user.name)
+                    .map((user) => user.name)
                     .join(", ")}
                 </Tooltip>
               </TooltipTrigger>
@@ -116,7 +114,7 @@ const columns = [
 
       const user = row.getValue<TDraftList[number]["users"]>(columnId);
 
-      return user.some((user) => value.has(user.userId));
+      return user.some((user) => value.has(user.id));
     },
   }),
   columnHelper.accessor("type", {
@@ -217,7 +215,7 @@ export const DraftTable = () => {
   const trpc = useTRPC();
   const routeContext = routeApi.useRouteContext();
   const { data, isStale, refetch } = useSuspenseQuery(
-    trpc.article.draft.getAll.queryOptions(
+    trpc.article.manage.getAll.queryOptions(
       {
         status: routeContext.status,
       },

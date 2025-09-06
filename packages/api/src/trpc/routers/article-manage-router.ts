@@ -1,11 +1,3 @@
-import { createId, isCuid } from "@paralleldrive/cuid2";
-import { TRPCError } from "@trpc/server";
-import { and, count, eq, like, not, sql } from "drizzle-orm";
-import slugify from "slugify";
-import { UTApi } from "uploadthing/server";
-import { z } from "zod";
-import { db } from "@baygull/db/";
-import { parseArticle } from "@baygull/db/article-parser";
 import {
   article,
   articleMedia,
@@ -17,8 +9,16 @@ import {
   topic,
   usersToArticles,
 } from "@baygull/db/schema";
+import { createId, isCuid } from "@paralleldrive/cuid2";
+import { TRPCError } from "@trpc/server";
+import { and, count, eq, like, not, sql } from "drizzle-orm";
+import slugify from "slugify";
+import { UTApi } from "uploadthing/server";
+import { z } from "zod";
 import { createDriveClient } from "../../google-drive";
+import { articleQueryBuilder } from "../../services/article-service";
 import { adminProcedure, authedProcedure } from "../middleware/auth-middleware";
+import { type Transaction } from "@baygull/db";
 
 const ARTICLE_FOLDER_ID = "18Vc7DIU6zxB8cmyeDb2izdB_9p3HtByT";
 
@@ -42,7 +42,21 @@ const createArticleEditingCopy = async (data: {
   return { id: response.data.id as string };
 };
 
-type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+const getArticleDocContent = async (data: { editingUrl: string }) => {
+  const drive = createDriveClient();
+
+  const fileId = new URL(data.editingUrl).pathname.split("/").at(3);
+
+  const response = await drive.files.export({
+    mimeType: "text/html",
+    fileId,
+  });
+
+  if (response.status !== 200)
+    throw new Error("Error occured getting doc content!");
+
+  return { content: response.data as string };
+};
 
 const setUpdatedTime = async (tx: Transaction, id: string) => {
   await tx
@@ -53,38 +67,7 @@ const setUpdatedTime = async (tx: Transaction, id: string) => {
     .where(eq(draftMeta.articleId, id));
 };
 
-export const draftRouter = {
-  // test: publicProcedure.query(async ({ ctx }) => {
-  //   const result = await ctx.db.all(sql`
-  //       SELECT ${article.id}, ${article.title}, json_group_array(
-  //         json_object('name', ${user.name}, 'id', ${user.id})) AS 'users' FROM ${article}
-  //       INNER JOIN ${publishMeta} ON ${article.id} = ${publishMeta.articleId}
-  //       INNER JOIN ${usersToArticles} ON ${usersToArticles.articleId} = ${article.id}
-  //       INNER JOIN ${user} on ${user.id} = ${usersToArticles.userId}
-  //       GROUP BY ${article.id}
-  //     `);
-
-  //   const ormResult = await ctx.db
-  //     .select({
-  //       id: article.id,
-  //       title: article.title,
-  //       users:
-  //         sql`json_group_array(json_object('id', ${user.id}, 'name', ${user.name}))`.as(
-  //           "users"
-  //         ),
-  //     })
-  //     .from(article)
-  //     .innerJoin(publishMeta, eq(article.id, publishMeta.articleId))
-  //     .innerJoin(usersToArticles, eq(article.id, usersToArticles.articleId))
-  //     .innerJoin(user, eq(user.id, usersToArticles.userId))
-  //     .groupBy(article.id);
-
-  //   return {
-  //     result,
-  //     ormResult,
-  //   };
-  // }),
-
+export const manageArticleRouter = {
   getAll: adminProcedure
     .input(
       z.object({
@@ -92,144 +75,67 @@ export const draftRouter = {
       })
     )
     .query(async ({ ctx, input }) => {
-      const articles = await ctx.db.query.article.findMany({
-        where: and(eq(article.status, input.status)),
-        with: {
-          publishMeta: true,
-          draftMeta: true,
-          archiveMeta: true,
-          publishDefaultContent: true,
-          draftDefaultContent: true,
-          graphicContent: true,
-          users: {
-            with: {
-              user: true,
-            },
-          },
-        },
-      });
+      const articles = await articleQueryBuilder(ctx.db, input.status)
+        .includeMeta()
+        .includeDescription()
+        .withUsers()
+        .run();
 
-      return articles.map((article) => {
-        const statusMeta =
-          article.status === "published"
-            ? article.publishMeta
-            : article.status === "draft"
-            ? { ...article.draftMeta, publishMeta: article.publishMeta }
-            : article.archiveMeta;
-
-        const content =
-          article.type === "graphic"
-            ? { ...article.graphicContent }
-            : article.type === "default"
-            ? article.status === "draft"
-              ? article.draftDefaultContent
-              : article.status === "published"
-              ? article.publishDefaultContent
-              : ({} as Record<string, never>)
-            : ({} as Record<string, never>);
-
-        return {
-          ...parseArticle(
-            {
-              id: article.id,
-              type: article.type,
-              status: article.status,
-              title: article.title,
-              createdAt: article.createdAt,
-              ...statusMeta,
-              ...content,
-            },
-            article.type,
-            article.status
-          ),
-          users: article.users,
-        };
-      });
+      return articles;
     }),
 
   getById: authedProcedure
     .input(z.object({ draftId: z.string() }))
     .query(async ({ input, ctx }) => {
-      const draft = await ctx.db.query.article.findFirst({
-        where: and(eq(article.id, input.draftId), eq(article.status, "draft")),
-        with: {
-          draftMeta: true,
-          publishMeta: true,
-          draftDefaultContent: true,
-          graphicContent: true,
-          media: {
-            limit: 1,
-            where: eq(articleMedia.intent, "cover_img"),
-          },
-          users: {
-            columns: {},
-            with: {
-              user: true,
-            },
-          },
-          topics: {
-            columns: {},
-            with: {
-              topic: true,
-            },
-          },
-        },
-      });
+      const draft = await ctx.uniqueResultOrThrow(
+        articleQueryBuilder(ctx.db, "draft")
+          .includeMeta()
+          .includeDescription()
+          .withUsers()
+          .withTopics()
+          .withCoverImage()
+          .with(
+            (exts) =>
+              void exts.push((qb) => qb.where(eq(article.id, input.draftId)))
+          )
+          .run()
+      );
 
-      if (!draft) throw new TRPCError({ code: "NOT_FOUND" });
+      return draft;
+    }),
 
-      const articleParse = await (async () => {
-        if (draft.type !== "default") {
-          return parseArticle(
-            {
-              ...draft,
-              ...draft.draftMeta,
-              ...draft.graphicContent,
-            },
-            draft.type,
-            "draft"
-          );
-        }
-
-        const content = draft.draftDefaultContent;
-        if (!content.isSynced) {
-          return parseArticle(
-            {
-              ...draft,
-              ...draft.draftMeta,
-              ...content,
-            },
-            draft.type,
-            "draft"
-          );
-        }
-
-        const drive = createDriveClient();
-
-        const fileId = new URL(content.editingUrl).pathname.split("/").at(3);
-
-        const response = await drive.files.export({
-          mimeType: "text/html",
-          fileId,
-        });
-
-        return parseArticle(
-          {
-            ...draft,
-            ...draft.draftMeta,
-            ...{ ...content, content: response.data as string },
-          },
-          draft.type,
-          "draft"
+  getDraftContent: authedProcedure
+    .input(
+      z.object({
+        articleId: z.string(),
+        type: z.enum(["default", "graphic"]),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      console.log("GETTING DRAFT CONTENT");
+      if (input.type === "default") {
+        const content = await ctx.uniqueResultOrThrow(
+          ctx.db
+            .select()
+            .from(draftDefaultContent)
+            .where(eq(draftDefaultContent.articleId, input.articleId))
         );
-      })();
 
-      return {
-        ...articleParse,
-        users: draft.users,
-        topics: draft.topics,
-        coverImg: draft.media[0],
-      };
+        if (content.isSynced) {
+          const docContent = await getArticleDocContent({
+            editingUrl: content.editingUrl,
+          });
+
+          console.log(docContent);
+
+          return {
+            ...content,
+            content: docContent.content,
+          };
+        }
+
+        return content;
+      }
     }),
 
   create: authedProcedure
@@ -270,6 +176,11 @@ export const draftRouter = {
           articleId,
           message: input.message,
           keyIdeas: input.keyIdeas,
+          slug: slugify(input.title, {
+            lower: true,
+            strict: true,
+            trim: true,
+          }),
         });
 
         await tx.insert(publishMeta).values({
@@ -522,7 +433,7 @@ export const draftRouter = {
           const { count: slugCount } = await ctx.uniqueResultOrThrow(
             tx
               .select({ count: count() })
-              .from(publishMeta)
+              .from(draftMeta)
               .where(
                 and(
                   like(publishMeta.slug, `${derivedSlug}%`),
@@ -533,7 +444,7 @@ export const draftRouter = {
           );
 
           await tx
-            .update(publishMeta)
+            .update(draftMeta)
             .set({
               deriveSlugFromTitle: true,
               slug:
@@ -550,7 +461,7 @@ export const draftRouter = {
           if (input.data.deriveFromTitle) return;
 
           await tx
-            .update(publishMeta)
+            .update(draftMeta)
             .set({
               deriveSlugFromTitle: false,
               ...(input.data.slug ? { slug: input.data.slug } : {}),
@@ -715,31 +626,6 @@ export const draftRouter = {
 
         await setUpdatedTime(tx, input.id);
       });
-    }),
-
-  getDraftDefaultContentHTML: adminProcedure
-    .input(
-      z.object({
-        id: z.string(),
-      })
-    )
-    .mutation(async ({ ctx, input }) => {
-      const draftContent = await ctx.db.query.draftDefaultContent.findFirst({
-        where: eq(draftDefaultContent.articleId, input.id),
-      });
-
-      if (!draftContent) throw new TRPCError({ code: "NOT_FOUND" });
-
-      const drive = createDriveClient();
-
-      const fileId = new URL(draftContent.editingUrl).pathname.split("/").at(3);
-
-      const response = await drive.files.export({
-        mimeType: "text/html",
-        fileId,
-      });
-
-      return response.data as string;
     }),
 
   uploadExternalContentImage: adminProcedure
@@ -928,7 +814,6 @@ export const draftRouter = {
                 : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
             })
             .where(eq(draftDefaultContent.articleId, input.id))
-            .limit(1)
             .returning()
         );
 
@@ -974,7 +859,6 @@ export const draftRouter = {
                 : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
             })
             .where(eq(draftDefaultContent.articleId, input.id))
-            .limit(1)
             .returning()
         );
 

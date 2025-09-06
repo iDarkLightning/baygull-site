@@ -70,14 +70,14 @@ export const Route = createFileRoute("/manage/_admin-layout/a/$status")({
   },
   loader: async ({ context, deps }) => {
     await context.queryClient.ensureQueryData(
-      context.trpc.article.draft.getAll.queryOptions({
+      context.trpc.article.manage.getAll.queryOptions({
         status: context.status,
       })
     );
 
     if (deps.authors.length > 0) {
       await context.queryClient.ensureQueryData(
-        context.trpc.article.draft.getAuthorList.queryOptions()
+        context.trpc.article.manage.getAuthorList.queryOptions()
       );
     }
   },

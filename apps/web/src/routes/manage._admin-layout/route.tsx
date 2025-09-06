@@ -8,7 +8,7 @@ export const Route = createFileRoute("/manage/_admin-layout")({
     }
   },
   loader: ({ context }) => {
-    context.trpcClient.article.draft.commitContentDeletion.mutate();
+    context.trpcClient.article.manage.commitContentDeletion.mutate();
   },
   component: RouteComponent,
 });

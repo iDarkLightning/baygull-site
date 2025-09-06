@@ -6,7 +6,6 @@ import {
 import { useBlocker, useParams } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTRPC } from "../trpc-client";
-import { isStrictArticle } from "@baygull/db/article-parser";
 
 export const useDraft = () => {
   const trpc = useTRPC();
@@ -18,14 +17,14 @@ export const useDraft = () => {
 
   const queryKey = useMemo(
     () =>
-      trpc.article.draft.getById.queryKey({
+      trpc.article.manage.getById.queryKey({
         draftId: params.id,
       }),
     [params.id]
   );
 
   const { data, refetch, ...query } = useSuspenseQuery(
-    trpc.article.draft.getById.queryOptions(
+    trpc.article.manage.getById.queryOptions(
       {
         draftId: params.id,
       },
@@ -88,22 +87,49 @@ export const useDraft = () => {
 };
 
 export const useDefaultDraft = () => {
+  const trpc = useTRPC();
   const draft = useDraft();
+  const queryClient = useQueryClient();
 
-  if (!isStrictArticle(draft.data, "default", "draft"))
+  const contentQuery = useSuspenseQuery(
+    trpc.article.manage.getDraftContent.queryOptions({
+      articleId: draft.data.id,
+      type: "default",
+    })
+  );
+
+  if (draft.data.type !== "default")
     throw new Error("Invariant on draft type at useDefaultDraft!");
 
   const getSnapshot = useCallback(async () => {
     const snapshot = await draft.getSnapshot();
     if (snapshot === undefined) return snapshot;
 
-    if (!isStrictArticle(snapshot, "default", "draft"))
+    if (draft.data.type !== "default")
       throw new Error(
         "Invariant on draft type at useDefaultDraft.getSnapshot!"
       );
 
-    return snapshot;
+    const contentSnapshot = queryClient.getQueryData(
+      trpc.article.manage.getDraftContent.queryKey()
+    );
+
+    return { ...snapshot, ...contentSnapshot! };
   }, [draft.getSnapshot]);
 
-  return { ...draft, data: draft.data, getSnapshot };
+  const refetch = useCallback(async () => {
+    return Promise.all([contentQuery.refetch(), draft.refetch()]);
+  }, [contentQuery.refetch, draft.refetch]);
+
+  return {
+    ...draft,
+    data: {
+      ...draft.data,
+      type: draft.data.type,
+      ...contentQuery.data!,
+    },
+    getSnapshot,
+    refetch,
+    contentQuery,
+  };
 };

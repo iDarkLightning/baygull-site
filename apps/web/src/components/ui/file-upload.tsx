@@ -12,7 +12,12 @@ const mimeTypes = ["image/png", "image/jpeg"];
 export type Media =
   | {
       __type: "uploaded-media";
-      file: ArticleMedia;
+      file: {
+        id: string;
+        url: string;
+        fileName: string;
+        size: number;
+      };
     }
   | {
       __type: "file";

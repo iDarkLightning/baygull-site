@@ -56,7 +56,7 @@ export const Route = createFileRoute(
 )({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(
-      context.trpc.article.draft.getById.queryOptions({
+      context.trpc.article.manage.getById.queryOptions({
         draftId: params.id,
       })
     );

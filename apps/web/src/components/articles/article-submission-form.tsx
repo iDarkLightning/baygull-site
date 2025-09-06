@@ -595,7 +595,7 @@ export const ArticleSubmissionForm = () => {
   const trpc = useTRPC();
 
   const submit = useMutation(
-    trpc.article.draft.create.mutationOptions({
+    trpc.article.manage.create.mutationOptions({
       onError: (err) => {
         console.error(err);
       },

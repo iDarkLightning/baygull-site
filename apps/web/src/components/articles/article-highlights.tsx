@@ -22,7 +22,7 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
         >
           <div className="flex flex-col gap-3">
             <div>
-              {article.coverImg && (
+              {article.type !== "graphic" && article.coverImg && (
                 <img
                   src={article.coverImg.url}
                   alt=""
@@ -35,11 +35,15 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
               <p className="text-xl font-semibold group-hover:underline group-hover:text-sky-600">
                 {article.title}
               </p>
-              <p className="text-neutral-600 text-sm">{article.description}</p>
+              {article.type !== "headline" && (
+                <p className="text-neutral-600 text-sm">
+                  {article.description}
+                </p>
+              )}
               <div className="flex lg:items-center flex-col lg:flex-row gap-2 text-sm text-neutral-600 mt-1 flex-wrap">
                 {article.topics.length > 0 && (
                   <div className="flex flex-wrap gap-2 pt-1">
-                    {article.topics.slice(0, 2).map(({ topic }) => (
+                    {article.topics.slice(0, 2).map((topic) => (
                       <div
                         key={topic.id}
                         className="p-1 px-3 border w-fit border-neutral-400 rounded-full font-sans font-medium"
@@ -59,7 +63,7 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
                   <p>
                     By{" "}
                     <span className="uppercase">
-                      {article.users.map(({ user }) => user.name).join(", ")}
+                      {article.users.map((user) => user.name).join(", ")}
                     </span>
                   </p>
                 </div>

@@ -61,7 +61,7 @@ export function CaptionTextarea(
 
   const trpc = useTRPC();
   const { mutate } = useMutation(
-    trpc.article.draft.updateContentImage.mutationOptions()
+    trpc.article.manage.updateContentImage.mutationOptions()
   );
 
   const updateContentImage = useDebouncedCallback(mutate, 300);
@@ -116,7 +116,7 @@ const ImagePlugin = PlateImagePlugin.extend({
           const trpcClient = createTRPCClient();
 
           setIsUpdating(true);
-          trpcClient.article.draft.uploadExternalContentImage
+          trpcClient.article.manage.uploadExternalContentImage
             .mutate({
               id: draftId,
               url: op.node.url,
@@ -150,7 +150,7 @@ const ImagePlugin = PlateImagePlugin.extend({
           setIsUpdating(true);
 
           const trpcClient = createTRPCClient();
-          trpcClient.article.draft.updateContentImage
+          trpcClient.article.manage.updateContentImage
             .mutate({
               mediaId: op.node.mediaId,
               markForDeletion: true,
