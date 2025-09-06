@@ -61,6 +61,7 @@ const excludedFieldsByType = {
 } satisfies Record<TArticleType, string[]>;
 
 const defaultValues = {
+  splash: {},
   type: {
     type: "default" as TArticleType,
   },
@@ -79,6 +80,7 @@ const defaultValues = {
     keyIdeas: "",
     message: "",
   },
+  preview: {},
 };
 
 type FormFields =
@@ -645,7 +647,7 @@ export const ArticleSubmissionForm = () => {
       return multiStepControl.moveForward();
     if (steps[multiStepControl.step] === "preview") return form.handleSubmit();
 
-    const fieldData = Object.keys(defaultValues[steps[multiStepControl.step]])
+    const fieldData = Object.keys(defaultValues[steps[multiStepControl.step]!])
       .map((field) => `${steps[multiStepControl.step]}.${field}`)
       .filter((field) => !excludedFieldsByType[type].includes(field))
       .map((field) => {
