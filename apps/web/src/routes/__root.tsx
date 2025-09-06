@@ -52,9 +52,27 @@ export const Route = createRootRouteWithContext<{
 
     return { user };
   },
-  errorComponent: () => <p>Oh noes! An error! Run!!</p>,
+  notFoundComponent: NotFoundComponent,
+  errorComponent: ErrorComponent,
   component: RootComponent,
 });
+
+function NotFoundComponent() {
+  console.log("RENDERING NOT FOUND...");
+  return (
+    <RootDocument>
+      <p>Not Found!</p>
+    </RootDocument>
+  );
+}
+
+function ErrorComponent() {
+  return (
+    <RootDocument>
+      <p>Oh noes! An error! Run!!</p>
+    </RootDocument>
+  );
+}
 
 function RootComponent() {
   const navigate = useNavigate();

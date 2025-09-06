@@ -1,11 +1,27 @@
-import { createFileRoute, notFound, Outlet } from "@tanstack/react-router";
+import { authClient } from "@baygull/auth/client";
+import {
+  createFileRoute,
+  notFound,
+  Outlet,
+  redirect,
+  rootRouteId,
+} from "@tanstack/react-router";
 import { AdminShell } from "~/components/layout/admin-shell";
 
 export const Route = createFileRoute("/manage/_admin-layout")({
   beforeLoad: async ({ context }) => {
+    console.log("context.user = ", context.user);
     if (!context.user) {
-      throw notFound();
+      const { data } = await authClient.signIn.social({
+        provider: "google",
+        disableRedirect: true,
+        callbackURL: "/articles/submit",
+      });
+
+      throw redirect({ href: data?.url });
     }
+
+    if (context.user.role !== 2) throw notFound({ routeId: rootRouteId });
   },
   loader: ({ context }) => {
     context.trpcClient.article.manage.commitContentDeletion.mutate();
