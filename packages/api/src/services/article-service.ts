@@ -118,7 +118,14 @@ export const articleQueryBuilder = <
 
         extensions.push((qb) => qb.leftJoin(sq, eq(article.id, sq.articleId)));
 
-        return createBuilder({ ...fields, coverImg: sq.coverMedia });
+        return createBuilder({
+          ...fields,
+          coverImg: sql`${sq.coverMedia}`.mapWith((val) =>
+            val === null
+              ? (val as null)
+              : (JSON.parse(val) as typeof sq.coverMedia._.type)
+          ),
+        });
       },
 
       withUsers() {
@@ -191,14 +198,3 @@ export const articleQueryBuilder = <
 
   return createBuilder(cols);
 };
-
-const a = await articleQueryBuilder(db, "published")
-  .includeMeta()
-  .withUsers()
-  .withTopics()
-  .withCoverImage()
-  .run();
-
-// a[0]?
-
-//   a[0]?.keyIdeas

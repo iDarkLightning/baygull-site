@@ -112,7 +112,6 @@ export const manageArticleRouter = {
       })
     )
     .query(async ({ ctx, input }) => {
-      console.log("GETTING DRAFT CONTENT");
       if (input.type === "default") {
         const content = await ctx.uniqueResultOrThrow(
           ctx.db
@@ -125,8 +124,6 @@ export const manageArticleRouter = {
           const docContent = await getArticleDocContent({
             editingUrl: content.editingUrl,
           });
-
-          console.log(docContent);
 
           return {
             ...content,
@@ -266,7 +263,6 @@ export const manageArticleRouter = {
               title: input.title,
             })
             .where(eq(article.id, input.id))
-            .limit(1)
             .returning({ id: article.id })
         );
 
@@ -280,19 +276,19 @@ export const manageArticleRouter = {
           const { count: slugCount } = await ctx.uniqueResultOrThrow(
             tx
               .select({ count: count() })
-              .from(publishMeta)
-              .where(like(publishMeta.slug, `${derivedSlug}%`))
+              .from(draftMeta)
+              .where(like(draftMeta.slug, `${derivedSlug}%`))
           );
 
           await tx
-            .update(publishMeta)
+            .update(draftMeta)
             .set({
               slug:
                 slugCount === 0
                   ? derivedSlug
                   : `${derivedSlug}-${slugCount + 1}`,
             })
-            .where(eq(publishMeta.articleId, input.id));
+            .where(eq(draftMeta.articleId, input.id));
         }
 
         await setUpdatedTime(tx, input.id);
@@ -436,8 +432,8 @@ export const manageArticleRouter = {
               .from(draftMeta)
               .where(
                 and(
-                  like(publishMeta.slug, `${derivedSlug}%`),
-                  not(eq(publishMeta.articleId, input.id))
+                  like(draftMeta.slug, `${derivedSlug}%`),
+                  not(eq(draftMeta.articleId, input.id))
                 )
               )
               .limit(1)
@@ -452,7 +448,7 @@ export const manageArticleRouter = {
                   ? derivedSlug
                   : `${derivedSlug}-${slugCount + 1}`,
             })
-            .where(eq(publishMeta.articleId, input.id));
+            .where(eq(draftMeta.articleId, input.id));
 
           await setUpdatedTime(tx, input.id);
         });
@@ -466,7 +462,7 @@ export const manageArticleRouter = {
               deriveSlugFromTitle: false,
               ...(input.data.slug ? { slug: input.data.slug } : {}),
             })
-            .where(eq(publishMeta.articleId, input.id));
+            .where(eq(draftMeta.articleId, input.id));
 
           await setUpdatedTime(tx, input.id);
         });
@@ -535,18 +531,25 @@ export const manageArticleRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.transaction(async (tx) => {
-        await tx.insert(topic).values(input.topics).onConflictDoNothing();
+        console.log(input.topics);
+        if (input.topics.length > 0) {
+          await tx.insert(topic).values(input.topics).onConflictDoNothing();
+        }
+
+        console.log("DELETING EXISTING");
 
         await tx
           .delete(articlesToTopics)
           .where(and(eq(articlesToTopics.articleId, input.id)));
 
-        await tx.insert(articlesToTopics).values(
-          input.topics.map((t) => ({
-            topicId: t.id,
-            articleId: input.id,
-          }))
-        );
+        if (input.topics.length > 0) {
+          await tx.insert(articlesToTopics).values(
+            input.topics.map((t) => ({
+              topicId: t.id,
+              articleId: input.id,
+            }))
+          );
+        }
 
         await setUpdatedTime(tx, input.id);
       });

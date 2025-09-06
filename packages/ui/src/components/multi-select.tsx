@@ -18,7 +18,7 @@ import {
 } from "react-aria-components";
 import useMeasure from "react-use-measure";
 import { cn } from "../cn";
-import { Checkbox } from "./checkbox";
+import { checkbox, Checkbox, CheckIcon } from "./checkbox";
 import { ChevronUpDownIcon, XMarkIcon } from "./icons";
 import { inputBase } from "./input";
 import { ModalPopover } from "./modal-popover";
@@ -210,28 +210,13 @@ export const MultiSelectItem: React.FC<MultiSelectItemProps> = ({
   value,
   ...props
 }) => {
-  const { selectedKeys, setSelectedKeys } = useMultiSelect();
-
   return (
     <SelectItem {...props}>
       {({ isSelected }) => (
         <span className="flex items-center gap-2 group">
-          {/* <span className={isSelected ? "" : "hidden group-hover:block"}> */}
-          <Checkbox
-            isSelected={isSelected}
-            onChange={() => {
-              if (selectedKeys.has(value)) {
-                const newSet = new Set(selectedKeys);
-                newSet.delete(value);
-                setSelectedKeys(newSet);
-              } else {
-                const newSet = new Set(selectedKeys);
-                newSet.add(value);
-                setSelectedKeys(newSet);
-              }
-            }}
-          />
-          {/* </span> */}
+          <div className={checkbox({ isSelected })}>
+            {isSelected && <CheckIcon />}
+          </div>
           {props.children}
         </span>
       )}
