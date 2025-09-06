@@ -102,9 +102,6 @@ export const publishMeta = sqliteTable("publish_meta", {
     .primaryKey()
     .references(() => article.id),
   slug: text("slug").notNull().unique(),
-  deriveSlugFromTitle: integer("derive_slug_from_title", { mode: "boolean" })
-    .notNull()
-    .default(true),
 
   isHighlighted: integer("is_highlighted", { mode: "boolean" }),
 
@@ -127,6 +124,11 @@ export const draftMeta = sqliteTable("draft_meta", {
   articleId: text("article_id")
     .primaryKey()
     .references(() => article.id),
+
+  slug: text("slug").notNull().unique(),
+  deriveSlugFromTitle: integer("derive_slug_from_title", { mode: "boolean" })
+    .notNull()
+    .default(true),
 
   keyIdeas: text("key_ideas").notNull(),
   message: text("message").notNull(),
