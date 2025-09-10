@@ -516,7 +516,7 @@ const EditDocForm: React.FC<{
         isCircular={false}
       >
         <div className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}>
-          {docQuery.data.name}
+          {docQuery.data ? docQuery.data.name : "Not Linked"}
         </div>
       </Button>
       <Modal
@@ -673,7 +673,8 @@ const DocSync = () => {
   );
 
   const shouldEnableSync = useMemo(() => {
-    if (!draft.data.syncDisabledAt || draft.data.isSynced) return false;
+    if (!draft.data.syncDisabledAt || draft.data.isSynced || !docQuery.data)
+      return false;
 
     const syncDisabledAt = new Date(draft.data.syncDisabledAt);
     const modifiedTime = new Date(docQuery.data.modifiedTime);
@@ -713,6 +714,7 @@ const DocSync = () => {
         </motion.div>
 
         <Switch
+          isDisabled={!docQuery.data}
           isSelected={isSelected}
           onChange={(value) => {
             if (value) {

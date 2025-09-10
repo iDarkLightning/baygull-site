@@ -778,24 +778,30 @@ export const manageArticleRouter = {
           .limit(1)
       );
 
-      const fileId = new URL(draftContent.editingUrl).pathname.split("/").at(3);
+      try {
+        const fileId = new URL(draftContent.editingUrl).pathname
+          .split("/")
+          .at(3);
 
-      const drive = createDriveClient();
-      const response = await drive.files.get({
-        fileId,
-        fields: "id,name,modifiedTime",
-      });
-
-      if (response.status !== 200)
-        throw new TRPCError({
-          code: "NOT_FOUND",
+        const drive = createDriveClient();
+        const response = await drive.files.get({
+          fileId,
+          fields: "id,name,modifiedTime",
         });
 
-      return response.data as {
-        id: string;
-        name: string;
-        modifiedTime: string;
-      };
+        if (response.status !== 200)
+          throw new TRPCError({
+            code: "NOT_FOUND",
+          });
+
+        return response.data as {
+          id: string;
+          name: string;
+          modifiedTime: string;
+        };
+      } catch {
+        return null;
+      }
     }),
 
   updateDocSync: adminProcedure
