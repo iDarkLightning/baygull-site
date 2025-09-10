@@ -1,5 +1,5 @@
 import { publishMeta } from "@baygull/db/schema";
-import { eq } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { createDriveClient } from "../../google-drive";
 import { articleQueryBuilder } from "../../services/article-service";
@@ -37,6 +37,10 @@ export const articleRouter = {
       .withUsers()
       .withTopics()
       .withCoverImage()
+      .with(
+        (ext) =>
+          void ext.push((qb) => qb.orderBy(desc(publishMeta.publishedAt)))
+      )
       .run();
 
     return articles;
@@ -49,6 +53,10 @@ export const articleRouter = {
       .withUsers()
       .withTopics()
       .withCoverImage()
+      .with(
+        (ext) =>
+          void ext.push((qb) => qb.orderBy(desc(publishMeta.publishedAt)))
+      )
       .run();
 
     if (articles.length === 0) {
