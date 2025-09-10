@@ -15,14 +15,15 @@ export const Switch: React.FC<React.PropsWithChildren<SwitchProps>> = (
     style={{ WebkitTapHighlightColor: "transparent" }}
     {...props}
   >
-    {({ isSelected, isPressed, isFocusVisible }) => (
+    {({ isSelected, isPressed, isFocusVisible, isDisabled }) => (
       <>
         <span
           className={cn(
             "flex shadow-inner justify-start p-0.5 w-9 rounded-full border-[0.0125rem] border-zinc-300/70 bg-zinc-100 transition-colors",
             isSelected && "bg-sky-600 border-transparent",
             isPressed && "bg-sky-300",
-            isFocusVisible && "ring-[1.25px] ring-offset-0 ring-sky-800"
+            isFocusVisible && "ring-[1.25px] ring-offset-0 ring-sky-800",
+            isDisabled && "cursor-not-allowed opacity-70"
           )}
         >
           <span
