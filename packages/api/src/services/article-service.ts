@@ -1,4 +1,4 @@
-import { db, type DBClient } from "@baygull/db";
+import { type DBClient } from "@baygull/db";
 import {
   archiveMeta,
   article,
