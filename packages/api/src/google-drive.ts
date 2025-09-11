@@ -1,4 +1,4 @@
-import { google } from "googleapis";
+import { drive, auth } from "@googleapis/drive";
 
 const SCOPES = ["https://www.googleapis.com/auth/drive"];
 
@@ -6,7 +6,7 @@ export const createDriveClient = () => {
   const meta = JSON.parse(process.env.SERVICE_ACCOUNT_META!);
   const key = process.env.SERVICE_ACCOUNT_KEY!;
 
-  const auth = new google.auth.GoogleAuth({
+  const _auth = new auth.GoogleAuth({
     credentials: {
       ...meta,
       private_key: key,
@@ -14,5 +14,5 @@ export const createDriveClient = () => {
     scopes: SCOPES,
   });
 
-  return google.drive({ version: "v3", auth });
+  return drive({ version: "v3", auth: _auth });
 };
