@@ -8,6 +8,12 @@ import superjson from "superjson";
 import { TRPCProvider } from "./lib/trpc-client";
 import type { TRPCRouter } from "@baygull/api/trpc";
 import { routeTree } from "./routeTree.gen";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { getHeaders } from "@tanstack/react-start/server";
+
+const isomorphicHeaders = createIsomorphicFn()
+  .server(() => getHeaders())
+  .client(() => ({}));
 
 export function createRouter() {
   const queryClient = new QueryClient({
@@ -24,13 +30,9 @@ export function createRouter() {
     links: [
       httpBatchStreamLink({
         transformer: superjson,
-        url: `${process.env.BASE_URL ?? ""}/api/trpc`,
+        url: `/api/trpc`,
         headers: async () => {
-          if (typeof window === "undefined") {
-            const { getHeaders } = await import("@tanstack/react-start/server");
-            return getHeaders();
-          }
-          return {};
+          return isomorphicHeaders();
         },
       }),
     ],
