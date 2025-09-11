@@ -9,13 +9,13 @@ import {
 import { AdminShell } from "~/components/layout/admin-shell";
 
 export const Route = createFileRoute("/manage/_admin-layout")({
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async ({ context, location }) => {
     console.log("context.user = ", context.user);
     if (!context.user) {
       const { data } = await authClient.signIn.social({
         provider: "google",
         disableRedirect: true,
-        callbackURL: "/articles/submit",
+        callbackURL: location.href,
       });
 
       throw redirect({ href: data?.url });
