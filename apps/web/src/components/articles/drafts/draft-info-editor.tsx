@@ -265,24 +265,34 @@ const InfoForm: React.FC = () => {
           if (newType.type === "default") {
             return {
               ...previousData,
-              description:
-                previousData.type === "graphic" ? previousData.description : "",
-              content: "",
+              content: {
+                articleId: "",
+                description:
+                  previousData.type === "graphic"
+                    ? previousData.content.description
+                    : "",
+                type: "json" as const,
+                content: "",
+                isSynced: false,
+                syncDisabledAt: null,
 
-              isSynced: false,
-              syncDisabledAt: null,
-
-              editingUrl: "",
-              originalUrl: "",
+                editingUrl: "",
+                originalUrl: "",
+              },
               type: newType.type,
             };
           } else if (newType.type === "graphic") {
             return {
               ...previousData,
-              description:
-                previousData.type === "default" ? previousData.description : "",
               type: newType.type,
-              content: [],
+              content: {
+                articleId: "",
+                description:
+                  previousData.type === "default"
+                    ? previousData.content.description
+                    : "",
+                content: [],
+              },
             };
           } else if (newType.type === "headline") {
             return {
@@ -789,7 +799,7 @@ const InfoForm: React.FC = () => {
           listeners={{
             onChangeDebounceMs: 300,
             onChange: ({ fieldApi, value }) => {
-              if (fieldApi.getMeta().isValid && data.type !== "headline") {
+              if (fieldApi.getMeta().isValid) {
                 updateDescription.mutate({
                   id: data.id,
                   type: data.type,

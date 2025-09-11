@@ -87,16 +87,7 @@ export const useDraft = () => {
 };
 
 export const useDefaultDraft = () => {
-  const trpc = useTRPC();
   const draft = useDraft();
-  const queryClient = useQueryClient();
-
-  const contentQuery = useSuspenseQuery(
-    trpc.article.manage.getDraftContent.queryOptions({
-      articleId: draft.data.id,
-      type: "default",
-    })
-  );
 
   if (draft.data.type !== "default")
     throw new Error("Invariant on draft type at useDefaultDraft!");
@@ -105,31 +96,17 @@ export const useDefaultDraft = () => {
     const snapshot = await draft.getSnapshot();
     if (snapshot === undefined) return snapshot;
 
-    if (draft.data.type !== "default")
+    if (snapshot.type !== "default")
       throw new Error(
         "Invariant on draft type at useDefaultDraft.getSnapshot!"
       );
 
-    const contentSnapshot = queryClient.getQueryData(
-      trpc.article.manage.getDraftContent.queryKey()
-    );
-
-    return { ...snapshot, ...contentSnapshot! };
+    return snapshot;
   }, [draft.getSnapshot]);
-
-  const refetch = useCallback(async () => {
-    return Promise.all([contentQuery.refetch(), draft.refetch()]);
-  }, [contentQuery.refetch, draft.refetch]);
 
   return {
     ...draft,
-    data: {
-      ...draft.data,
-      type: draft.data.type,
-      ...contentQuery.data!,
-    },
+    data: draft.data,
     getSnapshot,
-    refetch,
-    contentQuery,
   };
 };

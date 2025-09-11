@@ -81,10 +81,14 @@ function RouteComponent() {
         </div>
         <hr className="my-4 text-neutral-300" />
 
-        {/* <div
-          className="flex flex-col gap-4 text-lg leading-relaxed text-[#363636] pb-8 break-words ![&>img]:w-full parent"
-          dangerouslySetInnerHTML={{ __html: article.content }}
-        /> */}
+        {article.type === "default" && (
+          <div
+            className="flex flex-col gap-4 text-lg leading-relaxed text-[#363636] pb-8 break-words ![&>img]:w-full parent"
+            dangerouslySetInnerHTML={{
+              __html: article.content.content as string,
+            }}
+          />
+        )}
       </main>
     </>
   );

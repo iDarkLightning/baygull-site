@@ -1,4 +1,8 @@
-import { publishMeta } from "@baygull/db/schema";
+import {
+  graphicContent,
+  publishDefaultContent,
+  publishMeta,
+} from "@baygull/db/schema";
 import { desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import { createDriveClient } from "../../google-drive";
@@ -27,7 +31,38 @@ export const articleRouter = {
           .run()
       );
 
-      return query;
+      if (query.type === "default") {
+        const content = await ctx.uniqueResultOrThrow(
+          ctx.db
+            .select()
+            .from(publishDefaultContent)
+            .where(eq(publishDefaultContent.articleId, query.articleId))
+        );
+
+        return {
+          ...query,
+          type: "default" as const,
+          content,
+        };
+      } else if (query.type === "graphic") {
+        const content = await ctx.uniqueResultOrThrow(
+          ctx.db
+            .select()
+            .from(graphicContent)
+            .where(eq(graphicContent.articleId, query.articleId))
+        );
+
+        return {
+          ...query,
+          type: "graphic" as const,
+          content,
+        };
+      } else {
+        return {
+          ...query,
+          type: "headline" as const,
+        };
+      }
     }),
 
   getAll: publicProcedure.query(async ({ ctx }) => {

@@ -448,7 +448,7 @@ const EditDocForm: React.FC<{
         if (!context) return;
 
         queryClient.setQueryData(draft.queryKey, context);
-        setIsSelected(context.isSynced);
+        setIsSelected(context.content.isSynced);
       },
       onSettled: async () => {
         await draft.refetch();
@@ -464,8 +464,8 @@ const EditDocForm: React.FC<{
 
   const form = useAppForm({
     defaultValues: {
-      url: draft.data.editingUrl,
-      sync: draft.data.isSynced,
+      url: draft.data.content.editingUrl,
+      sync: draft.data.content.isSynced,
     },
     onSubmit: async ({ value }) => {
       control.close();
@@ -515,7 +515,11 @@ const EditDocForm: React.FC<{
         variant="ghost"
         isCircular={false}
       >
-        <div className={!draft.data.isSynced ? "max-w-[16ch] truncate" : ""}>
+        <div
+          className={
+            !draft.data.content.isSynced ? "max-w-[16ch] truncate" : ""
+          }
+        >
           {docQuery.data ? docQuery.data.name : "Not Linked"}
         </div>
       </Button>
@@ -636,7 +640,7 @@ const DocSync = () => {
   );
 
   const [isOpen, setIsOpen] = useState(false);
-  const [isSelected, setIsSelected] = useState(draft.data.isSynced);
+  const [isSelected, setIsSelected] = useState(draft.data.content.isSynced);
 
   const queryClient = useQueryClient();
 
@@ -660,12 +664,17 @@ const DocSync = () => {
         if (!context) return;
 
         queryClient.setQueryData(draft.queryKey, context);
-        setIsSelected(context.isSynced);
+        setIsSelected(context.content.isSynced);
       },
       onSettled: async () => {
-        const [{ data }] = await draft.refetch();
+        const result = await draft.refetch();
+        if (!result) return;
 
-        if (data && !data.isSynced) {
+        if (
+          result.data &&
+          result.data.type === "default" &&
+          !result.data.content.isSynced
+        ) {
           updateDraftDefaultContent.mutate(editorValue);
         }
       },
@@ -673,10 +682,14 @@ const DocSync = () => {
   );
 
   const shouldEnableSync = useMemo(() => {
-    if (!draft.data.syncDisabledAt || draft.data.isSynced || !docQuery.data)
+    if (
+      !draft.data.content.syncDisabledAt ||
+      draft.data.content.isSynced ||
+      !docQuery.data
+    )
       return false;
 
-    const syncDisabledAt = new Date(draft.data.syncDisabledAt);
+    const syncDisabledAt = new Date(draft.data.content.syncDisabledAt);
     const modifiedTime = new Date(docQuery.data.modifiedTime);
 
     return modifiedTime.getTime() > syncDisabledAt.getTime();
@@ -714,7 +727,7 @@ const DocSync = () => {
         </motion.div>
 
         <Switch
-          isDisabled={!docQuery.data}
+          isDisabled={!draft.data.content.isSynced && !docQuery.data}
           isSelected={isSelected}
           onChange={(value) => {
             if (value) {
@@ -764,7 +777,7 @@ const FixedToolbar = () => {
 
   return (
     <div className="sticky top-4 overflow-x-scroll bg-white/80 backdrop-blur-3xl z-10 flex gap-1 w-full xl:w-3/4 mx-auto border-[0.0125rem] border-zinc-300/70 rounded-md shadow-xs py-1.5 px-2">
-      {!draft.data.isSynced && (
+      {!draft.data.content.isSynced && (
         <>
           <TextTypeMenu />
           <MarkButtons />

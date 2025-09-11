@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Value } from "platejs";
+import { serializeHtml, Value } from "platejs";
 import { Plate, PlateContent, usePlateEditor } from "platejs/react";
 import { useEffect } from "react";
 import { useDebouncedCallback } from "use-debounce";
@@ -25,20 +25,20 @@ import { ToolbarKit } from "./toolbar-kit";
  */
 
 export default function DraftContentEditor() {
-  const { data, isUpdating, setIsUpdating, queryKey, query, contentQuery } =
+  const { data, isUpdating, setIsUpdating, queryKey, query } =
     useDefaultDraft();
 
   const getValue = () => {
-    if (data.isSynced) {
+    if (data.content.type === "html") {
       const { body } = new DOMParser().parseFromString(
-        (data.content as string) ?? "",
+        (data.content.content as string) ?? "",
         "text/html"
       );
 
       return body.innerHTML;
     }
 
-    return JSON.parse((data.content as string) ?? "[]");
+    return JSON.parse((data.content.content as string) ?? "[]");
   };
 
   const editor = usePlateEditor({
@@ -73,10 +73,10 @@ export default function DraftContentEditor() {
   );
 
   useEffect(() => {
-    if (data.isSynced && query.status === "success") {
+    if (data.content.isSynced && query.status === "success") {
       editor.tf.setValue(getValue());
     }
-  }, [query.isRefetching, contentQuery.isRefetching]);
+  }, [query.isRefetching]);
 
   const debounce = useDebouncedCallback((value: Value) => {
     if (isUpdating) return;
@@ -90,10 +90,10 @@ export default function DraftContentEditor() {
   return (
     <div>
       <Plate
-        readOnly={data.isSynced}
+        readOnly={data.content.isSynced}
         editor={editor}
-        onValueChange={({ editor, value }) => {
-          if (data.isSynced) return;
+        onValueChange={async ({ editor, value }) => {
+          if (data.content.isSynced) return;
           debounce(value);
         }}
       >

@@ -117,6 +117,9 @@ export const publishDefaultContent = sqliteTable("publish_default_content", {
 
   description: text("description").notNull(),
 
+  type: text("content_type", { enum: ["html", "json"] })
+    .notNull()
+    .default("json"),
   content: text("content", { mode: "json" }).notNull(),
 });
 
@@ -150,6 +153,9 @@ export const draftDefaultContent = sqliteTable("draft_default_content", {
 
   description: text("description").notNull(),
 
+  type: text("content_type", { enum: ["html", "json"] })
+    .notNull()
+    .default("json"),
   content: text("content", { mode: "json" }),
 
   isSynced: integer("is_synced", { mode: "boolean" }).notNull().default(true),

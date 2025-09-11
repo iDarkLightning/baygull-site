@@ -101,7 +101,38 @@ export const manageArticleRouter = {
           .run()
       );
 
-      return draft;
+      if (draft.type === "default") {
+        const content = await ctx.uniqueResultOrThrow(
+          ctx.db
+            .select()
+            .from(draftDefaultContent)
+            .where(eq(draftDefaultContent.articleId, draft.articleId))
+        );
+
+        return {
+          ...draft,
+          type: "default" as const,
+          content,
+        };
+      } else if (draft.type === "graphic") {
+        const content = await ctx.uniqueResultOrThrow(
+          ctx.db
+            .select()
+            .from(graphicContent)
+            .where(eq(graphicContent.articleId, draft.articleId))
+        );
+
+        return {
+          ...draft,
+          type: "graphic" as const,
+          content,
+        };
+      } else {
+        return {
+          ...draft,
+          type: "headline" as const,
+        };
+      }
     }),
 
   getDraftContent: authedProcedure
@@ -623,6 +654,7 @@ export const manageArticleRouter = {
         await tx
           .update(draftDefaultContent)
           .set({
+            type: "json",
             content: input.content,
           })
           .where(eq(draftDefaultContent.articleId, input.id));
