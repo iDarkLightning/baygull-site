@@ -14,6 +14,7 @@
     "@baygull/db": "workspace:*",
     "dotenv": "^16.4.7",
     "drizzle-orm": "^0.40.0",
+    "node-html-parser": "^7.0.1",
     "uploadthing": "^7.5.2"
   },
   "devDependencies": {
