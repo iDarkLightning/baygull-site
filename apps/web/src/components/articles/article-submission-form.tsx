@@ -515,7 +515,7 @@ const PreviewForm = withForm({
             <RenderIfNotExcluded type={type} name="initial.collaborators">
               {data.initial.collaborators.size > 0 && (
                 <FieldPreview label="Collaborators" icon={<PeopleIcon />}>
-                  <div className="flex flex-row gap-2 my-2.5 mx-2">
+                  <div className="flex flex-row gap-2 my-2.5 mx-2 flex-wrap">
                     {usersQuery.data
                       ?.filter((user) =>
                         data.initial.collaborators.has(user.id)
@@ -607,6 +607,9 @@ export const ArticleSubmissionForm = () => {
   const form = useAppForm({
     defaultValues,
     onSubmit: async ({ value }) => {
+      console.log(
+        value.imgs.media.filter((m) => m.__type === "file").map((m) => m.file)
+      );
       const media = await startUpload(
         value.imgs.media.filter((m) => m.__type === "file").map((m) => m.file)
       );

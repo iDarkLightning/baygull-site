@@ -118,7 +118,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
         <div
           key={index}
           className={cn(
-            "flex items-center justify-between gap-2 p-4 bg-zinc-5 border-zinc-300/70 border-[0.0125rem] rounded-md shadow-xs text-sm",
+            "flex items-center justify-between gap-2 p-4 bg-zinc-5 border-zinc-300/70 border-[0.0125rem] rounded-md shadow-xs text-sm my-2",
             props.isInvalid && "border-red-700"
           )}
         >
