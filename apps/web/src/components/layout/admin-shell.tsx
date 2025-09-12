@@ -63,20 +63,23 @@ const Nav: React.FC<{
 
   return (
     <>
-      <div
-        className={cn(
-          "flex gap-2 items-center border-b-[0.0125rem] border-zinc-400/60 p-3 flex-1/12",
-          isCollapsed && "justify-center"
-        )}
-      >
-        <img src="/logo.png" alt="" className="size-12" />
-        {!isCollapsed && (
-          <div className="leading-5">
-            <p className="font-semibold">The Bay Gull</p>
-            <p className="font-medium text-xs text-sky-700">Admin</p>
-          </div>
-        )}
-      </div>
+      <Link to="/">
+        <div
+          className={cn(
+            "flex gap-2 items-center border-b-[0.0125rem] border-zinc-400/60 p-3 flex-1/12",
+            isCollapsed && "justify-center"
+          )}
+        >
+          <img src="/logo.png" alt="" className="size-12" />
+          {!isCollapsed && (
+            <div className="leading-5">
+              <p className="font-semibold">The Bay Gull</p>
+              <p className="font-medium text-xs text-sky-700">Admin</p>
+            </div>
+          )}
+        </div>
+      </Link>
+
       <div className="flex flex-col gap-4 flex-10/12 my-2">
         {tabs.map((tab) => (
           <div key={tab.id}>
