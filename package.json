@@ -4,6 +4,8 @@
   "description": "",
   "scripts": {
     "dev": "dotenv -e .env -- pnpm -r --stream dev",
+    "build": "dotenv -e .env -- pnpm -r --stream build",
+    "wrangler:dev": "dotenv -e .env -- pnpm --filter @baygull/web wrangler:dev",
     "typecheck": "pnpm -r typecheck"
   },
   "keywords": [],

@@ -3,4 +3,6 @@ node_modules
 .output
 .vinxi
 .tanstack
+.nitro
 scripts/data
+.dev.vars
