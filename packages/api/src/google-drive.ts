@@ -5,7 +5,7 @@ const SCOPES = ["https://www.googleapis.com/auth/drive"];
 
 export const createDriveClient = () => {
   const meta = JSON.parse(process.env.SERVICE_ACCOUNT_META!);
-  const key = process.env.SERVICE_ACCOUNT_KEY!;
+  const key = process.env.SERVICE_ACCOUNT_KEY!.replace(/\\n/g, "\n");
 
   const _auth = new auth.GoogleAuth({
     credentials: {
