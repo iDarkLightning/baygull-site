@@ -1,4 +1,5 @@
-import { drive, auth } from "@googleapis/drive";
+import { auth, drive_v3 } from "@googleapis/drive";
+import { gaxios } from "google-auth-library";
 
 const SCOPES = ["https://www.googleapis.com/auth/drive"];
 
@@ -12,7 +13,13 @@ export const createDriveClient = () => {
       private_key: key,
     },
     scopes: SCOPES,
+    clientOptions: {
+      transporter: new gaxios.Gaxios({ fetchImplementation: fetch }),
+    },
   });
 
-  return drive({ version: "v3", auth: _auth });
+  return new drive_v3.Drive({
+    auth: _auth,
+    fetchImplementation: fetch,
+  });
 };
