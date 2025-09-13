@@ -406,7 +406,7 @@ export const manageArticleRouter = {
               target: draftDefaultContent.articleId,
               set: !!graphicDesc
                 ? { description: graphicDesc.description }
-                : {},
+                : { description: "" },
             });
         } else if (input.type === "graphic") {
           const [defaultDesc] = await tx
