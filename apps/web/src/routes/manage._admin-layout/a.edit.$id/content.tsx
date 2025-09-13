@@ -3,7 +3,7 @@ import DraftContentEditor from "~/components/articles/drafts/content-editor/edit
 import { useDraft } from "~/lib/articles/use-draft";
 
 export const Route = createFileRoute(
-  "/manage/_admin-layout/a/drafts/publish/$id/content"
+  "/manage/_admin-layout/a/edit/$id/content"
 )({
   ssr: "data-only",
   pendingComponent: () => <div>Loading...</div>,

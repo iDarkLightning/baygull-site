@@ -21,39 +21,37 @@ type ArticleType = "default" | "headline" | "graphic";
 const tabs = [
   {
     id: "draft-information",
-    to: "/manage/a/drafts/publish/$id" as const,
+    to: "/manage/a/edit/$id" as const,
     name: "Information",
     hideFor: [] as ArticleType[],
   },
   {
     id: "draft-content",
-    to: "/manage/a/drafts/publish/$id/content" as const,
+    to: "/manage/a/edit/$id/content" as const,
     name: "Content",
     hideFor: ["headline"] as ArticleType[],
   },
   {
     id: "draft-layout",
-    to: "/manage/a/drafts/publish/$id/layout" as const,
+    to: "/manage/a/edit/$id/layout" as const,
     name: "Layout",
     hideFor: [] as ArticleType[],
   },
   {
     id: "draft-seo",
-    to: "/manage/a/drafts/publish/$id/seo" as const,
+    to: "/manage/a/edit/$id/seo" as const,
     name: "SEO Data",
     hideFor: [] as ArticleType[],
   },
   {
     id: "draft-publishing",
-    to: "/manage/a/drafts/publish/$id/publishing" as const,
+    to: "/manage/a/edit/$id/publishing" as const,
     name: "Publishing",
     hideFor: [] as ArticleType[],
   },
 ];
 
-export const Route = createFileRoute(
-  "/manage/_admin-layout/a/drafts/publish/$id"
-)({
+export const Route = createFileRoute("/manage/_admin-layout/a/edit/$id")({
   loader: async ({ context, params }) => {
     await context.queryClient.ensureQueryData(
       context.trpc.article.manage.getById.queryOptions({

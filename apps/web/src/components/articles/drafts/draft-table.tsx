@@ -340,7 +340,7 @@ export const DraftTable = () => {
                 {row.getVisibleCells().map((cell) => (
                   <td key={cell.id} className="rounded-md">
                     <Link
-                      to="/manage/a/drafts/publish/$id"
+                      to="/manage/a/edit/$id"
                       params={{ id: row.original.id }}
                     >
                       {flexRender(

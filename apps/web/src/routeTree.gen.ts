@@ -19,12 +19,12 @@ import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
 import { Route as ManageAdminLayoutRouteRouteImport } from './routes/manage._admin-layout/route'
 import { Route as ManageAdminLayoutPeopleRouteImport } from './routes/manage._admin-layout/people'
 import { Route as ManageAdminLayoutAStatusRouteImport } from './routes/manage._admin-layout/a.$status'
-import { Route as ManageAdminLayoutADraftsPublishIdRouteRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/route'
-import { Route as ManageAdminLayoutADraftsPublishIdIndexRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/index'
-import { Route as ManageAdminLayoutADraftsPublishIdSeoRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/seo'
-import { Route as ManageAdminLayoutADraftsPublishIdPublishingRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/publishing'
-import { Route as ManageAdminLayoutADraftsPublishIdLayoutRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/layout'
-import { Route as ManageAdminLayoutADraftsPublishIdContentRouteImport } from './routes/manage._admin-layout/a.drafts.publish.$id/content'
+import { Route as ManageAdminLayoutAEditIdRouteRouteImport } from './routes/manage._admin-layout/a.edit.$id/route'
+import { Route as ManageAdminLayoutAEditIdIndexRouteImport } from './routes/manage._admin-layout/a.edit.$id/index'
+import { Route as ManageAdminLayoutAEditIdSeoRouteImport } from './routes/manage._admin-layout/a.edit.$id/seo'
+import { Route as ManageAdminLayoutAEditIdPublishingRouteImport } from './routes/manage._admin-layout/a.edit.$id/publishing'
+import { Route as ManageAdminLayoutAEditIdLayoutRouteImport } from './routes/manage._admin-layout/a.edit.$id/layout'
+import { Route as ManageAdminLayoutAEditIdContentRouteImport } from './routes/manage._admin-layout/a.edit.$id/content'
 import { ServerRoute as ApiUploadthingServerRouteImport } from './routes/api/uploadthing'
 import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api/trpc.$'
 import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
@@ -72,41 +72,41 @@ const ManageAdminLayoutAStatusRoute =
     path: '/a/$status',
     getParentRoute: () => ManageAdminLayoutRouteRoute,
   } as any)
-const ManageAdminLayoutADraftsPublishIdRouteRoute =
-  ManageAdminLayoutADraftsPublishIdRouteRouteImport.update({
-    id: '/a/drafts/publish/$id',
-    path: '/a/drafts/publish/$id',
+const ManageAdminLayoutAEditIdRouteRoute =
+  ManageAdminLayoutAEditIdRouteRouteImport.update({
+    id: '/a/edit/$id',
+    path: '/a/edit/$id',
     getParentRoute: () => ManageAdminLayoutRouteRoute,
   } as any)
-const ManageAdminLayoutADraftsPublishIdIndexRoute =
-  ManageAdminLayoutADraftsPublishIdIndexRouteImport.update({
+const ManageAdminLayoutAEditIdIndexRoute =
+  ManageAdminLayoutAEditIdIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+    getParentRoute: () => ManageAdminLayoutAEditIdRouteRoute,
   } as any)
-const ManageAdminLayoutADraftsPublishIdSeoRoute =
-  ManageAdminLayoutADraftsPublishIdSeoRouteImport.update({
+const ManageAdminLayoutAEditIdSeoRoute =
+  ManageAdminLayoutAEditIdSeoRouteImport.update({
     id: '/seo',
     path: '/seo',
-    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+    getParentRoute: () => ManageAdminLayoutAEditIdRouteRoute,
   } as any)
-const ManageAdminLayoutADraftsPublishIdPublishingRoute =
-  ManageAdminLayoutADraftsPublishIdPublishingRouteImport.update({
+const ManageAdminLayoutAEditIdPublishingRoute =
+  ManageAdminLayoutAEditIdPublishingRouteImport.update({
     id: '/publishing',
     path: '/publishing',
-    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+    getParentRoute: () => ManageAdminLayoutAEditIdRouteRoute,
   } as any)
-const ManageAdminLayoutADraftsPublishIdLayoutRoute =
-  ManageAdminLayoutADraftsPublishIdLayoutRouteImport.update({
+const ManageAdminLayoutAEditIdLayoutRoute =
+  ManageAdminLayoutAEditIdLayoutRouteImport.update({
     id: '/layout',
     path: '/layout',
-    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+    getParentRoute: () => ManageAdminLayoutAEditIdRouteRoute,
   } as any)
-const ManageAdminLayoutADraftsPublishIdContentRoute =
-  ManageAdminLayoutADraftsPublishIdContentRouteImport.update({
+const ManageAdminLayoutAEditIdContentRoute =
+  ManageAdminLayoutAEditIdContentRouteImport.update({
     id: '/content',
     path: '/content',
-    getParentRoute: () => ManageAdminLayoutADraftsPublishIdRouteRoute,
+    getParentRoute: () => ManageAdminLayoutAEditIdRouteRoute,
   } as any)
 const ApiUploadthingServerRoute = ApiUploadthingServerRouteImport.update({
   id: '/api/uploadthing',
@@ -132,12 +132,12 @@ export interface FileRoutesByFullPath {
   '/articles': typeof ArticlesIndexRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
-  '/manage/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
-  '/manage/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
-  '/manage/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
-  '/manage/a/drafts/publish/$id/publishing': typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
-  '/manage/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
-  '/manage/a/drafts/publish/$id/': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
+  '/manage/a/edit/$id': typeof ManageAdminLayoutAEditIdRouteRouteWithChildren
+  '/manage/a/edit/$id/content': typeof ManageAdminLayoutAEditIdContentRoute
+  '/manage/a/edit/$id/layout': typeof ManageAdminLayoutAEditIdLayoutRoute
+  '/manage/a/edit/$id/publishing': typeof ManageAdminLayoutAEditIdPublishingRoute
+  '/manage/a/edit/$id/seo': typeof ManageAdminLayoutAEditIdSeoRoute
+  '/manage/a/edit/$id/': typeof ManageAdminLayoutAEditIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -147,11 +147,11 @@ export interface FileRoutesByTo {
   '/articles': typeof ArticlesIndexRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
-  '/manage/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
-  '/manage/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
-  '/manage/a/drafts/publish/$id/publishing': typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
-  '/manage/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
-  '/manage/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
+  '/manage/a/edit/$id/content': typeof ManageAdminLayoutAEditIdContentRoute
+  '/manage/a/edit/$id/layout': typeof ManageAdminLayoutAEditIdLayoutRoute
+  '/manage/a/edit/$id/publishing': typeof ManageAdminLayoutAEditIdPublishingRoute
+  '/manage/a/edit/$id/seo': typeof ManageAdminLayoutAEditIdSeoRoute
+  '/manage/a/edit/$id': typeof ManageAdminLayoutAEditIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -163,12 +163,12 @@ export interface FileRoutesById {
   '/articles/': typeof ArticlesIndexRoute
   '/manage/_admin-layout/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/_admin-layout/a/$status': typeof ManageAdminLayoutAStatusRoute
-  '/manage/_admin-layout/a/drafts/publish/$id': typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
-  '/manage/_admin-layout/a/drafts/publish/$id/content': typeof ManageAdminLayoutADraftsPublishIdContentRoute
-  '/manage/_admin-layout/a/drafts/publish/$id/layout': typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
-  '/manage/_admin-layout/a/drafts/publish/$id/publishing': typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
-  '/manage/_admin-layout/a/drafts/publish/$id/seo': typeof ManageAdminLayoutADraftsPublishIdSeoRoute
-  '/manage/_admin-layout/a/drafts/publish/$id/': typeof ManageAdminLayoutADraftsPublishIdIndexRoute
+  '/manage/_admin-layout/a/edit/$id': typeof ManageAdminLayoutAEditIdRouteRouteWithChildren
+  '/manage/_admin-layout/a/edit/$id/content': typeof ManageAdminLayoutAEditIdContentRoute
+  '/manage/_admin-layout/a/edit/$id/layout': typeof ManageAdminLayoutAEditIdLayoutRoute
+  '/manage/_admin-layout/a/edit/$id/publishing': typeof ManageAdminLayoutAEditIdPublishingRoute
+  '/manage/_admin-layout/a/edit/$id/seo': typeof ManageAdminLayoutAEditIdSeoRoute
+  '/manage/_admin-layout/a/edit/$id/': typeof ManageAdminLayoutAEditIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,12 +180,12 @@ export interface FileRouteTypes {
     | '/articles'
     | '/manage/people'
     | '/manage/a/$status'
-    | '/manage/a/drafts/publish/$id'
-    | '/manage/a/drafts/publish/$id/content'
-    | '/manage/a/drafts/publish/$id/layout'
-    | '/manage/a/drafts/publish/$id/publishing'
-    | '/manage/a/drafts/publish/$id/seo'
-    | '/manage/a/drafts/publish/$id/'
+    | '/manage/a/edit/$id'
+    | '/manage/a/edit/$id/content'
+    | '/manage/a/edit/$id/layout'
+    | '/manage/a/edit/$id/publishing'
+    | '/manage/a/edit/$id/seo'
+    | '/manage/a/edit/$id/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -195,11 +195,11 @@ export interface FileRouteTypes {
     | '/articles'
     | '/manage/people'
     | '/manage/a/$status'
-    | '/manage/a/drafts/publish/$id/content'
-    | '/manage/a/drafts/publish/$id/layout'
-    | '/manage/a/drafts/publish/$id/publishing'
-    | '/manage/a/drafts/publish/$id/seo'
-    | '/manage/a/drafts/publish/$id'
+    | '/manage/a/edit/$id/content'
+    | '/manage/a/edit/$id/layout'
+    | '/manage/a/edit/$id/publishing'
+    | '/manage/a/edit/$id/seo'
+    | '/manage/a/edit/$id'
   id:
     | '__root__'
     | '/'
@@ -210,12 +210,12 @@ export interface FileRouteTypes {
     | '/articles/'
     | '/manage/_admin-layout/people'
     | '/manage/_admin-layout/a/$status'
-    | '/manage/_admin-layout/a/drafts/publish/$id'
-    | '/manage/_admin-layout/a/drafts/publish/$id/content'
-    | '/manage/_admin-layout/a/drafts/publish/$id/layout'
-    | '/manage/_admin-layout/a/drafts/publish/$id/publishing'
-    | '/manage/_admin-layout/a/drafts/publish/$id/seo'
-    | '/manage/_admin-layout/a/drafts/publish/$id/'
+    | '/manage/_admin-layout/a/edit/$id'
+    | '/manage/_admin-layout/a/edit/$id/content'
+    | '/manage/_admin-layout/a/edit/$id/layout'
+    | '/manage/_admin-layout/a/edit/$id/publishing'
+    | '/manage/_admin-layout/a/edit/$id/seo'
+    | '/manage/_admin-layout/a/edit/$id/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -313,47 +313,47 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ManageAdminLayoutAStatusRouteImport
       parentRoute: typeof ManageAdminLayoutRouteRoute
     }
-    '/manage/_admin-layout/a/drafts/publish/$id': {
-      id: '/manage/_admin-layout/a/drafts/publish/$id'
-      path: '/a/drafts/publish/$id'
-      fullPath: '/manage/a/drafts/publish/$id'
-      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRouteImport
+    '/manage/_admin-layout/a/edit/$id': {
+      id: '/manage/_admin-layout/a/edit/$id'
+      path: '/a/edit/$id'
+      fullPath: '/manage/a/edit/$id'
+      preLoaderRoute: typeof ManageAdminLayoutAEditIdRouteRouteImport
       parentRoute: typeof ManageAdminLayoutRouteRoute
     }
-    '/manage/_admin-layout/a/drafts/publish/$id/': {
-      id: '/manage/_admin-layout/a/drafts/publish/$id/'
+    '/manage/_admin-layout/a/edit/$id/': {
+      id: '/manage/_admin-layout/a/edit/$id/'
       path: '/'
-      fullPath: '/manage/a/drafts/publish/$id/'
-      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdIndexRouteImport
-      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+      fullPath: '/manage/a/edit/$id/'
+      preLoaderRoute: typeof ManageAdminLayoutAEditIdIndexRouteImport
+      parentRoute: typeof ManageAdminLayoutAEditIdRouteRoute
     }
-    '/manage/_admin-layout/a/drafts/publish/$id/seo': {
-      id: '/manage/_admin-layout/a/drafts/publish/$id/seo'
+    '/manage/_admin-layout/a/edit/$id/seo': {
+      id: '/manage/_admin-layout/a/edit/$id/seo'
       path: '/seo'
-      fullPath: '/manage/a/drafts/publish/$id/seo'
-      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdSeoRouteImport
-      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+      fullPath: '/manage/a/edit/$id/seo'
+      preLoaderRoute: typeof ManageAdminLayoutAEditIdSeoRouteImport
+      parentRoute: typeof ManageAdminLayoutAEditIdRouteRoute
     }
-    '/manage/_admin-layout/a/drafts/publish/$id/publishing': {
-      id: '/manage/_admin-layout/a/drafts/publish/$id/publishing'
+    '/manage/_admin-layout/a/edit/$id/publishing': {
+      id: '/manage/_admin-layout/a/edit/$id/publishing'
       path: '/publishing'
-      fullPath: '/manage/a/drafts/publish/$id/publishing'
-      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdPublishingRouteImport
-      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+      fullPath: '/manage/a/edit/$id/publishing'
+      preLoaderRoute: typeof ManageAdminLayoutAEditIdPublishingRouteImport
+      parentRoute: typeof ManageAdminLayoutAEditIdRouteRoute
     }
-    '/manage/_admin-layout/a/drafts/publish/$id/layout': {
-      id: '/manage/_admin-layout/a/drafts/publish/$id/layout'
+    '/manage/_admin-layout/a/edit/$id/layout': {
+      id: '/manage/_admin-layout/a/edit/$id/layout'
       path: '/layout'
-      fullPath: '/manage/a/drafts/publish/$id/layout'
-      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdLayoutRouteImport
-      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+      fullPath: '/manage/a/edit/$id/layout'
+      preLoaderRoute: typeof ManageAdminLayoutAEditIdLayoutRouteImport
+      parentRoute: typeof ManageAdminLayoutAEditIdRouteRoute
     }
-    '/manage/_admin-layout/a/drafts/publish/$id/content': {
-      id: '/manage/_admin-layout/a/drafts/publish/$id/content'
+    '/manage/_admin-layout/a/edit/$id/content': {
+      id: '/manage/_admin-layout/a/edit/$id/content'
       path: '/content'
-      fullPath: '/manage/a/drafts/publish/$id/content'
-      preLoaderRoute: typeof ManageAdminLayoutADraftsPublishIdContentRouteImport
-      parentRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRoute
+      fullPath: '/manage/a/edit/$id/content'
+      preLoaderRoute: typeof ManageAdminLayoutAEditIdContentRouteImport
+      parentRoute: typeof ManageAdminLayoutAEditIdRouteRoute
     }
   }
 }
@@ -383,45 +383,41 @@ declare module '@tanstack/react-start/server' {
   }
 }
 
-interface ManageAdminLayoutADraftsPublishIdRouteRouteChildren {
-  ManageAdminLayoutADraftsPublishIdContentRoute: typeof ManageAdminLayoutADraftsPublishIdContentRoute
-  ManageAdminLayoutADraftsPublishIdLayoutRoute: typeof ManageAdminLayoutADraftsPublishIdLayoutRoute
-  ManageAdminLayoutADraftsPublishIdPublishingRoute: typeof ManageAdminLayoutADraftsPublishIdPublishingRoute
-  ManageAdminLayoutADraftsPublishIdSeoRoute: typeof ManageAdminLayoutADraftsPublishIdSeoRoute
-  ManageAdminLayoutADraftsPublishIdIndexRoute: typeof ManageAdminLayoutADraftsPublishIdIndexRoute
+interface ManageAdminLayoutAEditIdRouteRouteChildren {
+  ManageAdminLayoutAEditIdContentRoute: typeof ManageAdminLayoutAEditIdContentRoute
+  ManageAdminLayoutAEditIdLayoutRoute: typeof ManageAdminLayoutAEditIdLayoutRoute
+  ManageAdminLayoutAEditIdPublishingRoute: typeof ManageAdminLayoutAEditIdPublishingRoute
+  ManageAdminLayoutAEditIdSeoRoute: typeof ManageAdminLayoutAEditIdSeoRoute
+  ManageAdminLayoutAEditIdIndexRoute: typeof ManageAdminLayoutAEditIdIndexRoute
 }
 
-const ManageAdminLayoutADraftsPublishIdRouteRouteChildren: ManageAdminLayoutADraftsPublishIdRouteRouteChildren =
+const ManageAdminLayoutAEditIdRouteRouteChildren: ManageAdminLayoutAEditIdRouteRouteChildren =
   {
-    ManageAdminLayoutADraftsPublishIdContentRoute:
-      ManageAdminLayoutADraftsPublishIdContentRoute,
-    ManageAdminLayoutADraftsPublishIdLayoutRoute:
-      ManageAdminLayoutADraftsPublishIdLayoutRoute,
-    ManageAdminLayoutADraftsPublishIdPublishingRoute:
-      ManageAdminLayoutADraftsPublishIdPublishingRoute,
-    ManageAdminLayoutADraftsPublishIdSeoRoute:
-      ManageAdminLayoutADraftsPublishIdSeoRoute,
-    ManageAdminLayoutADraftsPublishIdIndexRoute:
-      ManageAdminLayoutADraftsPublishIdIndexRoute,
+    ManageAdminLayoutAEditIdContentRoute: ManageAdminLayoutAEditIdContentRoute,
+    ManageAdminLayoutAEditIdLayoutRoute: ManageAdminLayoutAEditIdLayoutRoute,
+    ManageAdminLayoutAEditIdPublishingRoute:
+      ManageAdminLayoutAEditIdPublishingRoute,
+    ManageAdminLayoutAEditIdSeoRoute: ManageAdminLayoutAEditIdSeoRoute,
+    ManageAdminLayoutAEditIdIndexRoute: ManageAdminLayoutAEditIdIndexRoute,
   }
 
-const ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren =
-  ManageAdminLayoutADraftsPublishIdRouteRoute._addFileChildren(
-    ManageAdminLayoutADraftsPublishIdRouteRouteChildren,
+const ManageAdminLayoutAEditIdRouteRouteWithChildren =
+  ManageAdminLayoutAEditIdRouteRoute._addFileChildren(
+    ManageAdminLayoutAEditIdRouteRouteChildren,
   )
 
 interface ManageAdminLayoutRouteRouteChildren {
   ManageAdminLayoutPeopleRoute: typeof ManageAdminLayoutPeopleRoute
   ManageAdminLayoutAStatusRoute: typeof ManageAdminLayoutAStatusRoute
-  ManageAdminLayoutADraftsPublishIdRouteRoute: typeof ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren
+  ManageAdminLayoutAEditIdRouteRoute: typeof ManageAdminLayoutAEditIdRouteRouteWithChildren
 }
 
 const ManageAdminLayoutRouteRouteChildren: ManageAdminLayoutRouteRouteChildren =
   {
     ManageAdminLayoutPeopleRoute: ManageAdminLayoutPeopleRoute,
     ManageAdminLayoutAStatusRoute: ManageAdminLayoutAStatusRoute,
-    ManageAdminLayoutADraftsPublishIdRouteRoute:
-      ManageAdminLayoutADraftsPublishIdRouteRouteWithChildren,
+    ManageAdminLayoutAEditIdRouteRoute:
+      ManageAdminLayoutAEditIdRouteRouteWithChildren,
   }
 
 const ManageAdminLayoutRouteRouteWithChildren =

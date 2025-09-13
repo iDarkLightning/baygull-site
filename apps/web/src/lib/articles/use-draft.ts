@@ -12,7 +12,7 @@ export const useDraft = () => {
   const queryClient = useQueryClient();
 
   const params = useParams({
-    from: "/manage/_admin-layout/a/drafts/publish/$id",
+    from: "/manage/_admin-layout/a/edit/$id",
   });
 
   const queryKey = useMemo(
