@@ -29,7 +29,7 @@ import { MenuItem } from "@baygull/ui/menu";
 import { MenuItemLink } from "~/components/ui/menu-item-link";
 import { Popover } from "@baygull/ui/popover";
 import { Tooltip, TooltipTrigger } from "@baygull/ui/tooltip";
-import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
+import { useArticleFilterStore } from "~/lib/articles/article-filter-store";
 import { cn } from "@baygull/ui/cn";
 import { useTRPC } from "~/lib/trpc-client";
 import { TDraftList } from "@baygull/api/trpc/types";
@@ -226,7 +226,7 @@ const emptyStateDisplay: Record<string, { heading: string; sub: string }> = {
   },
 };
 
-export const DraftTable = () => {
+export const ArticleTable = () => {
   const trpc = useTRPC();
   const routeContext = routeApi.useRouteContext();
   const { data, isStale, refetch } = useSuspenseQuery(
@@ -240,7 +240,7 @@ export const DraftTable = () => {
     )
   );
 
-  const state = useDraftFilterStore((s) => s);
+  const state = useArticleFilterStore((s) => s);
   const [filters, setFilters] = useState<
     {
       id: string;

@@ -1,9 +1,9 @@
 import React, { createContext, useContext, useRef } from "react";
 import { DateRange, Key } from "@baygull/ui/aria";
 import { createStore, StoreApi, useStore } from "zustand";
-import { TDatePresets } from "~/components/articles/drafts/draft-filter";
+import { TDatePresets } from "~/components/articles/manage/article-table-filter";
 
-type TDraftFilterStore = {
+type TArticleFilterStore = {
   types: Set<Key>;
   setTypes: (types: Set<Key>) => void;
   authors: Set<Key>;
@@ -16,13 +16,13 @@ type TDraftFilterStore = {
   setPresetSelected: (preset: TDatePresets) => void;
 };
 
-type TDraftFilterInit = Pick<
-  TDraftFilterStore,
+type TArticleFilterInit = Pick<
+  TArticleFilterStore,
   "types" | "authors" | "titleDesc" | "submissionTime" | "presetSelected"
 >;
 
-export const createDraftFilterStore = (initProps: TDraftFilterInit) => {
-  return createStore<TDraftFilterStore>()((set) => ({
+export const createArticleFilterStore = (initProps: TArticleFilterInit) => {
+  return createStore<TArticleFilterStore>()((set) => ({
     ...initProps,
     setTypes: (types) => set({ types }),
     setAuthors: (authors) => set({ authors }),
@@ -32,29 +32,29 @@ export const createDraftFilterStore = (initProps: TDraftFilterInit) => {
   }));
 };
 
-const DraftFilterStoreContext =
-  createContext<StoreApi<TDraftFilterStore> | null>(null);
+const ArticleFilterStoreContext =
+  createContext<StoreApi<TArticleFilterStore> | null>(null);
 
-export const DraftFilterStoreProvider: React.FC<
-  React.PropsWithChildren<TDraftFilterInit>
+export const ArticleFilterStoreProvider: React.FC<
+  React.PropsWithChildren<TArticleFilterInit>
 > = (props) => {
-  const storeRef = useRef<StoreApi<TDraftFilterStore> | null>(null);
+  const storeRef = useRef<StoreApi<TArticleFilterStore> | null>(null);
 
   if (!storeRef.current) {
-    storeRef.current = createDraftFilterStore(props);
+    storeRef.current = createArticleFilterStore(props);
   }
 
   return (
-    <DraftFilterStoreContext.Provider value={storeRef.current}>
+    <ArticleFilterStoreContext.Provider value={storeRef.current}>
       {props.children}
-    </DraftFilterStoreContext.Provider>
+    </ArticleFilterStoreContext.Provider>
   );
 };
 
-export const useDraftFilterStore = <T,>(
-  selector: (state: TDraftFilterStore) => T
+export const useArticleFilterStore = <T,>(
+  selector: (state: TArticleFilterStore) => T
 ): T => {
-  const store = useContext(DraftFilterStoreContext);
+  const store = useContext(ArticleFilterStoreContext);
   if (!store)
     throw new Error("Missing DraftFilterStoreContext.Provider in the tree");
 

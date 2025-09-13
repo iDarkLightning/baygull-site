@@ -1,9 +1,9 @@
 import { createPlatePlugin } from "platejs/react";
 
-export const DraftStorePlugin = createPlatePlugin({
-  key: "draft-store",
+export const ArticleStorePlugin = createPlatePlugin({
+  key: "article-store",
   options: {
-    draftId: "",
+    articleId: "",
     setIsUpdating: (val: boolean) => {},
   },
 });

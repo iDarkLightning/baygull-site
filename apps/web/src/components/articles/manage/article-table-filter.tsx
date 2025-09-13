@@ -40,7 +40,7 @@ import {
   FilterMenu,
   FilterMenuButton,
 } from "@baygull/ui/table-filter";
-import { useDraftFilterStore } from "~/lib/articles/draft-filter-store";
+import { useArticleFilterStore } from "~/lib/articles/article-filter-store";
 import { cn } from "@baygull/ui/cn";
 import { useTRPC } from "~/lib/trpc-client";
 
@@ -175,8 +175,8 @@ export type TDatePresets = keyof typeof submissionRangePresets | "none";
 
 const routeApi = getRouteApi("/manage/_admin-layout/a/$status");
 
-export const DraftFilterMenu = () => {
-  const state = useDraftFilterStore(
+export const ArticleTableFilterMenu = () => {
+  const state = useArticleFilterStore(
     useShallow((s) => ({
       types: s.types,
       authors: s.authors,
@@ -287,7 +287,7 @@ export const DraftFilterMenu = () => {
 };
 
 export const DraftFilterDisplay = () => {
-  const state = useDraftFilterStore((s) => s);
+  const state = useArticleFilterStore((s) => s);
 
   const trpc = useTRPC();
   const authors = useQuery(trpc.article.manage.getAuthorList.queryOptions());
@@ -411,7 +411,7 @@ export const DraftFilterDisplay = () => {
 };
 
 function TitleDescFilterPopover() {
-  const [titleDesc, setTitleDesc] = useDraftFilterStore(
+  const [titleDesc, setTitleDesc] = useArticleFilterStore(
     useShallow((s) => [s.titleDesc, s.setTitleDesc])
   );
 
@@ -433,7 +433,7 @@ function TitleDescFilterPopover() {
 }
 
 function TypesMultiSelect() {
-  const [keys, setKeys] = useDraftFilterStore(
+  const [keys, setKeys] = useArticleFilterStore(
     useShallow((s) => [s.types, s.setTypes])
   );
 
@@ -457,7 +457,7 @@ function TypesMultiSelect() {
 }
 
 function AuthorMultiSelect() {
-  const [keys, setKeys] = useDraftFilterStore(
+  const [keys, setKeys] = useArticleFilterStore(
     useShallow((s) => [s.authors, s.setAuthors])
   );
 
@@ -495,7 +495,7 @@ function AuthorMultiSelect() {
 
 function SubmissionTimeFilterPopover() {
   const [value, setValue, presetSelected, setPresetSelected] =
-    useDraftFilterStore(
+    useArticleFilterStore(
       useShallow((s) => [
         s.submissionTime,
         s.setSubmissionTime,

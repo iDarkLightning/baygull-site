@@ -37,7 +37,7 @@ import { ArticleTypeRadio, TArticleType } from "../article-type-radio";
 import { CollaboratorMultiSelect } from "../collaborator-multi-select";
 
 const TOPIC_CREATE_KEY = "__topic_create_key";
-const MUTATION_SCOPE_ID = "__draft_info_editor_mutation";
+const MUTATION_SCOPE_ID = "__article_info_editor_mutation";
 
 const formOpts = formOptions({
   defaultValues: {
@@ -898,7 +898,7 @@ const InfoForm: React.FC = () => {
   );
 };
 
-export const DraftInfoEditor = () => {
+export const ArticleInfoEditor = () => {
   const { data } = useDraft();
 
   return (

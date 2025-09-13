@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import DraftContentEditor from "~/components/articles/drafts/content-editor/editor";
+import ArticleContentEditor from "~/components/articles/manage/content-editor/editor";
 import { useDraft } from "~/lib/articles/use-draft";
 
 export const Route = createFileRoute(
@@ -16,7 +16,7 @@ function RouteComponent() {
   if (draft.data.type === "default") {
     return (
       <div>
-        <DraftContentEditor />
+        <ArticleContentEditor />
       </div>
     );
   }

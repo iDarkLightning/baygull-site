@@ -29,7 +29,7 @@ import {
 } from "@platejs/caption/react";
 import { KEYS } from "platejs";
 import { createTRPCClient, useTRPC } from "~/lib/trpc-client";
-import { DraftStorePlugin } from "./draft-store";
+import { ArticleStorePlugin } from "./article-store";
 
 import {
   Caption as CaptionPrimitive,
@@ -110,8 +110,8 @@ const ImagePlugin = PlateImagePlugin.extend({
           apply(op);
           if (!isImageNode(op.node, editor.getType(KEYS.img))) return;
 
-          const { setIsUpdating, draftId } =
-            editor.getOptions(DraftStorePlugin);
+          const { setIsUpdating, articleId: draftId } =
+            editor.getOptions(ArticleStorePlugin);
 
           const trpcClient = createTRPCClient();
 
@@ -143,7 +143,7 @@ const ImagePlugin = PlateImagePlugin.extend({
 
           apply(op);
           const setIsUpdating = editor.getOption(
-            DraftStorePlugin,
+            ArticleStorePlugin,
             "setIsUpdating"
           );
 

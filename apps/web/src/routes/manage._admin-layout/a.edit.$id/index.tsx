@@ -1,9 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { DraftInfoEditor } from "~/components/articles/drafts/draft-info-editor";
+import { ArticleInfoEditor } from "~/components/articles/manage/article-info-editor";
 
-export const Route = createFileRoute(
-  "/manage/_admin-layout/a/edit/$id/"
-)({
+export const Route = createFileRoute("/manage/_admin-layout/a/edit/$id/")({
   loader: async ({ context }) => {
     await context.queryClient.ensureQueryData(
       context.trpc.user.getUsers.queryOptions({ includeMe: true })
@@ -13,5 +11,5 @@ export const Route = createFileRoute(
 });
 
 function RouteComponent() {
-  return <DraftInfoEditor />;
+  return <ArticleInfoEditor />;
 }

@@ -6,7 +6,7 @@ import { useDebouncedCallback } from "use-debounce";
 import { useDefaultDraft } from "~/lib/articles/use-draft";
 import { useTRPC } from "~/lib/trpc-client";
 import { AutoFormatKit } from "./autoformat-kit";
-import { DraftStorePlugin } from "./draft-store";
+import { ArticleStorePlugin } from "./article-store";
 import { HeadingKit } from "./heading-kit";
 import { HorizontalRuleKit } from "./horizontal-rule-kit";
 import { LinkKit } from "./link-kit";
@@ -24,7 +24,7 @@ import { ToolbarKit } from "./toolbar-kit";
  *
  */
 
-export default function DraftContentEditor() {
+export default function ArticleContentEditor() {
   const { data, isUpdating, setIsUpdating, queryKey, query } =
     useDefaultDraft();
 
@@ -43,7 +43,7 @@ export default function DraftContentEditor() {
 
   const editor = usePlateEditor({
     plugins: [
-      DraftStorePlugin,
+      ArticleStorePlugin,
       ...HeadingKit,
       ...ParagraphKit,
       ...MarksKit,
@@ -58,8 +58,8 @@ export default function DraftContentEditor() {
     value: getValue(),
 
     onReady: ({ editor }) => {
-      editor.setOption(DraftStorePlugin, "draftId", data.id);
-      editor.setOption(DraftStorePlugin, "setIsUpdating", setIsUpdating);
+      editor.setOption(ArticleStorePlugin, "articleId", data.id);
+      editor.setOption(ArticleStorePlugin, "setIsUpdating", setIsUpdating);
     },
   });
 

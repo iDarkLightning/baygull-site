@@ -8,11 +8,11 @@ import { fallback, zodValidator } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import {
   DraftFilterDisplay,
-  DraftFilterMenu,
+  ArticleTableFilterMenu,
   submissionRangePresets,
-} from "~/components/articles/drafts/draft-filter";
-import { DraftTable } from "~/components/articles/drafts/draft-table";
-import { DraftFilterStoreProvider } from "~/lib/articles/draft-filter-store";
+} from "~/components/articles/manage/article-table-filter";
+import { ArticleTable } from "~/components/articles/manage/article-table";
+import { ArticleFilterStoreProvider } from "~/lib/articles/article-filter-store";
 
 const statusSchema = z
   .enum(["published", "drafts", "archived"])
@@ -90,7 +90,7 @@ function RouteComponent() {
 
   return (
     <div>
-      <DraftFilterStoreProvider
+      <ArticleFilterStoreProvider
         types={new Set(search.types)}
         authors={new Set(search.authors)}
         titleDesc={search.titleDesc}
@@ -109,12 +109,12 @@ function RouteComponent() {
             <h1 className="font-medium text-lg">
               {params.status.charAt(0).toUpperCase() + params.status.slice(1)}
             </h1>
-            <DraftFilterMenu />
+            <ArticleTableFilterMenu />
           </div>
           <DraftFilterDisplay />
         </div>
-        <DraftTable />
-      </DraftFilterStoreProvider>
+        <ArticleTable />
+      </ArticleFilterStoreProvider>
     </div>
   );
 }
