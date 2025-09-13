@@ -607,9 +607,6 @@ export const ArticleSubmissionForm = () => {
   const form = useAppForm({
     defaultValues,
     onSubmit: async ({ value }) => {
-      console.log(
-        value.imgs.media.filter((m) => m.__type === "file").map((m) => m.file)
-      );
       const media = await startUpload(
         value.imgs.media.filter((m) => m.__type === "file").map((m) => m.file)
       );
@@ -640,7 +637,7 @@ export const ArticleSubmissionForm = () => {
     const mediaField = form.getFieldInfo("imgs.media");
     if (!mediaField.instance) return;
 
-    if (!mediaField.instance.getMeta().isValid) {
+    if (mediaField.instance.state.value.length > 1) {
       form.resetField("imgs.media");
     }
   }, [type]);
@@ -677,7 +674,7 @@ export const ArticleSubmissionForm = () => {
       fieldData
         .filter((field) => field !== null)
         .filter((field) => field.isPristine)
-        .map((field) => form.validateField(field.id, "submit"))
+        .map((field) => form.validateField(field.id, "change"))
     ).then((res) => res.flat());
 
     if (validateResult.length === 0) {
