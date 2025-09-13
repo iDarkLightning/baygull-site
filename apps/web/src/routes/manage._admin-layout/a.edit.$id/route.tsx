@@ -74,7 +74,12 @@ function RouteComponent() {
           <div>
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-lg font-medium">{data.title}</h1>
+                <div className="flex items-center gap-2">
+                  <h1 className="text-lg font-medium">{data.title}</h1>
+                  <div className="bg-blue-100 px-4 py-0.5 text-xs rounded-full font-medium border-[0.0125rem] border-blue-300 text-blue-800">
+                    {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
+                  </div>
+                </div>
                 {isUpdating && (
                   <div className="flex items-center gap-0.5 text-zinc-300 mt-0.5">
                     <RefreshIcon />
