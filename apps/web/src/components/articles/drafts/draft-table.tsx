@@ -338,8 +338,9 @@ export const DraftTable = () => {
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} className="group hover:bg-zinc-50 rounded-md">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id} className="rounded-md">
+                  <td key={cell.id} className="h-12">
                     <Link
+                      className="h-full flex items-center"
                       to="/manage/a/edit/$id"
                       params={{ id: row.original.id }}
                     >
