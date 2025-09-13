@@ -17,37 +17,40 @@ import { ModalPopover } from "@baygull/ui/modal-popover";
 import { useDraft } from "~/lib/articles/use-draft";
 
 type ArticleType = "default" | "headline" | "graphic";
+type ArticleStatus = "published" | "archived" | "draft";
+
+type HideFor = ArticleType | ArticleStatus;
 
 const tabs = [
   {
     id: "draft-information",
     to: "/manage/a/edit/$id" as const,
     name: "Information",
-    hideFor: [] as ArticleType[],
+    hideFor: [] as HideFor[],
   },
   {
     id: "draft-content",
     to: "/manage/a/edit/$id/content" as const,
     name: "Content",
-    hideFor: ["headline"] as ArticleType[],
+    hideFor: ["headline", "published"] as HideFor[],
   },
   {
     id: "draft-layout",
     to: "/manage/a/edit/$id/layout" as const,
     name: "Layout",
-    hideFor: [] as ArticleType[],
+    hideFor: [] as HideFor[],
   },
   {
     id: "draft-seo",
     to: "/manage/a/edit/$id/seo" as const,
     name: "SEO Data",
-    hideFor: [] as ArticleType[],
+    hideFor: [] as HideFor[],
   },
   {
     id: "draft-publishing",
     to: "/manage/a/edit/$id/publishing" as const,
     name: "Publishing",
-    hideFor: [] as ArticleType[],
+    hideFor: [] as HideFor[],
   },
 ];
 
@@ -103,7 +106,11 @@ function RouteComponent() {
               <ModalPopover>
                 <Menu>
                   {tabs
-                    .filter((tab) => !tab.hideFor.includes(data.type))
+                    .filter(
+                      (tab) =>
+                        !tab.hideFor.includes(data.type) &&
+                        !tab.hideFor.includes(data.status)
+                    )
                     .map((tab) => (
                       <MenuItemLink
                         to={tab.to}
@@ -123,7 +130,11 @@ function RouteComponent() {
           </div>
           <div className="hidden md:flex flex-wrap gap-2 items-center bg-zinc-50 w-fit rounded-full border-[0.0125rem] border-zinc-200/70 shaadow-xs">
             {tabs
-              .filter((tab) => !tab.hideFor.includes(data.type))
+              .filter(
+                (tab) =>
+                  !tab.hideFor.includes(data.type) &&
+                  !tab.hideFor.includes(data.status)
+              )
               .map((tab) => (
                 <Link
                   key={tab.id}
