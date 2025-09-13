@@ -90,10 +90,11 @@ const TypeRadio: React.FC<
 > = (props) => (
   <Radio
     value={props.value}
-    className={({ isSelected }) =>
+    className={({ isSelected, isDisabled }) =>
       cn(
         "relative flex grow items-center gap-4 px-4 py-3 rounded-md border-[0.0125rem] border-zinc-300/70 transition-colors shadow-xs",
-        isSelected && "border-transparent text-white"
+        isSelected && "border-transparent text-white",
+        isDisabled && "opacity-70 cursor-not-allowed"
       )
     }
   >

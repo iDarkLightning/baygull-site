@@ -605,6 +605,7 @@ const InfoForm: React.FC = () => {
         }}
         children={(field) => (
           <RadioGroup
+            isDisabled={data.status !== "draft"}
             aria-label="Article Type Radio"
             onChange={(value) => field.handleChange(value as TArticleType)}
             onBlur={field.handleBlur}
