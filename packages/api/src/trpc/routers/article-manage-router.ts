@@ -401,6 +401,8 @@ export const manageArticleRouter = {
               description: !!graphicDesc ? graphicDesc.description : "",
               editingUrl: "",
               originalUrl: "",
+              isSynced: false,
+              syncDisabledAt: sql`(CURRENT_TIMESTAMP)`,
             })
             .onConflictDoUpdate({
               target: draftDefaultContent.articleId,
