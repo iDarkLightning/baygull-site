@@ -1,4 +1,5 @@
 import {
+  archiveMeta,
   article,
   articleMedia,
   articlesToTopics,
@@ -11,7 +12,7 @@ import {
 } from "@baygull/db/schema";
 import { createId, isCuid } from "@paralleldrive/cuid2";
 import { TRPCError } from "@trpc/server";
-import { and, count, eq, like, not, sql } from "drizzle-orm";
+import { and, count, desc, eq, like, not, sql } from "drizzle-orm";
 import slugify from "slugify";
 import { UTApi } from "uploadthing/server";
 import { z } from "zod";
@@ -75,10 +76,20 @@ export const manageArticleRouter = {
       })
     )
     .query(async ({ ctx, input }) => {
+      const orderField = {
+        draft: draftMeta.submittedAt,
+        published: publishMeta.publishedAt,
+        archived: archiveMeta.archivedAt,
+      } as const;
+
       const articles = await articleQueryBuilder(ctx.db, input.status)
         .includeMeta()
         .includeDescription()
         .withUsers()
+        .with(
+          (exts) =>
+            void exts.push((qb) => qb.orderBy(desc(orderField[input.status])))
+        )
         .run();
 
       return articles;

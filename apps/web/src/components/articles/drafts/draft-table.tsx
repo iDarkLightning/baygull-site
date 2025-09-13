@@ -18,6 +18,8 @@ import {
 } from "@baygull/ui/aria";
 import { Button } from "@baygull/ui/button";
 import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
   ClockIcon,
   PublishIcon,
   ThreeDotsIcon,
@@ -143,73 +145,86 @@ const columns = [
       return value.has(type);
     },
   }),
-  columnHelper.accessor("createdAt", {
-    header: () => <span>Submitted</span>,
-    cell: (info) => {
-      const date = new Date(info.getValue());
-
-      return (
-        <div className="flex items-center gap-2 text-neutral-600 mr-4">
-          <ClockIcon />
-          <p className="text-xs whitespace-nowrap">
-            {date.toLocaleDateString("en-US", {
-              month: "short",
-              day: "2-digit",
-              year: "numeric",
-            })}
-          </p>
-        </div>
-      );
+  columnHelper.accessor(
+    (row) => {
+      //@ts-expect-error
+      if (row.status === "published") return row.publishedAt;
+      //@ts-expect-error
+      if (row.status === "archived") return row.archivedAt;
+      //@ts-expect-error
+      if (row.status === "draft") return row.submittedAt;
     },
-    filterFn: (row, columnId, value: DateRange) => {
-      if (value === null) return true;
+    {
+      id: "createdAt",
+      header: (info) => {
+        const label: Record<string, string> = {
+          published: "Published",
+          draft: "Submitted",
+          archived: "Archived",
+        };
 
-      const submittedAt = new Date(row.getValue<number>(columnId));
+        return (
+          <p>{label[info.table.getRowModel().rows[0]!.original.status]}</p>
+        );
+      },
+      cell: (info) => {
+        const date = new Date(info.getValue());
 
-      const date = new CalendarDate(
-        submittedAt.getFullYear(),
-        submittedAt.getMonth() + 1,
-        submittedAt.getDate()
-      );
+        return (
+          <div className="flex items-center gap-2 text-neutral-600 mr-4">
+            <ClockIcon />
+            <p className="text-xs whitespace-nowrap">
+              {date.toLocaleDateString("en-US", {
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+              })}
+            </p>
+          </div>
+        );
+      },
+      filterFn: (row, columnId, value: DateRange) => {
+        if (value === null) return true;
 
-      return (
-        date.compare(value.start) === 0 ||
-        (date.compare(value.start) > 0 && date.compare(value.end) < 0)
-      );
-    },
-  }),
+        const submittedAt = new Date(row.getValue<number>(columnId));
+
+        const date = new CalendarDate(
+          submittedAt.getFullYear(),
+          submittedAt.getMonth() + 1,
+          submittedAt.getDate()
+        );
+
+        return (
+          date.compare(value.start) === 0 ||
+          (date.compare(value.start) > 0 && date.compare(value.end) < 0)
+        );
+      },
+    }
+  ),
   columnHelper.display({
     id: "actions",
-    cell: (row) => (
-      <MenuTrigger>
-        <Button variant="ghost" size="icon">
-          <ThreeDotsIcon />
-        </Button>
-        <Popover placement="bottom right">
-          <Menu className="focus:outline-none min-w-42">
-            <MenuItemLink
-              to="/manage/a/drafts/publish/$id"
-              params={{ id: row.row.original.id }}
-              activeProps={{}}
-              inactiveProps={{}}
-            >
-              <div className="flex gap-3 items-center">
-                <PublishIcon />
-                Publish
-              </div>
-            </MenuItemLink>
-            <MenuItem>
-              <div className="flex gap-3 items-center text-rose-600">
-                <TrashIcon />
-                Delete
-              </div>
-            </MenuItem>
-          </Menu>
-        </Popover>
-      </MenuTrigger>
+    cell: () => (
+      <div className="invisible group-hover:visible">
+        <ChevronRightIcon />
+      </div>
     ),
   }),
 ];
+
+const emptyStateDisplay: Record<string, { heading: string; sub: string }> = {
+  published: {
+    heading: "Published Articles",
+    sub: "All articles that are published on the website. There are currently no published articles.",
+  },
+  drafts: {
+    heading: "Article Drafts",
+    sub: "Article drafts are all submissions made by authors for potential review. There are currently no submissions.",
+  },
+  archived: {
+    heading: "Archived Articles",
+    sub: "Articles that have been archived as there are no plans for the article to be published. There are currently no archived articles.",
+  },
+};
 
 export const DraftTable = () => {
   const trpc = useTRPC();
@@ -263,6 +278,8 @@ export const DraftTable = () => {
     ]);
   }, [state]);
 
+  const params = routeApi.useParams();
+
   const isFilterActive =
     state.titleDesc !== "" ||
     state.authors.size > 0 ||
@@ -289,12 +306,12 @@ export const DraftTable = () => {
           </svg>
 
           <p className="text- font-semibold text-neutral-700">
-            Submitted Drafts
+            {emptyStateDisplay[params.status]?.heading}
           </p>
           <p className="text-sm text-neutral-500">
             {isFilterActive
-              ? "There are no drafts that match the selected filters"
-              : "Article drafts are all submissions made by authors for potential review. There are currently no submissions."}
+              ? "There are no items that match the selected filters"
+              : emptyStateDisplay[params.status]?.sub}
           </p>
         </div>
       )}
@@ -319,10 +336,18 @@ export const DraftTable = () => {
           </thead>
           <tbody>
             {table.getRowModel().rows.map((row) => (
-              <tr key={row.id}>
+              <tr key={row.id} className="group hover:bg-zinc-50 rounded-md">
                 {row.getVisibleCells().map((cell) => (
-                  <td key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  <td key={cell.id} className="rounded-md">
+                    <Link
+                      to="/manage/a/drafts/publish/$id"
+                      params={{ id: row.original.id }}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </Link>
                   </td>
                 ))}
               </tr>

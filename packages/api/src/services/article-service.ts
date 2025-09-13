@@ -192,7 +192,5 @@ export const articleQueryBuilder = <
     };
   };
 
-  const { status: _, ...cols } = getTableColumns(article);
-
-  return createBuilder(cols);
+  return createBuilder(getTableColumns(article));
 };

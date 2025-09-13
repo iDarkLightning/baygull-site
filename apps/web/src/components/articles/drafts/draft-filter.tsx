@@ -187,6 +187,7 @@ export const DraftFilterMenu = () => {
   );
   const navigate = routeApi.useNavigate();
   const search = routeApi.useSearch();
+  const params = routeApi.useParams();
 
   useEffect(() => {
     const typesChanged =
@@ -268,7 +269,13 @@ export const DraftFilterMenu = () => {
             <SubmenuItem
               delay={10}
               icon={<ClockIcon />}
-              label="Submission Time"
+              label={`${
+                params.status === "published"
+                  ? "Published"
+                  : params.status === "drafts"
+                  ? "Submission"
+                  : "Archival"
+              } Time`}
             >
               <SubmissionTimeFilterPopover />
             </SubmenuItem>
@@ -500,7 +507,7 @@ function SubmissionTimeFilterPopover() {
   return (
     <ModalPopover>
       <div className="flex flex-col gap-2 p-4 outline-none">
-        <p className="text-sm font-semibold">Choose a Submission Range</p>
+        <p className="text-sm font-semibold">Choose a Date Range</p>
         <div className=" gap-2">
           <div className=" flex flex-col gap-2">
             {Object.entries(submissionRangePresets).map(([key, value]) => (
