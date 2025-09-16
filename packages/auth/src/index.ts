@@ -27,7 +27,27 @@ export const auth = betterAuth({
       },
     },
   },
+  databaseHooks: {
+    user: {
+      create: {
+        before: async (user) => {
+          if (user.email === process.env.SUPERUSER_EMAIL) {
+            return {
+              data: {
+                ...user,
+                role: 2,
+              },
+            };
+          }
+
+          return { data: user };
+        },
+      },
+    },
+  },
   advanced: {
-    generateId: false,
+    database: {
+      generateId: false,
+    },
   },
 });
