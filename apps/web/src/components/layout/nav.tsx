@@ -29,7 +29,7 @@ const SidebarMenu = () => {
         <MenuIcon />
       </Button>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 bg-white/10 backdrop-blur-xs" />
+        <Drawer.Overlay className="fixed inset-0 bg-white/10 backdrop-blur-xs z-50" />
         <Drawer.Content
           className="right-0 top-0 bottom-0 fixed z-[1000] outline-none w-[310px] flex"
           // The gap between the edge of the screen and the drawer is 8px in this case.
