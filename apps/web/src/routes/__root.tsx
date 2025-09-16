@@ -31,10 +31,15 @@ export const Route = createRootRouteWithContext<{
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "TanStack Start Starter",
+        title: "The Bay Gull",
       },
     ],
     links: [
+      {
+        rel: "icon",
+        type: "image/svg",
+        href: "/favicon.svg",
+      },
       {
         rel: "stylesheet",
         href: globalCss,

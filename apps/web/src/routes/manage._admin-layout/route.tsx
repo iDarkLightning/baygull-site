@@ -9,6 +9,9 @@ import {
 import { AdminShell } from "~/components/layout/admin-shell";
 
 export const Route = createFileRoute("/manage/_admin-layout")({
+  head: () => ({
+    meta: [{ title: "The Bay Gull - Manage" }],
+  }),
   beforeLoad: async ({ context, location }) => {
     console.log("context.user = ", context.user);
     if (!context.user) {

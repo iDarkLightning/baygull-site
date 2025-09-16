@@ -6,10 +6,23 @@ import { useTRPC } from "~/lib/trpc-client";
 
 export const Route = createFileRoute("/articles/$slug")({
   loader: async ({ params, context }) => {
-    await context.queryClient.ensureQueryData(
+    const article = await context.queryClient.ensureQueryData(
       context.trpc.article.getBySlug.queryOptions({ slug: params.slug })
     );
+
+    return article;
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: loaderData?.title,
+      },
+      {
+        name: "description",
+        content: loaderData?.description ?? undefined,
+      },
+    ],
+  }),
   component: RouteComponent,
 });
 
