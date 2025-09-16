@@ -1,9 +1,4 @@
-import dotenv from "dotenv";
 import { sql } from "drizzle-orm";
-
-dotenv.config({
-  path: "../.env",
-});
 
 const resetDB = async () => {
   const { db } = await import("@baygull/db");
@@ -19,7 +14,7 @@ const resetDB = async () => {
   await db.run(sql`PRAGMA foreign_keys = OFF;`);
 
   await Promise.all(
-    tables.map((table) => db.run(`DELETE FROM ${table.name};`))
+    tables.toReversed().map((table) => db.run(`DELETE FROM ${table.name};`))
   );
 
   console.log("\n\n---DATABASE RESET---");

@@ -1,12 +1,7 @@
 import fs from "fs";
 import { join } from "path";
-import dotenv from "dotenv";
 import { UTApi } from "uploadthing/server";
 import { parse } from "node-html-parser";
-
-dotenv.config({
-  path: "../.env",
-});
 
 const migrateUsers = async () => {
   const data = JSON.parse(
@@ -95,9 +90,9 @@ const migrateArticles = async () => {
           topicIds: group.map((article) => article.topicId),
         };
       })
-      .map(async (article) => {
+      .map(async (a) => {
         const newHTML = parse("<body></body>");
-        const parsedHTML = parse(article.content);
+        const parsedHTML = parse(a.content);
 
         const body = newHTML.querySelector("body");
 
@@ -125,6 +120,14 @@ const migrateArticles = async () => {
 
         const imgs = parsedHTML.querySelectorAll("img");
 
+        await db.insert(article).values({
+          id: a.id,
+          type: "default" as const,
+          status: "published" as const,
+          title: a.title,
+          createdAt: a.published_at,
+        });
+
         if (imgs.length > 0) {
           const files = await Promise.all(
             imgs.map(async (node) => {
@@ -146,7 +149,7 @@ const migrateArticles = async () => {
             uploadResult
               .filter((res) => res.data)
               .map((res) => ({
-                articleId: article.id,
+                articleId: a.id,
                 intent: "content_img" as const,
                 caption: "",
                 fileName: res.data!.name,
@@ -171,18 +174,8 @@ const migrateArticles = async () => {
             body!.innerHTML += node.outerHTML;
           });
 
-        return { ...article, content: newHTML.toString() };
+        return { ...a, content: newHTML.toString() };
       })
-  );
-
-  await db.insert(article).values(
-    data.map((article) => ({
-      id: article.id,
-      type: "default" as const,
-      status: "published" as const,
-      title: article.title,
-      createdAt: article.published_at,
-    }))
   );
 
   await db.insert(usersToArticles).values(

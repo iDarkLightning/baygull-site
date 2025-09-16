@@ -5,7 +5,9 @@
   "scripts": {
     "dev": "dotenv -e .env -- pnpm -r --stream dev",
     "build": "dotenv -e .env -- pnpm -r --stream build",
-    "wrangler:dev": "dotenv -e .env -- pnpm --filter @baygull/web wrangler:dev",
+    "wrangler:dev": "CLOUDFLARE_INCLUDE_PROCESS_ENV=true dotenv -e .env -- pnpm --filter @baygull/web wrangler:dev",
+    "script:dev": "dotenv -e .env -- pnpm --filter @baygull/scripts execute",
+    "script:prod": "dotenv -e .env.production -- pnpm --filter @baygull/scripts execute",
     "typecheck": "pnpm -r typecheck"
   },
   "keywords": [],
