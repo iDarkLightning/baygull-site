@@ -1,5 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { type TArticlesList } from "@baygull/api/trpc/types";
+import { asUTCDate } from "~/lib/as-utc-date";
 
 type ArticleHighlightsProps = {
   articles: TArticlesList;
@@ -57,7 +58,7 @@ export const ArticleHighlights: React.FC<ArticleHighlightsProps> = (props) => (
                   <p>
                     {new Intl.DateTimeFormat("en-us", {
                       dateStyle: "medium",
-                    }).format(new Date(article.publishedAt))}
+                    }).format(asUTCDate(article.publishedAt))}
                   </p>
                   <p>·</p>
                   <p>

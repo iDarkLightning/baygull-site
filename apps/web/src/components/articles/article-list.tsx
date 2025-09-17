@@ -1,6 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import React from "react";
 import type { TArticlesList } from "@baygull/api/trpc/types";
+import { asUTCDate } from "~/lib/as-utc-date";
 
 type ArticlesListProps = {
   articles: TArticlesList;
@@ -25,7 +26,7 @@ export const ArticlesList: React.FC<ArticlesListProps> = (props) => (
             <p className="text-xs font-bold text-neutral-400">
               {new Intl.DateTimeFormat("en-us", {
                 dateStyle: "medium",
-              }).format(new Date(article.publishedAt))}
+              }).format(asUTCDate(article.publishedAt))}
             </p>
             {article.type !== "graphic" && article.coverImg && (
               <img

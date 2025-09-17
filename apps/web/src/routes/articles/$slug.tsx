@@ -2,6 +2,7 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CollapsedHeader } from "~/components/layout/nav";
 import { PageProgress } from "~/components/page-progress";
+import { asUTCDate } from "~/lib/as-utc-date";
 import { useTRPC } from "~/lib/trpc-client";
 
 export const Route = createFileRoute("/articles/$slug")({
@@ -88,7 +89,7 @@ function RouteComponent() {
           </div>
           <p className="text-neutral-600">
             {new Intl.DateTimeFormat("en-US", { dateStyle: "long" }).format(
-              new Date(article.publishedAt)
+              asUTCDate(article.publishedAt)
             )}
           </p>
         </div>

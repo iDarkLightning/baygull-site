@@ -33,6 +33,7 @@ import { useArticleFilterStore } from "~/lib/articles/article-filter-store";
 import { cn } from "@baygull/ui/cn";
 import { useTRPC } from "~/lib/trpc-client";
 import { TDraftList } from "@baygull/api/trpc/types";
+import { asUTCDate } from "~/lib/as-utc-date";
 
 const columnHelper = createColumnHelper<TDraftList[number]>();
 
@@ -168,7 +169,7 @@ const columns = [
         );
       },
       cell: (info) => {
-        const date = new Date(info.getValue());
+        const date = asUTCDate(info.getValue());
 
         return (
           <div className="flex items-center gap-2 text-neutral-600 mr-4">

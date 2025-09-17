@@ -35,6 +35,7 @@ import { useTRPC, useTRPCClient } from "~/lib/trpc-client";
 import { useUploadThing } from "~/lib/uploadthing-client";
 import { ArticleTypeRadio, TArticleType } from "../article-type-radio";
 import { CollaboratorMultiSelect } from "../collaborator-multi-select";
+import { asUTCDate } from "~/lib/as-utc-date";
 
 const TOPIC_CREATE_KEY = "__topic_create_key";
 const MUTATION_SCOPE_ID = "__article_info_editor_mutation";
@@ -899,6 +900,25 @@ const InfoForm: React.FC = () => {
   );
 };
 
+const DateDisplay: React.FC<{
+  label: string;
+  date: string;
+}> = (props) => (
+  <div className="flex text-xs justify-between flex-row gap-12 w-full min-w-max">
+    <p className="font-medium text-zinc-500">{props.label}</p>
+    <div className="flex items-center gap-1 text-xs text-zinc-500">
+      <ClockIcon />
+      <p className="font-mono">
+        {asUTCDate(props.date).toLocaleTimeString("en-US", {
+          month: "short",
+          day: "2-digit",
+          year: "numeric",
+        })}
+      </p>
+    </div>
+  </div>
+);
+
 export const ArticleInfoEditor = () => {
   const { data } = useDraft();
 
@@ -920,32 +940,8 @@ export const ArticleInfoEditor = () => {
               <p>{data.type.charAt(0).toUpperCase() + data.type.slice(1)}</p>
             </div>
           </div>
-          <div className="flex text-xs justify-between flex-row gap-12 w-full min-w-max">
-            <p className="font-medium text-zinc-500">Submitted</p>
-            <div className="flex items-center gap-1 text-xs text-zinc-500">
-              <ClockIcon />
-              <p className="font-mono">
-                {new Date(data.submittedAt).toLocaleTimeString("en-US", {
-                  month: "short",
-                  day: "2-digit",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-          </div>
-          <div className="flex text-xs gap-12 justify-between w-full min-w-max">
-            <p className="font-medium text-zinc-500">Last Updated</p>
-            <div className="flex items-center gap-1 text-xs text-zinc-500">
-              <ClockIcon />
-              <p className="font-mono">
-                {new Date(data.updatedAt).toLocaleTimeString("en-US", {
-                  month: "short",
-                  day: "2-digit",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-          </div>
+          <DateDisplay label="Created On" date={data.createdAt} />
+          <DateDisplay label="Last Updated" date={data.updatedAt} />
         </DataDisplay>
         <DataDisplay label="Key Ideas">
           <p className="text-sm text-zinc-500">{data.keyIdeas}</p>
