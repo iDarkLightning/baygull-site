@@ -944,10 +944,10 @@ export const ArticleInfoEditor = () => {
           <DateDisplay label="Last Updated" date={data.updatedAt} />
         </DataDisplay>
         <DataDisplay label="Key Ideas">
-          <p className="text-sm text-zinc-500">{data.keyIdeas}</p>
+          <p className="text-sm text-zinc-500 w-max">{data.keyIdeas}</p>
         </DataDisplay>
         <DataDisplay label="Message">
-          <p className="text-sm text-zinc-500">{data.message}</p>
+          <p className="text-sm text-zinc-500 w-max">{data.message}</p>
         </DataDisplay>
       </div>
     </div>

@@ -78,10 +78,9 @@ function RouteComponent() {
             <div>
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2">
-                  <h1 className="text-lg font-medium">{data.title}</h1>
-                  <div className="bg-blue-100 px-4 py-0.5 text-xs rounded-full font-medium border-[0.0125rem] border-blue-300 text-blue-800">
-                    {data.status.charAt(0).toUpperCase() + data.status.slice(1)}
-                  </div>
+                  <h1 className="text-lg font-medium md:max-w-[32ch] lg:max-w-[64ch] truncate">
+                    {data.title}
+                  </h1>
                 </div>
                 {isUpdating && (
                   <div className="flex items-center gap-0.5 text-zinc-300 mt-0.5">
@@ -93,7 +92,9 @@ function RouteComponent() {
                 )}
               </div>
               {data.type !== "headline" && (
-                <p className="text-sm text-zinc-700">{data.description}</p>
+                <p className="text-sm text-zinc-700 md:max-w-[24ch] lg:max-w-[64ch] truncate">
+                  {data.description}
+                </p>
               )}
             </div>
           </div>
@@ -128,7 +129,7 @@ function RouteComponent() {
               </ModalPopover>
             </MenuTrigger>
           </div>
-          <div className="hidden md:flex flex-wrap gap-2 items-center bg-zinc-50 w-fit rounded-full border-[0.0125rem] border-zinc-200/70 shaadow-xs">
+          <div className="hidden md:flex gap-2 items-center bg-zinc-50 w-max rounded-full border-[0.0125rem] border-zinc-200/70 overflow-auto">
             {tabs
               .filter(
                 (tab) =>
@@ -142,7 +143,7 @@ function RouteComponent() {
                   params={params}
                   className="text-sm relative font-medium py-2.5 px-4 rounded-full cursor-default"
                 >
-                  <p className="z-20 text-black relative">{tab.name}</p>
+                  <p className="z-20 text-black relative w-max">{tab.name}</p>
                   <MatchRoute to={tab.to}>
                     {(match) =>
                       match && (
