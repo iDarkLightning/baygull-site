@@ -4,6 +4,7 @@ import {
   GlobeIcon,
   MenuIcon,
   PencilSquareIcon,
+  PeopleIcon,
 } from "@baygull/ui/icons";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link, linkOptions, MatchRoute } from "@tanstack/react-router";
@@ -48,6 +49,20 @@ const tabs = [
           status: "archived",
         },
         icon: ArchiveBoxIcon,
+      },
+    ]),
+  },
+  {
+    id: "organization",
+    label: "Organization",
+    tabs: linkOptions([
+      {
+        id: "people-tab",
+        // @ts-ignore
+        name: "People",
+        to: "/manage/people",
+        params: {},
+        icon: PeopleIcon,
       },
     ]),
   },
@@ -100,6 +115,7 @@ const Nav: React.FC<{
                   to={tab.to}
                   params={tab.params}
                   search={(prev) => {
+                    console.log(prev);
                     return Object.fromEntries(
                       Object.entries(prev).filter(
                         ([_, value]) => value !== undefined

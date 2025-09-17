@@ -3,8 +3,11 @@ import { publicProcedure } from "../init";
 import { authedProcedure, extractAuth } from "../middleware/auth-middleware";
 import { user } from "@baygull/db/schema";
 import { z } from "zod";
+import { userManageRouter } from "./user-manage-router";
 
 export const userRouter = {
+  manage: userManageRouter,
+
   me: publicProcedure
     .use(extractAuth)
     .query(async ({ ctx }) => ctx.user ?? null),
