@@ -879,8 +879,8 @@ export const manageArticleRouter = {
             .set({
               isSynced: input.isSynced,
               ...(input.isSynced
-                ? { syncDisabledAt: null }
-                : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)` }),
+                ? { syncDisabledAt: null, type: "html" }
+                : { syncDisabledAt: sql`(CURRENT_TIMESTAMP)`, type: "json" }),
             })
             .where(eq(draftDefaultContent.articleId, input.id))
             .returning()
@@ -911,7 +911,7 @@ export const manageArticleRouter = {
     .input(
       z.object({
         id: z.string(),
-        editingUrl: z.string().url(),
+        editingUrl: z.string(),
         shouldSync: z.boolean(),
       })
     )

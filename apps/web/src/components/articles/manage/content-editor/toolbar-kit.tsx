@@ -14,9 +14,12 @@ import { Button, ToggleButton } from "@baygull/ui/button";
 import {
   ChevronDownIcon,
   ChevronRightIcon,
+  ExternalLinkIcon,
   GoogleDocsIcon,
   InfoIcon,
   LinkIcon,
+  LinkSlashIcon,
+  PencilSquareIcon,
   TextIcon,
 } from "@baygull/ui/icons";
 import { Label } from "@baygull/ui/label";
@@ -100,7 +103,7 @@ export function MarkToolbarButton({
     <TooltipTrigger>
       <ToggleButton
         {...props}
-        {...buttonProps}
+        {...(buttonProps as any)}
         isSelected={buttonProps.pressed}
       />
       <Tooltip placement="bottom">{tooltip}</Tooltip>
@@ -291,6 +294,7 @@ export function LinkToolbarButton() {
     <TooltipTrigger>
       <ToggleButton
         {...buttonProps}
+        // @ts-expect-error
         onMouseDown={buttonProps.onMouseDown}
         isSelected={buttonProps.pressed}
         data-plate-focus
@@ -509,20 +513,67 @@ const EditDocForm: React.FC<{
 
   return (
     <>
-      <Button
-        onPress={control.open}
-        leadingVisual={<GoogleDocsIcon />}
-        variant="ghost"
-        isCircular={false}
-      >
-        <div
-          className={
-            !draft.data.content.isSynced ? "max-w-[16ch] truncate" : ""
-          }
+      <MenuTrigger>
+        <Button
+          leadingVisual={<GoogleDocsIcon />}
+          variant="ghost"
+          isCircular={false}
         >
-          {docQuery.data ? docQuery.data.name : "Not Linked"}
-        </div>
-      </Button>
+          <div
+            className={
+              !draft.data.content.isSynced ? "max-w-[16ch] truncate" : ""
+            }
+          >
+            {docQuery.data ? docQuery.data.name : "Not Linked"}
+          </div>
+        </Button>
+        <ModalPopover
+          popoverProps={{
+            placement: "bottom left",
+          }}
+        >
+          <Menu className="focus:outline-none">
+            <MenuItem
+              onPress={() =>
+                window.open(draft.data.content.editingUrl, "_blank")
+              }
+            >
+              <div className="flex gap-2 items-center">
+                <ExternalLinkIcon />
+                <p className="text-xs">Open</p>
+              </div>
+            </MenuItem>
+            <MenuItem onPress={control.open}>
+              <div className="flex gap-2 items-center">
+                {!draft.data.content.editingUrl ? (
+                  <LinkIcon />
+                ) : (
+                  <PencilSquareIcon />
+                )}
+                <p className="text-xs">
+                  {draft.data.content.editingUrl ? "Edit" : "Link"}
+                </p>
+              </div>
+            </MenuItem>
+            {draft.data.content.editingUrl && (
+              <MenuItem
+                onPress={() => {
+                  updateEditingUrl.mutate({
+                    id: draft.data.id,
+                    editingUrl: "",
+                    shouldSync: false,
+                  });
+                }}
+              >
+                <div className="flex gap-2 items-center text-red-700">
+                  <LinkSlashIcon />
+                  <p className="text-xs">Unlink</p>
+                </div>
+              </MenuItem>
+            )}
+          </Menu>
+        </ModalPopover>
+      </MenuTrigger>
       <Modal
         isOpen={control.isOpen}
         onOpenChange={(open) => {
@@ -572,7 +623,11 @@ const EditDocForm: React.FC<{
                     }}
                     asyncDebounceMs={1_000}
                     children={(field) => (
-                      <field.GoogleDocField queryEnabledByDefault />
+                      <field.GoogleDocField
+                        queryEnabledByDefault={
+                          draft.data.content.editingUrl !== ""
+                        }
+                      />
                     )}
                   />
                 </div>

@@ -29,7 +29,7 @@ export default function ArticleContentEditor() {
     useDefaultDraft();
 
   const getValue = () => {
-    if (data.content.type === "html") {
+    if (data.content.type === "html" || data.content.isSynced) {
       const { body } = new DOMParser().parseFromString(
         (data.content.content as string) ?? "",
         "text/html"
