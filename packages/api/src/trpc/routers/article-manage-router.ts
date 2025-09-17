@@ -120,6 +120,21 @@ export const manageArticleRouter = {
             .where(eq(draftDefaultContent.articleId, draft.articleId))
         );
 
+        if (content.isSynced) {
+          const docContent = await getArticleDocContent({
+            editingUrl: content.editingUrl,
+          });
+
+          return {
+            ...draft,
+            type: "default" as const,
+            content: {
+              ...content,
+              content: docContent.content,
+            },
+          };
+        }
+
         return {
           ...draft,
           type: "default" as const,
