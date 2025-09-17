@@ -98,7 +98,7 @@ export default function ArticleContentEditor() {
         }}
       >
         <PlateContent
-          className="focus-visible:outline-none h-full w-full xl:w-3/4 max-w-[60rem] p-2 lg:p-8 rounded-md mx-auto"
+          className="focus-visible:outline-none h-full w-full xl:w-3/4 max-w-[60rem] p-2 lg:p-8 rounded-md mx-auto flex flex-col gap-1"
           placeholder="Type your amazing content here..."
         />
       </Plate>
