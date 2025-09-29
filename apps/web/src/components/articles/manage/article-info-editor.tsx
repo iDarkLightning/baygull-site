@@ -944,10 +944,17 @@ export const ArticleInfoEditor = () => {
           <DateDisplay label="Last Updated" date={data.updatedAt} />
         </DataDisplay>
         <DataDisplay label="Key Ideas">
-          <p className="text-sm text-zinc-500 w-max">{data.keyIdeas}</p>
+          <p className="text-sm text-zinc-500 w-max max-w-[48ch] lg:w-fit">
+            {data.keyIdeas} Lorem ipsum dolor sit amet consectetur adipisicing
+            elit. Odio deserunt voluptatum rerum numquam. Commodi ut et
+            repellendus facere quo hic deserunt dolor quaerat modi ipsam alias
+            sit, odit, aperiam sunt?
+          </p>
         </DataDisplay>
         <DataDisplay label="Message">
-          <p className="text-sm text-zinc-500 w-max">{data.message}</p>
+          <p className="text-sm text-zinc-500 w-max max-w-[48ch] lg:w-fit">
+            {data.message}
+          </p>
         </DataDisplay>
       </div>
     </div>
