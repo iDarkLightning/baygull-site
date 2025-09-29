@@ -945,10 +945,7 @@ export const ArticleInfoEditor = () => {
         </DataDisplay>
         <DataDisplay label="Key Ideas">
           <p className="text-sm text-zinc-500 w-max max-w-[48ch] lg:w-fit">
-            {data.keyIdeas} Lorem ipsum dolor sit amet consectetur adipisicing
-            elit. Odio deserunt voluptatum rerum numquam. Commodi ut et
-            repellendus facere quo hic deserunt dolor quaerat modi ipsam alias
-            sit, odit, aperiam sunt?
+            {data.keyIdeas}
           </p>
         </DataDisplay>
         <DataDisplay label="Message">
