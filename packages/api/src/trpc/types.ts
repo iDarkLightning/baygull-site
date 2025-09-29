@@ -5,5 +5,9 @@ type RouterInput = inferRouterInputs<TRPCRouter>;
 type RouterOutput = inferRouterOutputs<TRPCRouter>;
 
 export type TArticlesList = RouterOutput["article"]["getAll"];
+export type TArticleContent = Extract<
+  RouterOutput["article"]["getBySlug"],
+  { type: "default" }
+>["content"];
 export type TDraftList = RouterOutput["article"]["manage"]["getAll"];
 export type TPeopleList = RouterOutput["user"]["manage"]["getAll"];

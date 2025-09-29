@@ -41,6 +41,7 @@ import {
 import { Input } from "@baygull/ui/input";
 import { Popover } from "@baygull/ui/popover";
 import { useAppForm } from "~/lib/form";
+import { plateLink } from "./node-styles";
 
 const getCursorPixelOffsetWithin = (
   element: HTMLElement | null | undefined
@@ -67,7 +68,7 @@ export function LinkElement(props: PlateElementProps<TLinkElement>) {
     <PlateElement
       {...props}
       as="a"
-      className="font-medium underline text-sky-800 decoration-primary underline-offset-4"
+      className={plateLink()}
       attributes={{
         ...props.attributes,
         ...getLinkAttributes(props.editor, props.element),

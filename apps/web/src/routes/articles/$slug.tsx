@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { DefaultArticleRenderer } from "~/components/articles/article-renderer";
 import { CollapsedHeader } from "~/components/layout/nav";
 import { PageProgress } from "~/components/page-progress";
 import { asUTCDate } from "~/lib/as-utc-date";
@@ -96,12 +97,7 @@ function RouteComponent() {
         <hr className="my-4 text-neutral-300" />
 
         {article.type === "default" && (
-          <div
-            className="flex flex-col gap-4 text-lg leading-relaxed text-[#363636] pb-8 break-words ![&>img]:w-full parent"
-            dangerouslySetInnerHTML={{
-              __html: article.content.content as string,
-            }}
-          />
+          <DefaultArticleRenderer content={article.content} />
         )}
       </main>
     </>

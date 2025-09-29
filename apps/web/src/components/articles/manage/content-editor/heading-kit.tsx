@@ -1,21 +1,11 @@
 import { H1Plugin, H2Plugin, H3Plugin } from "@platejs/basic-nodes/react";
-import { cva, VariantProps } from "class-variance-authority";
-import { BreakRules } from "platejs";
+import { VariantProps } from "class-variance-authority";
 import { Key, PlateElement, PlateElementProps } from "platejs/react";
 import React from "react";
 import { BASE_RULES } from "./editor-utils";
+import { plateHeading } from "./node-styles";
 
 const BASE_SHORTCUT_KEYS = [Key.Mod, Key.Alt];
-
-const plateHeading = cva("relative text-zinc-800 font-serif", {
-  variants: {
-    variant: {
-      h1: "font-semibold text-2xl my-1",
-      h2: "font-medium text-xl my-0.5",
-      h3: "font-medium text-lg my-0.5",
-    },
-  },
-});
 
 const HeadingElement: React.FC<
   PlateElementProps & VariantProps<typeof plateHeading>

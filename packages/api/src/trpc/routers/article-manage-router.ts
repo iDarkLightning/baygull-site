@@ -6,6 +6,7 @@ import {
   draftDefaultContent,
   draftMeta,
   graphicContent,
+  publishDefaultContent,
   publishMeta,
   topic,
   usersToArticles,
@@ -301,6 +302,53 @@ export const manageArticleRouter = {
         message: "ok",
         draftId: resultId,
       };
+    }),
+
+  publish: adminProcedure
+    .input(
+      z.object({
+        id: z.string(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.uniqueResultOrThrow(
+        articleQueryBuilder(ctx.db, "draft")
+          .includeMeta()
+          .with(
+            (exts) => void exts.push((qb) => qb.where(eq(article.id, input.id)))
+          )
+          .run()
+      );
+
+      console.log(result);
+
+      await ctx.db.transaction(async (tx) => {
+        await tx.update(article).set({
+          status: "published",
+        });
+
+        await tx.insert(publishMeta).values({
+          articleId: result.id,
+          slug: result.slug,
+          isHighlighted: true,
+        });
+
+        if (result.type === "default") {
+          const draftContent = await ctx.uniqueResultOrThrow(
+            tx
+              .select()
+              .from(draftDefaultContent)
+              .where(eq(draftDefaultContent.articleId, result.id))
+          );
+
+          await tx.insert(publishDefaultContent).values({
+            articleId: result.id,
+            description: draftContent.description,
+            type: "json",
+            content: draftContent.content,
+          });
+        }
+      });
     }),
 
   updateTitle: adminProcedure
