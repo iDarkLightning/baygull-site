@@ -13,7 +13,6 @@ export const Route = createFileRoute("/manage/_admin-layout")({
     meta: [{ title: "The Bay Gull - Manage" }],
   }),
   beforeLoad: async ({ context, location }) => {
-    console.log("context.user = ", context.user);
     if (!context.user) {
       const { data } = await authClient.signIn.social({
         provider: "google",

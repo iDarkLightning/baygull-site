@@ -590,12 +590,9 @@ export const manageArticleRouter = {
     )
     .mutation(async ({ ctx, input }) => {
       await ctx.db.transaction(async (tx) => {
-        console.log(input.topics);
         if (input.topics.length > 0) {
           await tx.insert(topic).values(input.topics).onConflictDoNothing();
         }
-
-        console.log("DELETING EXISTING");
 
         await tx
           .delete(articlesToTopics)
