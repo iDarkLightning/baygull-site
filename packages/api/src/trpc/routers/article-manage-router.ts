@@ -238,15 +238,6 @@ export const manageArticleRouter = {
           }),
         });
 
-        await tx.insert(publishMeta).values({
-          articleId,
-          slug: slugify(input.title, {
-            lower: true,
-            trim: true,
-            strict: true,
-          }),
-        });
-
         if (input.type === "default") {
           const copyResult = await createArticleEditingCopy({
             articleName: input.title,
@@ -320,12 +311,13 @@ export const manageArticleRouter = {
           .run()
       );
 
-      console.log(result);
-
       await ctx.db.transaction(async (tx) => {
-        await tx.update(article).set({
-          status: "published",
-        });
+        await tx
+          .update(article)
+          .set({
+            status: "published",
+          })
+          .where(eq(article.id, input.id));
 
         await tx.insert(publishMeta).values({
           articleId: result.id,
