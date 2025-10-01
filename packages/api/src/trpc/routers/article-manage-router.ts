@@ -482,7 +482,7 @@ export const manageArticleRouter = {
               target: graphicContent.articleId,
               set: !!defaultDesc
                 ? { description: defaultDesc.description }
-                : {},
+                : { description: graphicContent.description },
             });
         }
 
