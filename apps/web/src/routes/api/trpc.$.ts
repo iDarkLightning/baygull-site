@@ -1,7 +1,7 @@
 import { fetchRequestHandler } from "@baygull/api/trpc/server";
 import { rootRouter } from "@baygull/api/trpc";
 import { createTRPCContext } from "@baygull/api/trpc/context";
-import { createServerFileRoute } from "@tanstack/react-start/server";
+import { createFileRoute } from "@tanstack/react-router";
 
 function handler({ request }: { request: Request }) {
   return fetchRequestHandler({
@@ -12,7 +12,11 @@ function handler({ request }: { request: Request }) {
   });
 }
 
-export const ServerRoute = createServerFileRoute("/api/trpc/$").methods({
-  GET: handler,
-  POST: handler,
+export const Route = createFileRoute("/api/trpc/$")({
+  server: {
+    handlers: {
+      GET: handler,
+      POST: handler,
+    },
+  },
 });

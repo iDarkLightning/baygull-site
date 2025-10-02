@@ -9,15 +9,17 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { createFileRoute } from '@tanstack/react-router'
-import { createServerRootRoute } from '@tanstack/react-start/server'
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
 import { Route as ArticlesSubmitRouteImport } from './routes/articles/submit'
 import { Route as ArticlesSlugRouteImport } from './routes/articles/$slug'
+import { Route as ApiUploadthingRouteImport } from './routes/api/uploadthing'
 import { Route as ManageAdminLayoutRouteRouteImport } from './routes/manage._admin-layout/route'
 import { Route as ManageAdminLayoutPeopleRouteImport } from './routes/manage._admin-layout/people'
+import { Route as ApiTrpcSplatRouteImport } from './routes/api/trpc.$'
+import { Route as ApiAuthSplatRouteImport } from './routes/api/auth.$'
 import { Route as ManageAdminLayoutAStatusRouteImport } from './routes/manage._admin-layout/a.$status'
 import { Route as ManageAdminLayoutAEditIdRouteRouteImport } from './routes/manage._admin-layout/a.edit.$id/route'
 import { Route as ManageAdminLayoutAEditIdIndexRouteImport } from './routes/manage._admin-layout/a.edit.$id/index'
@@ -25,12 +27,8 @@ import { Route as ManageAdminLayoutAEditIdSeoRouteImport } from './routes/manage
 import { Route as ManageAdminLayoutAEditIdPublishingRouteImport } from './routes/manage._admin-layout/a.edit.$id/publishing'
 import { Route as ManageAdminLayoutAEditIdLayoutRouteImport } from './routes/manage._admin-layout/a.edit.$id/layout'
 import { Route as ManageAdminLayoutAEditIdContentRouteImport } from './routes/manage._admin-layout/a.edit.$id/content'
-import { ServerRoute as ApiUploadthingServerRouteImport } from './routes/api/uploadthing'
-import { ServerRoute as ApiTrpcSplatServerRouteImport } from './routes/api/trpc.$'
-import { ServerRoute as ApiAuthSplatServerRouteImport } from './routes/api/auth.$'
 
 const ManageRouteImport = createFileRoute('/manage')()
-const rootServerRouteImport = createServerRootRoute()
 
 const ManageRoute = ManageRouteImport.update({
   id: '/manage',
@@ -57,6 +55,11 @@ const ArticlesSlugRoute = ArticlesSlugRouteImport.update({
   path: '/articles/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiUploadthingRoute = ApiUploadthingRouteImport.update({
+  id: '/api/uploadthing',
+  path: '/api/uploadthing',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ManageAdminLayoutRouteRoute = ManageAdminLayoutRouteRouteImport.update({
   id: '/_admin-layout',
   getParentRoute: () => ManageRoute,
@@ -65,6 +68,16 @@ const ManageAdminLayoutPeopleRoute = ManageAdminLayoutPeopleRouteImport.update({
   id: '/people',
   path: '/people',
   getParentRoute: () => ManageAdminLayoutRouteRoute,
+} as any)
+const ApiTrpcSplatRoute = ApiTrpcSplatRouteImport.update({
+  id: '/api/trpc/$',
+  path: '/api/trpc/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSplatRoute = ApiAuthSplatRouteImport.update({
+  id: '/api/auth/$',
+  path: '/api/auth/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const ManageAdminLayoutAStatusRoute =
   ManageAdminLayoutAStatusRouteImport.update({
@@ -108,28 +121,16 @@ const ManageAdminLayoutAEditIdContentRoute =
     path: '/content',
     getParentRoute: () => ManageAdminLayoutAEditIdRouteRoute,
   } as any)
-const ApiUploadthingServerRoute = ApiUploadthingServerRouteImport.update({
-  id: '/api/uploadthing',
-  path: '/api/uploadthing',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiTrpcSplatServerRoute = ApiTrpcSplatServerRouteImport.update({
-  id: '/api/trpc/$',
-  path: '/api/trpc/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
-const ApiAuthSplatServerRoute = ApiAuthSplatServerRouteImport.update({
-  id: '/api/auth/$',
-  path: '/api/auth/$',
-  getParentRoute: () => rootServerRouteImport,
-} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/manage': typeof ManageAdminLayoutRouteRouteWithChildren
+  '/api/uploadthing': typeof ApiUploadthingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
   '/manage/a/edit/$id': typeof ManageAdminLayoutAEditIdRouteRouteWithChildren
@@ -142,9 +143,12 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/manage': typeof ManageAdminLayoutRouteRouteWithChildren
+  '/api/uploadthing': typeof ApiUploadthingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles': typeof ArticlesIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/manage/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/a/$status': typeof ManageAdminLayoutAStatusRoute
   '/manage/a/edit/$id/content': typeof ManageAdminLayoutAEditIdContentRoute
@@ -158,9 +162,12 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/manage': typeof ManageRouteWithChildren
   '/manage/_admin-layout': typeof ManageAdminLayoutRouteRouteWithChildren
+  '/api/uploadthing': typeof ApiUploadthingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
   '/articles/submit': typeof ArticlesSubmitRoute
   '/articles/': typeof ArticlesIndexRoute
+  '/api/auth/$': typeof ApiAuthSplatRoute
+  '/api/trpc/$': typeof ApiTrpcSplatRoute
   '/manage/_admin-layout/people': typeof ManageAdminLayoutPeopleRoute
   '/manage/_admin-layout/a/$status': typeof ManageAdminLayoutAStatusRoute
   '/manage/_admin-layout/a/edit/$id': typeof ManageAdminLayoutAEditIdRouteRouteWithChildren
@@ -175,9 +182,12 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/manage'
+    | '/api/uploadthing'
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles'
+    | '/api/auth/$'
+    | '/api/trpc/$'
     | '/manage/people'
     | '/manage/a/$status'
     | '/manage/a/edit/$id'
@@ -190,9 +200,12 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/manage'
+    | '/api/uploadthing'
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles'
+    | '/api/auth/$'
+    | '/api/trpc/$'
     | '/manage/people'
     | '/manage/a/$status'
     | '/manage/a/edit/$id/content'
@@ -205,9 +218,12 @@ export interface FileRouteTypes {
     | '/'
     | '/manage'
     | '/manage/_admin-layout'
+    | '/api/uploadthing'
     | '/articles/$slug'
     | '/articles/submit'
     | '/articles/'
+    | '/api/auth/$'
+    | '/api/trpc/$'
     | '/manage/_admin-layout/people'
     | '/manage/_admin-layout/a/$status'
     | '/manage/_admin-layout/a/edit/$id'
@@ -221,38 +237,12 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ManageRoute: typeof ManageRouteWithChildren
+  ApiUploadthingRoute: typeof ApiUploadthingRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   ArticlesSubmitRoute: typeof ArticlesSubmitRoute
   ArticlesIndexRoute: typeof ArticlesIndexRoute
-}
-export interface FileServerRoutesByFullPath {
-  '/api/uploadthing': typeof ApiUploadthingServerRoute
-  '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRoutesByTo {
-  '/api/uploadthing': typeof ApiUploadthingServerRoute
-  '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRoutesById {
-  __root__: typeof rootServerRouteImport
-  '/api/uploadthing': typeof ApiUploadthingServerRoute
-  '/api/auth/$': typeof ApiAuthSplatServerRoute
-  '/api/trpc/$': typeof ApiTrpcSplatServerRoute
-}
-export interface FileServerRouteTypes {
-  fileServerRoutesByFullPath: FileServerRoutesByFullPath
-  fullPaths: '/api/uploadthing' | '/api/auth/$' | '/api/trpc/$'
-  fileServerRoutesByTo: FileServerRoutesByTo
-  to: '/api/uploadthing' | '/api/auth/$' | '/api/trpc/$'
-  id: '__root__' | '/api/uploadthing' | '/api/auth/$' | '/api/trpc/$'
-  fileServerRoutesById: FileServerRoutesById
-}
-export interface RootServerRouteChildren {
-  ApiUploadthingServerRoute: typeof ApiUploadthingServerRoute
-  ApiAuthSplatServerRoute: typeof ApiAuthSplatServerRoute
-  ApiTrpcSplatServerRoute: typeof ApiTrpcSplatServerRoute
+  ApiAuthSplatRoute: typeof ApiAuthSplatRoute
+  ApiTrpcSplatRoute: typeof ApiTrpcSplatRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -292,6 +282,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ArticlesSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/uploadthing': {
+      id: '/api/uploadthing'
+      path: '/api/uploadthing'
+      fullPath: '/api/uploadthing'
+      preLoaderRoute: typeof ApiUploadthingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/manage/_admin-layout': {
       id: '/manage/_admin-layout'
       path: '/manage'
@@ -305,6 +302,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/manage/people'
       preLoaderRoute: typeof ManageAdminLayoutPeopleRouteImport
       parentRoute: typeof ManageAdminLayoutRouteRoute
+    }
+    '/api/trpc/$': {
+      id: '/api/trpc/$'
+      path: '/api/trpc/$'
+      fullPath: '/api/trpc/$'
+      preLoaderRoute: typeof ApiTrpcSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/$': {
+      id: '/api/auth/$'
+      path: '/api/auth/$'
+      fullPath: '/api/auth/$'
+      preLoaderRoute: typeof ApiAuthSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/manage/_admin-layout/a/$status': {
       id: '/manage/_admin-layout/a/$status'
@@ -354,31 +365,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/manage/a/edit/$id/content'
       preLoaderRoute: typeof ManageAdminLayoutAEditIdContentRouteImport
       parentRoute: typeof ManageAdminLayoutAEditIdRouteRoute
-    }
-  }
-}
-declare module '@tanstack/react-start/server' {
-  interface ServerFileRoutesByPath {
-    '/api/uploadthing': {
-      id: '/api/uploadthing'
-      path: '/api/uploadthing'
-      fullPath: '/api/uploadthing'
-      preLoaderRoute: typeof ApiUploadthingServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/trpc/$': {
-      id: '/api/trpc/$'
-      path: '/api/trpc/$'
-      fullPath: '/api/trpc/$'
-      preLoaderRoute: typeof ApiTrpcSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
-    }
-    '/api/auth/$': {
-      id: '/api/auth/$'
-      path: '/api/auth/$'
-      fullPath: '/api/auth/$'
-      preLoaderRoute: typeof ApiAuthSplatServerRouteImport
-      parentRoute: typeof rootServerRouteImport
     }
   }
 }
@@ -439,18 +425,22 @@ const ManageRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   ManageRoute: ManageRouteWithChildren,
+  ApiUploadthingRoute: ApiUploadthingRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   ArticlesSubmitRoute: ArticlesSubmitRoute,
   ArticlesIndexRoute: ArticlesIndexRoute,
+  ApiAuthSplatRoute: ApiAuthSplatRoute,
+  ApiTrpcSplatRoute: ApiTrpcSplatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-const rootServerRouteChildren: RootServerRouteChildren = {
-  ApiUploadthingServerRoute: ApiUploadthingServerRoute,
-  ApiAuthSplatServerRoute: ApiAuthSplatServerRoute,
-  ApiTrpcSplatServerRoute: ApiTrpcSplatServerRoute,
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
 }
-export const serverRouteTree = rootServerRouteImport
-  ._addFileChildren(rootServerRouteChildren)
-  ._addFileTypes<FileServerRouteTypes>()
