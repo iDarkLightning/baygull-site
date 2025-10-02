@@ -7,3 +7,4 @@ node_modules
 .nitro
 scripts/data
 .dev.vars
+dist
