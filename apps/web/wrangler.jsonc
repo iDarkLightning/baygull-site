@@ -9,9 +9,6 @@
     "enable_nodejs_http_modules"
   ],
   "workers_dev": true,
-  "assets": {
-    "directory": ".output/public"
-  },
   "observability": {
     "enabled": true
   }
