@@ -47,6 +47,7 @@ export function getRouter() {
     routeTree,
     context: { queryClient, trpc: serverHelpers, trpcClient },
     defaultPreload: "intent",
+    defaultPreloadStaleTime: 0,
     scrollRestoration: true,
     Wrap: (props) => (
       <TRPCProvider trpcClient={trpcClient} queryClient={queryClient}>
@@ -61,10 +62,4 @@ export function getRouter() {
   });
 
   return router;
-}
-
-declare module "@tanstack/react-router" {
-  interface Register {
-    router: ReturnType<typeof getRouter>;
-  }
 }
