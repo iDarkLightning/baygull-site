@@ -36,13 +36,22 @@ export const Route = createRootRouteWithContext<{
     ],
     links: [
       {
+        rel: "stylesheet",
+        href: globalCss,
+      },
+      {
         rel: "icon",
         type: "image/svg",
         href: "/favicon.svg",
       },
       {
-        rel: "stylesheet",
-        href: globalCss,
+        rel: "preconnect",
+        href: "https://fonts.googleapis.com",
+      },
+      {
+        rel: "preconnect",
+        href: "https://fonts.gstatic.com",
+        crossOrigin: "anonymous",
       },
       {
         rel: "stylesheet",
