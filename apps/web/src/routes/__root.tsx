@@ -68,7 +68,7 @@ export const Route = createRootRouteWithContext<{
   },
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
-  component: RootComponent,
+  // component: RootComponent,
 
   shellComponent: RootDocument,
 });
