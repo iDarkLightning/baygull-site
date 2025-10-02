@@ -69,34 +69,25 @@ export const Route = createRootRouteWithContext<{
   notFoundComponent: NotFoundComponent,
   errorComponent: ErrorComponent,
   component: RootComponent,
+
+  shellComponent: RootDocument,
 });
 
 function NotFoundComponent() {
-  console.log("RENDERING NOT FOUND...");
-  return (
-    <RootDocument>
-      <p>Not Found!</p>
-    </RootDocument>
-  );
+  return <p>Not Found!</p>;
 }
 
 function ErrorComponent() {
-  return (
-    <RootDocument>
-      <p>Oh noes! An error! Run!!</p>
-    </RootDocument>
-  );
+  return <p>Oh noes! An error! Run!!</p>;
 }
 
 function RootComponent() {
   const navigate = useNavigate();
 
   return (
-    <RootDocument>
-      <RouterProvider navigate={(route) => navigate({ to: route })}>
-        <Outlet />
-      </RouterProvider>
-    </RootDocument>
+    <RouterProvider navigate={(route) => navigate({ to: route })}>
+      <Outlet />
+    </RouterProvider>
   );
 }
 
