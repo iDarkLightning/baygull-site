@@ -77,9 +77,10 @@ function RouteComponent() {
           <div>
             <div>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 overflow-auto">
                   <h1 className="text-lg font-medium md:max-w-[32ch] lg:max-w-[64ch] truncate">
-                    {data.title}
+                    {data.title} Lorem ipsum dolor sit amet consectetur,
+                    adipisicing elit. Sed, reiciendis!
                   </h1>
                 </div>
                 {isUpdating && (
