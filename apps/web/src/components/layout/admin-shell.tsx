@@ -217,7 +217,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   const isCollapsed = false;
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row lg:h-screen w-screen bg-zinc-50 overflow-auto">
+    <div className="font-sans flex flex-col lg:flex-row min-h-[calc(100svh+env(safe-area-inset-bottom))] w-screen overflow-auto">
       <div
         className={cn(
           "w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed",
@@ -226,7 +226,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
       >
         <Nav isCollapsed={isCollapsed} />
       </div>
-      <div className="p-3 flex items-center justify-between lg:hidden bg-zinc-50 ">
+      <div className="p-3 flex items-center justify-between lg:hidden">
         <MobileNavDrawer>
           <div className="w-full h-screen flex flex-col gap-4 rounded-r-lg shadow-sm">
             <Nav />
@@ -241,7 +241,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
       </div>
       <div
         className={cn(
-          "bg-white m-2 grow lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100vh-80px)] lg:min-h-[calc(100vh-20px)] h-fit pb-2 lg:w-full lg:min-w-min z-50 border-[0.0125rem] border-zinc-400/60 shadow-sm flex flex-col",
+          "bg-white m-2 mb-[calc(env(safe-area-inset-bottom)+var(--spacing)*2)] grow lg:ml-64 lg:mr-2 rounded-lg min-h-[calc(100dvh-(80px))] lg:min-h-[calc(100vh-20px)] h-fit pb-2 lg:w-full lg:min-w-min z-50 border-[0.0125rem] border-zinc-400/60 shadow-sm flex flex-col",
           isCollapsed && "lg:ml-18"
         )}
       >

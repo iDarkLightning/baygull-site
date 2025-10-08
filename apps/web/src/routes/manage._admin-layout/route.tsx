@@ -7,10 +7,17 @@ import {
   rootRouteId,
 } from "@tanstack/react-router";
 import { AdminShell } from "~/components/layout/admin-shell";
+import adminLayoutCss from "~/styles/admin-layout.css?url";
 
 export const Route = createFileRoute("/manage/_admin-layout")({
   head: () => ({
     meta: [{ title: "The Bay Gull - Manage" }],
+    links: [
+      {
+        rel: "stylesheet",
+        href: adminLayoutCss,
+      },
+    ],
   }),
   beforeLoad: async ({ context, location }) => {
     if (!context.user) {

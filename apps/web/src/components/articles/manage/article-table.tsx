@@ -271,9 +271,9 @@ export const ArticleTable = () => {
     state.submissionTime !== null;
 
   return (
-    <div className="px-1 md:px-6 overflow-auto">
+    <div className="px-1 md:px-6 overflow-auto w-full">
       {table.getRowModel().rows.length === 0 && (
-        <div className="flex flex-col mx-auto justify-center my-32 w-fit max-w-sm gap-1">
+        <div className="flex flex-col justify-center justify-self-center my-32 w-fit max-w-sm gap-1 ml-4">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
