@@ -47,7 +47,7 @@ const columns = [
     {
       id: "info",
       cell: (info) => (
-        <div className="flex items-center gap-2 pl-4 mr-4">
+        <div className="flex w-max items-center gap-2 pl-4 mr-4">
           {info.getValue().image && (
             <div>
               <img
@@ -107,7 +107,13 @@ const columns = [
       return (
         <div>
           <MenuTrigger>
-            <Button className="focus-visible:ring-0 focus-visible:outline-none text-sm font-medium bg-emerald-100 text-emerald-800 rounded-full px-3 py-0.5 flex items-center gap-0.5">
+            <Button
+              className={cn(
+                "focus-visible:ring-0 focus-visible:outline-none text-sm font-medium rounded-full px-3 py-0.5 flex items-center gap-0.5 mr-4",
+                role === 0 && "bg-zinc-100 text-zinc-800",
+                role === 2 && "bg-teal-100 text-teal-800"
+              )}
+            >
               {roleDisplayText[role]}
               <ChevronUpDownIcon />
             </Button>
