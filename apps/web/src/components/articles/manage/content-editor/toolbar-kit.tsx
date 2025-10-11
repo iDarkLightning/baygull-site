@@ -831,7 +831,7 @@ const FixedToolbar = () => {
   const draft = useDefaultDraft();
 
   return (
-    <div className="sticky top-4 overflow-x-scroll bg-white/80 backdrop-blur-3xl z-10 flex gap-1 w-full xl:w-3/4 mx-auto border-[0.0125rem] border-zinc-300/70 rounded-md shadow-xs py-1.5 px-2">
+    <div className="sticky top-16 overflow-x-scroll bg-white/80 backdrop-blur-3xl z-10 flex gap-1 w-full xl:w-3/4 mx-auto border-[0.0125rem] border-zinc-300/70 rounded-md shadow-xs py-1.5 px-2">
       {!draft.data.content.isSynced && (
         <>
           <TextTypeMenu />

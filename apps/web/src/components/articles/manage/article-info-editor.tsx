@@ -926,23 +926,6 @@ export const ArticleInfoEditor = () => {
     <div className="flex flex-col-reverse gap-4 lg:flex-row lg:gap-8">
       <InfoForm />
       <div className="flex-[1] flex gap-4 overflow-x-auto lg:overflow-x-visible lg:flex-col">
-        <DataDisplay label="Properties">
-          <div className="flex text-xs gap-8 justify-between my-1 items-center">
-            <p className="font-medium text-zinc-500">Type</p>
-            <div
-              className={cn(
-                "flex items-center px-4 rounded-full text-xs w-fit font-medium",
-                data.type == "default" && "bg-sky-100 text-sky-800",
-                data.type == "graphic" && "bg-green-100 text-green-800",
-                data.type == "headline" && "bg-purple-100 text-purple-800"
-              )}
-            >
-              <p>{data.type.charAt(0).toUpperCase() + data.type.slice(1)}</p>
-            </div>
-          </div>
-          <DateDisplay label="Created On" date={data.createdAt} />
-          <DateDisplay label="Last Updated" date={data.updatedAt} />
-        </DataDisplay>
         <DataDisplay label="Key Ideas">
           <p className="text-sm text-zinc-500 w-max max-w-[48ch] lg:w-fit">
             {data.keyIdeas}

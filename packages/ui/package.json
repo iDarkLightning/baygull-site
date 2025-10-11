@@ -6,7 +6,8 @@
   "exports": {
     "./*": "./src/components/*.tsx",
     "./aria": "./src/aria.ts",
-    "./cn": "./src/cn.ts"
+    "./cn": "./src/cn.ts",
+    "./hooks/*": "./src/hooks/*.ts"
   }, 
   "scripts": {
     "typecheck": "tsc"

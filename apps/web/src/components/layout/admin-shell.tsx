@@ -14,6 +14,7 @@ import { useTRPC } from "~/lib/trpc-client";
 
 import { motion } from "framer-motion";
 import React, { useState } from "react";
+import { useHasHorizontalScroll } from "~/lib/hooks/use-has-horizontal-scroll";
 
 const tabs = [
   {
@@ -217,7 +218,7 @@ export const AdminShell: React.FC<React.PropsWithChildren> = (props) => {
   const isCollapsed = false;
 
   return (
-    <div className="font-sans flex flex-col lg:flex-row min-h-[calc(100svh+env(safe-area-inset-bottom))] w-screen overflow-auto">
+    <div className="font-sans flex flex-col lg:flex-row min-h-[calc(100svh+env(safe-area-inset-bottom))] w-screen">
       <div
         className={cn(
           "w-64 h-screen text- flex-col gap-4 hidden lg:flex fixed",

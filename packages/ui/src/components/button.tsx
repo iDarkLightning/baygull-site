@@ -49,6 +49,8 @@ export const button = cva(
       isCircular: {
         true: "rounded-full",
         false: "rounded-md",
+        left: "rounded-l-full",
+        right: "rounded-r-full",
       },
     },
     defaultVariants: {
