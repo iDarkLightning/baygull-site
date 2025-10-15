@@ -240,7 +240,7 @@ function RouteComponent() {
           </div>
         </div>
         <div className="flex flex-wrap md:hidden py-2 pl-1 md:pl-6 border-t-[0.0125rem] border-zinc-400/60">
-          <div className="flex overflow-auto ml-4 w-full">
+          <div className="flex overflow-auto mx-4 w-full">
             {tabs
               .filter(
                 (tab) =>
@@ -252,7 +252,7 @@ function RouteComponent() {
                   key={tab.id}
                   to={tab.to}
                   params={params}
-                  className="text-sm relative font-medium py-1.5 px-4 rounded-full grow cursor-default text-center"
+                  className="text-sm relative font-medium py-1.5 px-2 rounded-full grow cursor-default text-center"
                 >
                   <p className="z-20 text-black relative w-full text-center">
                     {tab.name}
