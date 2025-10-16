@@ -343,6 +343,78 @@ export const manageArticleRouter = {
       });
     }),
 
+  retract: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.uniqueResultOrThrow(
+        articleQueryBuilder(ctx.db, "published")
+          .includeMeta()
+          .with(
+            (exts) => void exts.push((qb) => qb.where(eq(article.id, input.id)))
+          )
+          .run()
+      );
+
+      await ctx.db.transaction(async (tx) => {
+        await tx
+          .update(article)
+          .set({
+            status: "draft",
+          })
+          .where(eq(article.id, input.id));
+
+        await tx.delete(publishMeta).where(eq(publishMeta.articleId, input.id));
+
+        if (result.type === "default") {
+          await tx
+            .delete(publishDefaultContent)
+            .where(eq(publishDefaultContent.articleId, input.id));
+        }
+      });
+    }),
+
+  toggleArchive: adminProcedure
+    .input(z.object({ id: z.string(), isArchived: z.boolean() }))
+    .mutation(async ({ ctx, input }) => {
+      await ctx.db.transaction(async (tx) => {
+        const result = await ctx.uniqueResultOrThrow(
+          tx
+            .update(article)
+            .set({ status: input.isArchived ? "archived" : "draft" })
+            .where(eq(article.id, input.id))
+            .returning({ id: article.id })
+        );
+
+        if (input.isArchived) {
+          await tx
+            .insert(archiveMeta)
+            .values({
+              articleId: result.id,
+              archivedAt: sql`(CURRENT_TIMESTAMP)`,
+            })
+            .onConflictDoUpdate({
+              target: archiveMeta.articleId,
+              set: {
+                archivedAt: sql`(CURRENT_TIMESTAMP)`,
+              },
+            });
+        }
+      });
+    }),
+
+  delete: adminProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.uniqueResultOrThrow(
+        ctx.db
+          .delete(article)
+          .where(eq(article.id, input.id))
+          .returning({ id: article.id })
+      );
+
+      return result;
+    }),
+
   updateTitle: adminProcedure
     .input(
       z.object({
