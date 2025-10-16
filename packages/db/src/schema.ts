@@ -100,7 +100,7 @@ export const article = sqliteTable("article", {
 export const publishMeta = sqliteTable("publish_meta", {
   articleId: text("article_id")
     .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
   slug: text("slug").notNull().unique(),
 
   isHighlighted: integer("is_highlighted", { mode: "boolean" }),
@@ -113,7 +113,7 @@ export const publishMeta = sqliteTable("publish_meta", {
 export const publishDefaultContent = sqliteTable("publish_default_content", {
   articleId: text("article_id")
     .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
 
   description: text("description").notNull(),
 
@@ -126,7 +126,7 @@ export const publishDefaultContent = sqliteTable("publish_default_content", {
 export const draftMeta = sqliteTable("draft_meta", {
   articleId: text("article_id")
     .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
 
   slug: text("slug").notNull().unique(),
   deriveSlugFromTitle: integer("derive_slug_from_title", { mode: "boolean" })
@@ -149,7 +149,7 @@ export const draftMeta = sqliteTable("draft_meta", {
 export const draftDefaultContent = sqliteTable("draft_default_content", {
   articleId: text("article_id")
     .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
 
   description: text("description").notNull(),
 
@@ -168,7 +168,7 @@ export const draftDefaultContent = sqliteTable("draft_default_content", {
 export const archiveMeta = sqliteTable("archive_meta", {
   articleId: text("article_id")
     .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
 
   archivedAt: text("archived_at")
     .notNull()
@@ -178,7 +178,7 @@ export const archiveMeta = sqliteTable("archive_meta", {
 export const graphicContent = sqliteTable("graphic_default_content", {
   articleId: text("article_id")
     .primaryKey()
-    .references(() => article.id),
+    .references(() => article.id, { onDelete: "cascade" }),
 
   description: text("description").notNull(),
 });
@@ -186,7 +186,9 @@ export const graphicContent = sqliteTable("graphic_default_content", {
 export const articleMedia = sqliteTable("article_media", {
   id: text("id").primaryKey().notNull().$defaultFn(createId),
 
-  articleId: text("article_id").references(() => article.id),
+  articleId: text("article_id").references(() => article.id, {
+    onDelete: "cascade",
+  }),
 
   intent: text("intent", {
     enum: ["cover_img", "content_img"],
@@ -214,7 +216,7 @@ export const usersToArticles = sqliteTable(
       .references(() => user.id),
     articleId: text("articleId")
       .notNull()
-      .references(() => article.id),
+      .references(() => article.id, { onDelete: "cascade" }),
   },
   (table) => [primaryKey({ columns: [table.userId, table.articleId] })]
 );
@@ -232,7 +234,7 @@ export const articlesToTopics = sqliteTable(
   {
     articleId: text("articleId")
       .notNull()
-      .references(() => article.id),
+      .references(() => article.id, { onDelete: "cascade" }),
     topicId: text("topicId")
       .notNull()
       .references(() => topic.id),
