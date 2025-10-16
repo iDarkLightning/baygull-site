@@ -141,6 +141,7 @@ const TopicSelector = withForm({
               keyDisplayMap={displayMap}
               btnProps={{
                 placeholder: "Add Topics...",
+                isDisabled: data.status === "archived",
               }}
             >
               <MultiSelectBody
@@ -649,7 +650,11 @@ const InfoForm: React.FC = () => {
           onChange: z.string().min(1, { message: "Title cannot be empty!" }),
         }}
         children={(field) => (
-          <field.TextField label="Title" isTextArea={false} />
+          <field.TextField
+            label="Title"
+            isTextArea={false}
+            isDisabled={data.status === "archived"}
+          />
         )}
       />
       <form.Subscribe
@@ -698,7 +703,7 @@ const InfoForm: React.FC = () => {
             }}
             children={(field) => (
               <TextField
-                isDisabled={deriveSlugFromTitle}
+                isDisabled={deriveSlugFromTitle || data.status === "archived"}
                 isInvalid={field.getMeta().errors.length > 0}
                 value={field.state.value}
                 onChange={(value) => {
@@ -778,6 +783,7 @@ const InfoForm: React.FC = () => {
                       <Switch
                         isSelected={field.state.value}
                         onChange={field.handleChange}
+                        isDisabled={data.status === "archived"}
                       >
                         <p className="text-xs text-neutral-700 font-medium mt-[1px]">
                           Sync with Title
@@ -811,7 +817,11 @@ const InfoForm: React.FC = () => {
             },
           }}
           children={(field) => (
-            <field.TextField label="Description" isTextArea />
+            <field.TextField
+              label="Description"
+              isTextArea
+              isDisabled={data.status === "archived"}
+            />
           )}
         />
       )}
@@ -849,6 +859,7 @@ const InfoForm: React.FC = () => {
           children={(field) => (
             <field.ImageUploadField
               label="Cover Image"
+              isDisabled={data.status === "archived"}
               maxSize={1_024 * 1_000 * 4}
               files={field.state.value}
               setFiles={field.handleChange}
@@ -883,6 +894,7 @@ const InfoForm: React.FC = () => {
             <CollaboratorMultiSelect
               includeMe
               isInvalid={!field.state.meta.isValid}
+              isDisabled={data.status === "archived"}
             />
             {field
               .getMeta()
@@ -925,7 +937,12 @@ export const ArticleInfoEditor = () => {
   return (
     <div className="flex flex-col-reverse gap-4 lg:flex-row lg:gap-8">
       <InfoForm />
-      <div className="flex-[1] flex gap-4 overflow-x-auto lg:overflow-x-visible lg:flex-col">
+      <div
+        className={cn(
+          "flex-[1] flex gap-4 overflow-x-auto lg:overflow-x-visible lg:flex-col",
+          data.status === "archived" && "opacity-60 cursor-not-allowed"
+        )}
+      >
         <DataDisplay label="Key Ideas">
           <p className="text-sm text-zinc-500 w-max max-w-[48ch] lg:w-fit">
             {data.keyIdeas}

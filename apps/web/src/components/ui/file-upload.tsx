@@ -35,6 +35,7 @@ export type ImageUploadProps = {
   setFiles: React.Dispatch<React.SetStateAction<Media[]>>;
   allowMultiple?: boolean;
   isInvalid?: boolean;
+  isDisabled?: boolean;
 };
 
 export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
@@ -51,11 +52,13 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
     <>
       {(props.allowMultiple || props.files.length === 0) && (
         <DropZone
-          className={({ isDropTarget }) =>
+          isDisabled={props.isDisabled}
+          className={({ isDropTarget, isDisabled }) =>
             cn(
               "gap-2 border-[0.0125rem] shadow-xs border-zinc-300/70 rounded-md p-8 flex flex-col items-center justify-center transition-colors",
               props.isInvalid && "border-red-700",
-              isDropTarget && "bg-sky-300/40 border-sky-500"
+              isDropTarget && "bg-sky-300/40 border-sky-500",
+              isDisabled && "opacity-60 cursor-not-allowed"
             )
           }
           onDrop={async (e) => {
@@ -119,7 +122,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
           key={index}
           className={cn(
             "flex items-center justify-between gap-2 p-4 bg-zinc-5 border-zinc-300/70 border-[0.0125rem] rounded-md shadow-xs text-sm my-2",
-            props.isInvalid && "border-red-700"
+            props.isInvalid && "border-red-700",
+            props.isDisabled && "opacity-60 cursor-not-allowed"
           )}
         >
           <div className="flex items-center gap-4">
@@ -139,6 +143,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = (props) => {
           </div>
           <Button
             size="icon"
+            isDisabled={props.isDisabled}
             onPress={() =>
               props.setFiles((files) =>
                 files.filter((oldFile) => oldFile !== file)

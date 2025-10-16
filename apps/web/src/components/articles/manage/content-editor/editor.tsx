@@ -16,6 +16,7 @@ import { MediaKit } from "./media-kit";
 import { ParagraphKit } from "./paragraph-kit";
 import { StructureKit } from "./structure-kit";
 import { ToolbarKit } from "./toolbar-kit";
+import { cn } from "@baygull/ui/cn";
 
 /**
  *
@@ -90,7 +91,7 @@ export default function ArticleContentEditor() {
   return (
     <div>
       <Plate
-        readOnly={data.content.isSynced}
+        readOnly={data.content.isSynced || data.status === "archived"}
         editor={editor}
         onValueChange={async ({ editor, value }) => {
           if (data.content.isSynced) return;
@@ -98,7 +99,10 @@ export default function ArticleContentEditor() {
         }}
       >
         <PlateContent
-          className="focus-visible:outline-none h-full w-full xl:w-3/4 max-w-[60rem] p-2 lg:p-8 rounded-md mx-auto flex flex-col gap-1"
+          className={cn(
+            "focus-visible:outline-none h-full w-full xl:w-3/4 max-w-[60rem] p-2 lg:p-8 rounded-md mx-auto flex flex-col gap-1",
+            data.status === "archived" && "opacity-60 cursor-not-allowed"
+          )}
           placeholder="Type your amazing content here..."
         />
       </Plate>

@@ -10,7 +10,8 @@ import { useMemo } from "react";
 export const CollaboratorMultiSelect: React.FC<{
   includeMe?: boolean;
   isInvalid?: boolean;
-}> = ({ includeMe = false, isInvalid = false }) => {
+  isDisabled?: boolean;
+}> = ({ includeMe = false, isInvalid = false, isDisabled = false }) => {
   const trpc = useTRPC();
   const usersQuery = useQuery(
     trpc.user.getUsers.queryOptions({
@@ -33,6 +34,7 @@ export const CollaboratorMultiSelect: React.FC<{
       btnProps={{
         placeholder: "Add Collaborators...",
         isInvalid,
+        isDisabled,
       }}
     >
       <MultiSelectBody>

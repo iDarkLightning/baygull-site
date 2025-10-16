@@ -66,6 +66,7 @@ type MultiSelectTriggerProps = ComponentProps<typeof DialogTrigger> & {
   btnProps?: Omit<ComponentPropsWithoutRef<typeof Button>, "className"> & {
     placeholder?: string;
     isInvalid?: boolean;
+    isDisabled?: boolean;
   };
   keyDisplayMap?: Map<Key, string>;
 };
@@ -95,7 +96,8 @@ export const MultiSelectTrigger: React.FC<MultiSelectTriggerProps> = ({
         className={cn(
           inputBase(),
           "w-full flex items-center justify-between focus-visible:ring-sky-800",
-          btnProps?.isInvalid && "!border-red-700 focus-visible:ring-red-700"
+          btnProps?.isInvalid && "!border-red-700 focus-visible:ring-red-700",
+          btnProps?.isDisabled && "opacity-60 cursor-not-allowed"
         )}
         ref={triggerControl[0]}
       >
