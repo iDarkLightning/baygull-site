@@ -32,7 +32,7 @@ export const button = cva(
         ghost:
           "border-transparent hover:bg-neutral-100 dark:hover:bg-neutral-700 disabled:hover:bg-transparent",
         danger:
-          "text-red-700 border-red-800 border-transparent hover:bg-neutral-100",
+          "text-white bg-rose-500 border-red-800 border-transparent hover:bg-rose-500/70 focus-visible:ring-red-700",
         disabled: "border-neutral-300 bg-neutral-400",
         none: "border-transparent",
       },
