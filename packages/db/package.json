@@ -9,7 +9,8 @@
     "./article-parser": "./src/article-parser.ts"
   },
   "scripts": {
-    "typecheck": "tsc"
+    "typecheck": "tsc",
+    "push": "drizzle-kit push"
   },
   "keywords": [],
   "author": "",
