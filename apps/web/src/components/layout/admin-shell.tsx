@@ -14,7 +14,7 @@ import { useTRPC } from "~/lib/trpc-client";
 
 import { motion } from "framer-motion";
 import React, { useState } from "react";
-import { useHasHorizontalScroll } from "~/lib/hooks/use-has-horizontal-scroll";
+// import { useHasHorizontalScroll } from "~/lib/hooks/use-has-horizontal-scroll";
 
 const tabs = [
   {
@@ -125,7 +125,7 @@ const Nav: React.FC<{
                   }}
                   key={`${tab.id}-${tab.id}`}
                   className={cn(
-                    "relative cursor-default p-1.5 mx-3 font-medium text-xs text-neutral-500 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
+                    "relative cursor-default px-1.5 py-1.5 pointer-coarse:py-2 mx-3 font-medium text-xs text-neutral-500 flex items-center gap-2 rounded-md hover:bg-zinc-200/40 transition-colors",
                     "focus:outline-none focus-visible:ring-[1.25px] focus-visible:ring-sky-800",
                     isCollapsed &&
                       "aspect-square flex items-center justify-center size-10"

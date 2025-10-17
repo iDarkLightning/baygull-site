@@ -12,7 +12,7 @@ export const MenuItem: React.FC<
   <AriaMenuItem
     className={({ isSelected, isDisabled, isFocused, isHovered }) =>
       cn(
-        " flex text-start cursor-default flex-col rounded-md px-4 py-2 text-sm text-neutral-700 font-medium outline-none transition-[background-color]",
+        " flex text-start cursor-default flex-col rounded-md px-4 py-2 pointer-coarse:py-3 text-sm text-neutral-700 font-medium outline-none transition-[background-color]",
         {
           "bg-neutral-100": isFocused,
           "bg-neutral-100 outline-none": isHovered && !isDisabled,

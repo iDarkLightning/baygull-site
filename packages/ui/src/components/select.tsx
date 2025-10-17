@@ -7,8 +7,8 @@ import {
   ListBox,
   SelectContext,
 } from "react-aria-components";
-import { Button } from "./button";
 import { cn } from "../cn";
+import { Button } from "./button";
 import { ChevronDownIcon } from "./icons";
 import { Popover } from "./popover";
 
@@ -46,7 +46,7 @@ export const SelectItem: React.FC<SelectItemProps> = (props) => {
         isFocusVisible,
       }) =>
         cn(
-          "mx-1.5 my-1 flex cursor-default flex-col rounded-md px-2 py-1.5 text-sm text-neutral-600 font-medium outline-none transition-[background-color]",
+          "mx-1.5 my-1 flex cursor-default flex-col rounded-md px-2 py-1.5 pointer-coarse:py-2.5 text-sm text-neutral-600 font-medium outline-none transition-[background-color]",
           {
             "bg-neutral-100": isFocusVisible,
             "bg-neutral-100 text-neutral-800 outline-none":
