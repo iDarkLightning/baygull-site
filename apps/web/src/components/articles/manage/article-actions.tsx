@@ -13,6 +13,7 @@ import {
   PublishIcon,
   ThreeDotsIcon,
   TrashIcon,
+  XMarkIcon,
 } from "@baygull/ui/icons";
 import { MenuItem } from "@baygull/ui/menu";
 import {
@@ -233,14 +234,22 @@ export const ArticleActions = () => {
               params={{ slug: data.slug }}
               target="_blank"
             >
-              <Button leadingVisual={<ExternalLinkIcon />} isCircular="left">
+              <Button
+                leadingVisual={<ExternalLinkIcon />}
+                isCircular="left"
+                variant="secondary"
+              >
                 Visit
               </Button>
             </Link>
           )}
           {data.status === "draft" && (
             <DialogTrigger>
-              <Button leadingVisual={<PublishIcon />} isCircular="left">
+              <Button
+                leadingVisual={<PublishIcon />}
+                isCircular="left"
+                variant="secondary"
+              >
                 Publish
               </Button>
               <PublishModal />
@@ -256,6 +265,7 @@ export const ArticleActions = () => {
                   isArchived: false,
                 })
               }
+              variant="secondary"
             >
               Restore
             </Button>
@@ -264,7 +274,7 @@ export const ArticleActions = () => {
       )}
       <MenuTrigger>
         <Button
-          variant="primary"
+          variant="secondary"
           size="icon"
           isCircular={isCollapsed ? false : "right"}
         >
