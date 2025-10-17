@@ -276,7 +276,7 @@ export const ArticleActions = () => {
         <Button
           variant="secondary"
           size="icon"
-          isCircular={isCollapsed ? false : "right"}
+          isCircular={isCollapsed ? true : "right"}
         >
           {isCollapsed ? <ThreeDotsIcon /> : <ChevronDownIcon />}
         </Button>
