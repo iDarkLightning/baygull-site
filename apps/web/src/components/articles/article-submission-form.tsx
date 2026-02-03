@@ -128,9 +128,9 @@ const SplashScreen = () => {
       </h2>
       <div className="flex flex-col gap-2 my-2">
         <p className="text-neutral-700">
-          Submitted articles will be reviewed and edited by the editing team 1PM
-          on Wednesdays. You will receive your edited work via email in 3-5 days
-          after the editing meeting, and we'll talk then about changes as
+          Submitted articles will be reviewed and edited by the editing team on
+          Fridays at 11 AM. You will receive your edited work via email in 3-5
+          days after the editing meeting, and we'll talk then about changes as
           needed.
         </p>
         <p className="text-neutral-700">
