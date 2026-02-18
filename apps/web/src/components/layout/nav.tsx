@@ -1,5 +1,6 @@
 import { Button } from "@baygull/ui/button";
 import {
+  LinkIcon,
   ManageIcon,
   MenuIcon,
   PencilSquareIcon,
@@ -62,6 +63,15 @@ const SidebarMenu = () => {
                     <PencilSquareIcon />
                   </span>
                   <span>Submit Article</span>
+                </Link>
+                <Link
+                  to="/links"
+                  className="flex gap-2 items-center text-sm p-2 hover:bg-neutral-700 transition-colors rounded-full px-4 text-zinc-200"
+                >
+                  <span>
+                    <LinkIcon />
+                  </span>
+                  <span>Quick Links</span>
                 </Link>
                 {userQuery.data.role === 2 && (
                   <Link
@@ -137,7 +147,7 @@ const BayGullText: React.FC<{ animate?: boolean }> = (props) => (
 );
 
 export const ExpandedHeader: React.FC<{ ref?: React.Ref<HTMLDivElement> }> = (
-  props
+  props,
 ) => {
   return (
     <header

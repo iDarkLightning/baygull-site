@@ -8,9 +8,8 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-import { createFileRoute } from '@tanstack/react-router'
-
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LinksRouteImport } from './routes/links'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ArticlesIndexRouteImport } from './routes/articles/index'
 import { Route as ArticlesSubmitRouteImport } from './routes/articles/submit'
@@ -28,11 +27,9 @@ import { Route as ManageAdminLayoutAEditIdPublishingRouteImport } from './routes
 import { Route as ManageAdminLayoutAEditIdLayoutRouteImport } from './routes/manage._admin-layout/a.edit.$id/layout'
 import { Route as ManageAdminLayoutAEditIdContentRouteImport } from './routes/manage._admin-layout/a.edit.$id/content'
 
-const ManageRouteImport = createFileRoute('/manage')()
-
-const ManageRoute = ManageRouteImport.update({
-  id: '/manage',
-  path: '/manage',
+const LinksRoute = LinksRouteImport.update({
+  id: '/links',
+  path: '/links',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -124,6 +121,7 @@ const ManageAdminLayoutAEditIdContentRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/links': typeof LinksRoute
   '/manage': typeof ManageAdminLayoutRouteRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -142,6 +140,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/links': typeof LinksRoute
   '/manage': typeof ManageAdminLayoutRouteRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -160,7 +159,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/manage': typeof ManageRouteWithChildren
+  '/links': typeof LinksRoute
   '/manage/_admin-layout': typeof ManageAdminLayoutRouteRouteWithChildren
   '/api/uploadthing': typeof ApiUploadthingRoute
   '/articles/$slug': typeof ArticlesSlugRoute
@@ -181,6 +180,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/links'
     | '/manage'
     | '/api/uploadthing'
     | '/articles/$slug'
@@ -199,6 +199,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/links'
     | '/manage'
     | '/api/uploadthing'
     | '/articles/$slug'
@@ -216,7 +217,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
-    | '/manage'
+    | '/links'
     | '/manage/_admin-layout'
     | '/api/uploadthing'
     | '/articles/$slug'
@@ -236,7 +237,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ManageRoute: typeof ManageRouteWithChildren
+  LinksRoute: typeof LinksRoute
   ApiUploadthingRoute: typeof ApiUploadthingRoute
   ArticlesSlugRoute: typeof ArticlesSlugRoute
   ArticlesSubmitRoute: typeof ArticlesSubmitRoute
@@ -247,11 +248,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/manage': {
-      id: '/manage'
-      path: '/manage'
-      fullPath: '/manage'
-      preLoaderRoute: typeof ManageRouteImport
+    '/links': {
+      id: '/links'
+      path: '/links'
+      fullPath: '/links'
+      preLoaderRoute: typeof LinksRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -291,7 +292,7 @@ declare module '@tanstack/react-router' {
     }
     '/manage/_admin-layout': {
       id: '/manage/_admin-layout'
-      path: '/manage'
+      path: ''
       fullPath: '/manage'
       preLoaderRoute: typeof ManageAdminLayoutRouteRouteImport
       parentRoute: typeof ManageRoute
@@ -369,62 +370,9 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface ManageAdminLayoutAEditIdRouteRouteChildren {
-  ManageAdminLayoutAEditIdContentRoute: typeof ManageAdminLayoutAEditIdContentRoute
-  ManageAdminLayoutAEditIdLayoutRoute: typeof ManageAdminLayoutAEditIdLayoutRoute
-  ManageAdminLayoutAEditIdPublishingRoute: typeof ManageAdminLayoutAEditIdPublishingRoute
-  ManageAdminLayoutAEditIdSeoRoute: typeof ManageAdminLayoutAEditIdSeoRoute
-  ManageAdminLayoutAEditIdIndexRoute: typeof ManageAdminLayoutAEditIdIndexRoute
-}
-
-const ManageAdminLayoutAEditIdRouteRouteChildren: ManageAdminLayoutAEditIdRouteRouteChildren =
-  {
-    ManageAdminLayoutAEditIdContentRoute: ManageAdminLayoutAEditIdContentRoute,
-    ManageAdminLayoutAEditIdLayoutRoute: ManageAdminLayoutAEditIdLayoutRoute,
-    ManageAdminLayoutAEditIdPublishingRoute:
-      ManageAdminLayoutAEditIdPublishingRoute,
-    ManageAdminLayoutAEditIdSeoRoute: ManageAdminLayoutAEditIdSeoRoute,
-    ManageAdminLayoutAEditIdIndexRoute: ManageAdminLayoutAEditIdIndexRoute,
-  }
-
-const ManageAdminLayoutAEditIdRouteRouteWithChildren =
-  ManageAdminLayoutAEditIdRouteRoute._addFileChildren(
-    ManageAdminLayoutAEditIdRouteRouteChildren,
-  )
-
-interface ManageAdminLayoutRouteRouteChildren {
-  ManageAdminLayoutPeopleRoute: typeof ManageAdminLayoutPeopleRoute
-  ManageAdminLayoutAStatusRoute: typeof ManageAdminLayoutAStatusRoute
-  ManageAdminLayoutAEditIdRouteRoute: typeof ManageAdminLayoutAEditIdRouteRouteWithChildren
-}
-
-const ManageAdminLayoutRouteRouteChildren: ManageAdminLayoutRouteRouteChildren =
-  {
-    ManageAdminLayoutPeopleRoute: ManageAdminLayoutPeopleRoute,
-    ManageAdminLayoutAStatusRoute: ManageAdminLayoutAStatusRoute,
-    ManageAdminLayoutAEditIdRouteRoute:
-      ManageAdminLayoutAEditIdRouteRouteWithChildren,
-  }
-
-const ManageAdminLayoutRouteRouteWithChildren =
-  ManageAdminLayoutRouteRoute._addFileChildren(
-    ManageAdminLayoutRouteRouteChildren,
-  )
-
-interface ManageRouteChildren {
-  ManageAdminLayoutRouteRoute: typeof ManageAdminLayoutRouteRouteWithChildren
-}
-
-const ManageRouteChildren: ManageRouteChildren = {
-  ManageAdminLayoutRouteRoute: ManageAdminLayoutRouteRouteWithChildren,
-}
-
-const ManageRouteWithChildren =
-  ManageRoute._addFileChildren(ManageRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ManageRoute: ManageRouteWithChildren,
+  LinksRoute: LinksRoute,
   ApiUploadthingRoute: ApiUploadthingRoute,
   ArticlesSlugRoute: ArticlesSlugRoute,
   ArticlesSubmitRoute: ArticlesSubmitRoute,
