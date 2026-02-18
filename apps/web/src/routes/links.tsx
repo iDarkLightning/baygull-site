@@ -102,7 +102,7 @@ function RouteComponent() {
     <>
       <CollapsedHeader />
       <div className="max-w-[100rem] py-6 px-4 md:mx-auto mt-16 md:w-[80%] lg:w-[85%] 2xl:w-[90%] flex items-center justify-center">
-        <main className="min-h-[calc(100vh-16vh)] bg-orange-50/70 p-8 rounded-lg border-zinc-300/70 border-[0.0125rem] shadow-inner  md:w-[70%] lg:w-[50%] xl:w-[45%] flex flex-col justify-center font-serif gap-4">
+        <main className="min-h-[calc(100vh-16vh)] bg-orange-50/70 p-8 rounded-lg border-zinc-300/70 border-[0.0125rem] shadow-inner flex flex-col justify-center font-serif gap-4">
           <div>
             <h2 className="text-3xl font-black text-neutral-700 tracking-wide">
               Quick Links
@@ -111,7 +111,7 @@ function RouteComponent() {
               A hub where you can find links to various Bay Gull happenings
             </p>
           </div>
-          <div className="flex justify-between gap-4">
+          <div className="flex justify-between gap-4 flex-col lg:flex-row">
             {SOCIAL_LINKS.map((link) => (
               <Link
                 to={link.link}
